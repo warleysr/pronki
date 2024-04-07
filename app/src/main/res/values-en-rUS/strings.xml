@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AnkiPADroid</string>
+    <string name="permission_not_granted">The permission to access Anki was not granted.</string>
+    <string name="allow">Allow</string>
+    <string name="settings">Settings</string>
+    <string name="save">Save</string>
+    <string name="home">Home</string>
+    <string name="vocabulary">Vocabulary</string>
+    <string name="configure_azure">Configure Microsoft Azure API</string>
+    <string name="configure_azure_description">Needed for pronunciation assessment</string>
+    <string name="configure_gemini">Configure Google Gemini API</string>
+    <string name="configure_gemini_description">Needed for automatic flashcards creation</string>
+    <string name="select_language">Select language</string>
+    <string name="select_language_description">Define your preferred language</string>
+    <string name="api_key">API KEY</string>
+</resources>

@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">AnkiPADroid</string>
+    <string name="permission_not_granted">A permissão ao Anki não foi concedida.</string>
+    <string name="allow">Permitir</string>
+    <string name="home">Início</string>
+    <string name="flashcards" translatable="false">Flashcards</string>
+    <string name="vocabulary">Vocabulário</string>
+    <string name="settings">Configurar</string>
+    <string name="save">Salvar</string>
+    <string name="configure_azure">Configurar API da Microsoft Azure</string>
+    <string name="configure_azure_description">Necessário para funcionamento da avaliação de pronúncia</string>
+    <string name="configure_gemini">Configurar API do Google Gemini</string>
+    <string name="configure_gemini_description">Necessário para a criação automática automática de flashcards.</string>
+    <string name="select_language">Selecionar idioma</string>
+    <string name="select_language_description">Defina o idioma preferido da interface do aplicativo</string>
+    <string name="api_key">CHAVE DA API</string>
+</resources>
