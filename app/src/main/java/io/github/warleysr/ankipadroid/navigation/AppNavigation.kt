@@ -36,8 +36,9 @@ fun AppNavigation(settingsViewModel: SettingsViewModel) {
                 val currentDestination: NavDestination? = navBackStackEntry?.destination
 
                 listOfNavItems.forEach { navItem: NavItem ->
+                    val selected = currentDestination?.hierarchy?.any { it.route == navItem.route } == true
                     NavigationBarItem(
-                        selected = currentDestination?.hierarchy?.any { it.route == navItem.route } == true,
+                        selected = selected,
                         onClick = {
                                   navController.navigate(navItem.route) {
                                       popUpTo(navController.graph.findStartDestination().id) {
@@ -49,7 +50,8 @@ fun AppNavigation(settingsViewModel: SettingsViewModel) {
                         },
                         icon = {
                                Icon(
-                                   imageVector = navItem.icon,
+                                   imageVector =
+                                       if (selected) navItem.selectedIcon else navItem.unselectedIcon,
                                    contentDescription = null
                                )
                         },
