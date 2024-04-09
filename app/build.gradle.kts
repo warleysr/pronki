@@ -65,6 +65,7 @@ dependencies {
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("androidx.appcompat:appcompat:1.7.0-alpha01")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
+    implementation("androidx.compose.material:material-icons-extended:1.0.0-alpha10")
 
 
     implementation(libs.androidx.datastore)
