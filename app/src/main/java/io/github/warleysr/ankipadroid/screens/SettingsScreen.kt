@@ -10,10 +10,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -30,13 +28,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import io.github.warleysr.ankipadroid.R
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
@@ -83,6 +76,7 @@ fun SettingsScreen(
             TextEditDialog(
                 name = R.string.configure_azure,
                 storedValue = azureKey.value,
+                extraOptions = { AzureExtraOptions() },
                 onSave = { finalValue -> saveKey("azure_key", finalValue)},
                 ) {
                     isAzureDialogShown = false
@@ -100,6 +94,7 @@ fun SettingsScreen(
             TextEditDialog(
                 name = R.string.configure_gemini,
                 storedValue = geminiKey.value,
+                extraOptions = {},
                 onSave = { finalValue -> saveKey("gemini_key", finalValue)},
             ) {
                 isGeminiDialogShown = false
@@ -159,6 +154,7 @@ fun SettingsScreen(
             text = stringResource(id = R.string.settings),
             style = MaterialTheme.typography.headlineMedium
         )
+        Spacer(modifier = Modifier.padding(16.dp))
 
         Divider()
 
@@ -224,6 +220,29 @@ fun SettingsScreen(
 
             Text(
                 text = stringResource(id = R.string.select_language_description),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        Divider()
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    onClick = { viewModel.openAboutInfo() },
+                )
+                .padding(all = 16.dp),
+        ) {
+            Text(
+                text = stringResource(id = R.string.about),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.surfaceTint,
+            )
+
+            Text(
+                text = stringResource(id = R.string.about_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurface,
             )

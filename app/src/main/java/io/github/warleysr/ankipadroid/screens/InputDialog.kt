@@ -26,6 +26,7 @@ fun TextEditDialog(
     @StringRes name: Int,
     storedValue: String,
     onSave: (String) -> Unit,
+    extraOptions: @Composable () -> Unit,
     onDismiss: () -> Unit
 ) {
 
@@ -50,6 +51,9 @@ fun TextEditDialog(
                 },
                 singleLine = true
             )
+
+            extraOptions()
+
             Row {
                 Spacer(modifier = Modifier.weight(1f))
                 Button(onClick = {

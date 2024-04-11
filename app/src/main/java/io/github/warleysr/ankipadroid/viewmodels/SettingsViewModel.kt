@@ -1,7 +1,10 @@
 package io.github.warleysr.ankipadroid.viewmodels
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.os.LocaleListCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -35,6 +38,12 @@ class SettingsViewModel(private val context: Context) : ViewModel() {
 
     fun changeLanguage(language: String) {
         AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(language))
+    }
+
+    fun openAboutInfo() {
+        val intent = Intent(Intent.ACTION_VIEW)
+        intent.data = Uri.parse("https://github.com/warleysr/ankipadroid")
+        context.startActivity(intent)
     }
 
 }
