@@ -22,7 +22,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import io.github.warleysr.ankipadroid.R
 
 @Composable
 fun VocabularyScreen() {
@@ -56,7 +58,15 @@ fun VocabularyScreen() {
         ExtendedFloatingActionButton(
             onClick = { fabState = !fabState },
             icon = { Icon(if (fabState) Icons.Filled.Close else Icons.Filled.Add , null) },
-            text = { Text(text = if (fabState) "Cancel" else "Add vocabulary") },
+            text = { 
+                Text(
+                    text =
+                    if (fabState)
+                        stringResource(id = R.string.cancel)
+                    else
+                        stringResource(id = R.string.add_vocabulary)
+                ) 
+               },
         )
     }
 }

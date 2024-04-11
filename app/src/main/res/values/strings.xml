@@ -5,13 +5,17 @@
     <string name="home">Início</string>
     <string name="flashcards" translatable="false">Flashcards</string>
     <string name="vocabulary">Vocabulário</string>
-    <string name="settings">Configurar</string>
+    <string name="settings">Configurações</string>
     <string name="save">Salvar</string>
     <string name="configure_azure">Configurar API da Microsoft Azure</string>
-    <string name="configure_azure_description">Necessário para funcionamento da avaliação de pronúncia</string>
+    <string name="configure_azure_description">Necessário para funcionamento da avaliação de pronúncia.</string>
     <string name="configure_gemini">Configurar API do Google Gemini</string>
     <string name="configure_gemini_description">Necessário para a criação automática automática de flashcards.</string>
     <string name="select_language">Selecionar idioma</string>
     <string name="select_language_description">Defina o idioma preferido da interface do aplicativo</string>
-    <string name="api_key">CHAVE DA API</string>
+    <string name="about">Sobre</string>
+    <string name="about_description">Saiba mais como obter chaves de acesso e como utilizar o aplicativo.</string>
+    <string name="api_key">Chave da API</string>
+    <string name="cancel">Cancelar</string>
+    <string name="add_vocabulary">Adc. vocabulário</string>
 </resources>

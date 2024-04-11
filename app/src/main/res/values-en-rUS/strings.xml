@@ -8,10 +8,14 @@
     <string name="home">Home</string>
     <string name="vocabulary">Vocabulary</string>
     <string name="configure_azure">Configure Microsoft Azure API</string>
-    <string name="configure_azure_description">Needed for pronunciation assessment</string>
+    <string name="configure_azure_description">Needed for pronunciation assessment.</string>
     <string name="configure_gemini">Configure Google Gemini API</string>
     <string name="configure_gemini_description">Needed for automatic flashcards creation</string>
     <string name="select_language">Select language</string>
     <string name="select_language_description">Define your preferred language</string>
-    <string name="api_key">API KEY</string>
+    <string name="about">About</string>
+    <string name="about_description">Know how to get access keys and how to use the application.</string>
+    <string name="api_key">API Key</string>
+    <string name="cancel">Cancel</string>
+    <string name="add_vocabulary">Add vocabulary</string>
 </resources>
