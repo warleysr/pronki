@@ -19,7 +19,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import io.github.warleysr.ankipadroid.screens.FlashcardsScreen
-import io.github.warleysr.ankipadroid.screens.HomeScreen
 import io.github.warleysr.ankipadroid.screens.SettingsScreen
 import io.github.warleysr.ankipadroid.screens.VocabularyScreen
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
@@ -65,12 +64,9 @@ fun AppNavigation(settingsViewModel: SettingsViewModel) {
     ) {
         paddingValues -> NavHost(
             navController = navController,
-            startDestination = Screens.HomeScreen.name,
+            startDestination = Screens.FlashcardsScreen.name,
             modifier = Modifier.padding(paddingValues)
         )  {
-            composable(route = Screens.HomeScreen.name) {
-                HomeScreen()
-            }
             composable(route = Screens.FlashcardsScreen.name) {
                 FlashcardsScreen()
             }

@@ -1,13 +1,11 @@
 package io.github.warleysr.ankipadroid.navigation
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.AddBox
+import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.AddCircle
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.AddBox
+import androidx.compose.material.icons.outlined.LibraryBooks
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import io.github.warleysr.ankipadroid.R
@@ -21,21 +19,15 @@ data class NavItem(
 
 val listOfNavItems : List<NavItem> = listOf(
     NavItem(
-        label = R.string.home,
-        selectedIcon = Icons.Filled.Home,
-        unselectedIcon = Icons.Outlined.Home,
-        route = Screens.HomeScreen.name
-    ),
-    NavItem(
         label = R.string.flashcards,
-        selectedIcon = Icons.Filled.Menu,
-        unselectedIcon = Icons.Outlined.Menu,
+        selectedIcon = Icons.Filled.LibraryBooks,
+        unselectedIcon = Icons.Outlined.LibraryBooks,
         route = Screens.FlashcardsScreen.name
     ),
     NavItem(
         label = R.string.vocabulary,
-        selectedIcon = Icons.Filled.AddCircle,
-        unselectedIcon = Icons.Outlined.AddCircle,
+        selectedIcon = Icons.Filled.AddBox,
+        unselectedIcon = Icons.Outlined.AddBox,
         route = Screens.VocabularyScreen.name
     ),
     NavItem(
