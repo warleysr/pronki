@@ -13,12 +13,8 @@ import androidx.compose.ui.unit.sp
 fun FlashcardsScreen() {
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.TopCenter
     ) {
-        Text(
-            text = "Flashcards",
-            fontFamily = FontFamily.Serif,
-            fontSize = 22.sp
-        )
+        PronunciationAssessmentResults()
     }
 }
