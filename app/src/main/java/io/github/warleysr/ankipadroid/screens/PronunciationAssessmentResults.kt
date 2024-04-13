@@ -28,21 +28,23 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 
 @Composable
-fun PronunciationAssessmentResults() {
+fun PronunciationAssessmentResults(pronunciationViewModel: PronunciationViewModel) {
+    val result = pronunciationViewModel.getPronunciationResult() ?: return
     val scores = mapOf(
-        Pair("Accuracy", 0.75f),
-        Pair("Fluency", 0.58f),
-        Pair("Completeness", 0.46f),
+        Pair("Accuracy", result.accuracyScore / 100),
+        Pair("Fluency", result.fluencyScore / 100),
+        Pair("Completeness", result.completenessScore / 100),
     )
     var animationPlayed by remember { mutableStateOf(false) }
     val percentages = HashMap<String, State<Float>>()
     scores.forEach {score ->
         val currentPercentage = animateFloatAsState(
-            targetValue = if (animationPlayed) score.value else 0f,
+            targetValue = if (animationPlayed) score.value.toFloat() else 0f,
             animationSpec = tween(
-                durationMillis = 1000,
+                durationMillis = 1500,
                 delayMillis = 10
             ), label = "FloatAnimation"
         )
@@ -78,7 +80,7 @@ fun PronunciationAssessmentResults() {
                             style = Stroke(4.dp.toPx(), cap = StrokeCap.Round)
                         )
                         drawArc(
-                            color = colorByPercentage(score.value),
+                            color = colorByPercentage(score.value.toFloat()),
                             -90f,
                             360 * (percentages[score.key]?.value ?: 0f),
                             useCenter = false,

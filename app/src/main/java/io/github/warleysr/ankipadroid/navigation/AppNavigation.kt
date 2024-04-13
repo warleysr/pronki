@@ -21,10 +21,11 @@ import androidx.navigation.compose.rememberNavController
 import io.github.warleysr.ankipadroid.screens.FlashcardsScreen
 import io.github.warleysr.ankipadroid.screens.SettingsScreen
 import io.github.warleysr.ankipadroid.screens.VocabularyScreen
+import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 
 @Composable
-fun AppNavigation(settingsViewModel: SettingsViewModel) {
+fun AppNavigation(settingsViewModel: SettingsViewModel, pronunciationViewModel: PronunciationViewModel) {
 
     val navController : NavHostController = rememberNavController()
 
@@ -68,7 +69,7 @@ fun AppNavigation(settingsViewModel: SettingsViewModel) {
             modifier = Modifier.padding(paddingValues)
         )  {
             composable(route = Screens.FlashcardsScreen.name) {
-                FlashcardsScreen()
+                FlashcardsScreen(settingsViewModel, pronunciationViewModel)
             }
             composable(route = Screens.VocabularyScreen.name) {
                 VocabularyScreen()
