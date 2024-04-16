@@ -1,15 +1,15 @@
 package io.github.warleysr.ankipadroid.api
 
+import android.media.AudioRecord
+import android.media.MediaRecorder
+import android.media.MediaRecorder.AudioSource
 import com.microsoft.cognitiveservices.speech.PronunciationAssessmentConfig
 import com.microsoft.cognitiveservices.speech.PronunciationAssessmentGradingSystem
 import com.microsoft.cognitiveservices.speech.PronunciationAssessmentGranularity
 import com.microsoft.cognitiveservices.speech.PronunciationAssessmentResult
 import com.microsoft.cognitiveservices.speech.SpeechConfig
-import com.microsoft.cognitiveservices.speech.SpeechRecognitionResult
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig
-import java.util.concurrent.Future
-import java.util.concurrent.TimeUnit
 
 
 class AzureAPI {
@@ -19,6 +19,7 @@ class AzureAPI {
             language: String,
             speechApiKey: String,
             speechRegion: String,
+            wavFilePath: String,
             onSuccess: (PronunciationAssessmentResult) -> Unit,
             onFailure: (String) -> Unit
         ) {
@@ -32,7 +33,7 @@ class AzureAPI {
             )
             pronunciationConfig.enableProsodyAssessment()
 
-            val audioConfig = AudioConfig.fromStreamInput(MicrophoneStream.create())
+            val audioConfig = AudioConfig.fromWavFileInput(wavFilePath)
 
             val speechRecognizer = SpeechRecognizer(
                 speechConfig,

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -36,6 +37,8 @@ fun FlashcardsScreen(settingsViewModel: SettingsViewModel, pronunciationViewMode
     var currentStatus by remember { mutableStateOf("Click here") }
     var currentInput by remember { mutableStateOf("How are you?") }
     var performing by remember { mutableStateOf(false) }
+    var recording by remember { mutableStateOf(false) }
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter
@@ -53,28 +56,46 @@ fun FlashcardsScreen(settingsViewModel: SettingsViewModel, pronunciationViewMode
                     enabled = !performing
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Button(
-                    enabled = !performing,
-                    onClick = {
-                        coroutineScope.launch {
-                            performing = true
-                            val azureKey = settingsViewModel.getSetting("azure_key")
-
-                            pronunciationViewModel.newAssessment(
-                                currentInput,
-                                language = "en-US",
-                                speechApiKey = azureKey,
-                                speechRegion = "brazilsouth",
-                                onResult = { result ->
-                                    success = result
-                                    currentStatus = if (result) "OK" else "Canceled"
-                                    performing = false
-                                }
-                            )
-                        }
-                    }
+                Row (
+                    modifier = Modifier.padding(16.dp)
                 ) {
-                    Text(text = currentStatus)
+                    Button(
+                        enabled = !performing,
+                        onClick = {
+                            coroutineScope.launch {
+                                performing = true
+                                val azureKey = settingsViewModel.getSetting("azure_key")
+
+                                pronunciationViewModel.newAssessment(
+                                    currentInput,
+                                    language = "en-US",
+                                    speechApiKey = azureKey,
+                                    speechRegion = "brazilsouth",
+                                    onResult = { result ->
+                                        success = result
+                                        currentStatus = if (result) "OK" else "Canceled"
+                                        performing = false
+                                    }
+                                )
+                            }
+                        }
+                    ) {
+                        Text(text = currentStatus)
+                    }
+                    Button (
+                        enabled = !performing,
+                        onClick = {
+                            recording = !recording
+                            if (recording) {
+                                pronunciationViewModel.startRecording()
+                            }
+                            else {
+                                pronunciationViewModel.stopRecording()
+                            }
+                        }
+                    ) {
+                        Text(if (recording) "Stop" else "Record")
+                    }
                 }
             }
         } else {
