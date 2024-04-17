@@ -31,6 +31,7 @@ class AzureAPI {
                 PronunciationAssessmentGranularity.Phoneme,
                 false
             )
+            pronunciationConfig.setPhonemeAlphabet("IPA")
             pronunciationConfig.enableProsodyAssessment()
 
             val audioConfig = AudioConfig.fromWavFileInput(wavFilePath)
