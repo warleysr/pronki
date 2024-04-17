@@ -52,7 +52,6 @@ fun FlashcardsScreen(settingsViewModel: SettingsViewModel, pronunciationViewMode
                     onValueChange = {
                         currentInput = it
                     },
-                    singleLine = true,
                     enabled = !performing
                 )
                 Spacer(modifier = Modifier.height(8.dp))

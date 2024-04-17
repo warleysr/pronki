@@ -1,14 +1,15 @@
 package io.github.warleysr.ankipadroid.viewmodels
 
-import android.media.MediaRecorder
 import androidx.compose.runtime.mutableStateOf
 import com.github.squti.androidwaverecorder.WaveRecorder
+import com.microsoft.cognitiveservices.speech.PhonemeLevelTimingResult
 import com.microsoft.cognitiveservices.speech.PronunciationAssessmentResult
+import com.microsoft.cognitiveservices.speech.WordLevelTimingResult
 import io.github.warleysr.ankipadroid.api.AzureAPI
 
 class PronunciationViewModel(audioDir: String) {
 
-    private var pronunciationResult = mutableStateOf<PronunciationAssessmentResult?>(null)
+    private var pronunciationResult: PronunciationResult? = null
     private val audioPath = "$audioDir/record.wav"
     private var waveRecorder: WaveRecorder? = null
 
@@ -23,19 +24,19 @@ class PronunciationViewModel(audioDir: String) {
             referenceText, language, speechApiKey, speechRegion,
             wavFilePath = audioPath,
             onSuccess = {
-                pronunciationResult.value = it
+                pronunciationResult = PronunciationResult(it)
                 onResult(true)
             },
             onFailure = {
-                pronunciationResult.value = null
+                pronunciationResult = null
                 onResult(false)
             }
         )
 
     }
 
-    fun getPronunciationResult(): PronunciationAssessmentResult? {
-        return pronunciationResult.value
+    fun getPronunciationResult(): PronunciationResult? {
+        return pronunciationResult
     }
 
     fun startRecording() {
@@ -49,4 +50,26 @@ class PronunciationViewModel(audioDir: String) {
         this.waveRecorder!!.stopRecording()
         this.waveRecorder = null
     }
+}
+
+data class PronunciationResult(val result: PronunciationAssessmentResult) {
+
+    val accuracy: Float = result.accuracyScore.toFloat() / 100f
+    val fluency = result.fluencyScore.toFloat() / 100f
+    val completeness = result.completenessScore.toFloat() / 100f
+    val words = result.words.map { word -> WordResult(word) }
+}
+
+data class WordResult(val wordResult: WordLevelTimingResult) {
+
+    val word = wordResult.word
+    val accuracy = wordResult.accuracyScore.toFloat() / 100f
+    val error = wordResult.errorType
+    val phonemes = wordResult.phonemes.map {phoneme -> PhonemeResult(phoneme)}
+}
+
+data class PhonemeResult(val phonemeResult: PhonemeLevelTimingResult) {
+
+    val phoneme = phonemeResult.phoneme
+    val accuracy = phonemeResult.accuracyScore.toFloat() / 100f
 }
