@@ -18,4 +18,6 @@
     <string name="api_key">Chave da API</string>
     <string name="cancel">Cancelar</string>
     <string name="add_vocabulary">Adc. vocabulário</string>
+    <string name="language">Idioma</string>
+    <string name="region">Região</string>
 </resources>

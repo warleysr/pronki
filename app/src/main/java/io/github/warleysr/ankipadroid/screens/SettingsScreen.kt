@@ -47,12 +47,16 @@ fun SettingsScreen(
     val geminiKey = remember { mutableStateOf("gemini") }
 
     val languageOptions = mapOf(Pair("pt", "Português"), Pair("en", "English"))
-    val selectedLanguage = remember { mutableStateOf("pt") }
+    val selectedLanguage = remember { mutableStateOf("en-US") }
+    val selectedLanguageApp = remember { mutableStateOf("pt") }
+    val selectedRegion = remember { mutableStateOf("centralus") }
 
     coroutineScope.launch {
         azureKey.value = viewModel.getSetting("azure_key")
         geminiKey.value = viewModel.getSetting("gemini_key")
         selectedLanguage.value = viewModel.getSetting("language")
+        selectedLanguageApp.value = viewModel.getSetting("language_app")
+        selectedRegion.value = viewModel.getSetting("region")
     }
 
     val saveKey: (String, String) -> Unit = { key: String, value: String ->
@@ -76,8 +80,19 @@ fun SettingsScreen(
             TextEditDialog(
                 name = R.string.configure_azure,
                 storedValue = azureKey.value,
-                extraOptions = { AzureExtraOptions() },
-                onSave = { finalValue -> saveKey("azure_key", finalValue)},
+                extraOptions = {
+                    AzureExtraOptions(
+                        selectedLanguage = selectedLanguage,
+                        selectedRegion = selectedRegion,
+                        onLanguageChange = {newLanguage -> selectedLanguage.value = newLanguage},
+                        onRegionChange = {newRegion -> selectedRegion.value = newRegion}
+                    )
+                },
+                onSave = { finalValue ->
+                    saveKey("azure_key", finalValue)
+                    saveKey("language", selectedLanguage.value)
+                    saveKey("region", selectedRegion.value)
+                         }
                 ) {
                     isAzureDialogShown = false
             }
@@ -124,10 +139,10 @@ fun SettingsScreen(
                     languageOptions.forEach { language ->
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             RadioButton(
-                                selected = (language.key == selectedLanguage.value),
+                                selected = (language.key == selectedLanguageApp.value),
                                 onClick = {
-                                    selectedLanguage.value = language.key
-                                    saveKey("language", language.key)
+                                    selectedLanguageApp.value = language.key
+                                    saveKey("language_app", language.key)
                                     viewModel.changeLanguage(language.key)
                                 }
                             )

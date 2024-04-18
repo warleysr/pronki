@@ -64,12 +64,14 @@ fun FlashcardsScreen(settingsViewModel: SettingsViewModel, pronunciationViewMode
                             coroutineScope.launch {
                                 performing = true
                                 val azureKey = settingsViewModel.getSetting("azure_key")
+                                val language = settingsViewModel.getSetting("language")
+                                val region = settingsViewModel.getSetting("region")
 
                                 pronunciationViewModel.newAssessment(
                                     currentInput,
-                                    language = "en-US",
+                                    language = language,
                                     speechApiKey = azureKey,
-                                    speechRegion = "brazilsouth",
+                                    speechRegion = region,
                                     onResult = { result ->
                                         success = result
                                         currentStatus = if (result) "OK" else "Canceled"
