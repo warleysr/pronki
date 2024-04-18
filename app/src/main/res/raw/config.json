@@ -1,0 +1,154 @@
+{
+  "languages": {
+    "English (United States)": [
+      "en-US",
+      "en-US-GuyNeural"
+    ],
+    "English (United Kingdom)": [
+      "en-GB",
+      "en-GB-AlfieNeural"
+    ],
+    "English (Australia)": [
+      "en-AU",
+      "en-AU-WilliamNeural"
+    ],
+    "English (India)": [
+      "en-IN",
+      "en-IN-PrabhatNeural"
+    ],
+    "Spanish (Spain)": [
+      "es-ES",
+      "es-ES-AlvaroNeural"
+    ],
+    "Spanish (Mexico)": [
+      "es-MX",
+      "es-MX-CecilioNeural"
+    ],
+    "Portuguese (Brazil)": [
+      "pt-BR",
+      "pt-BR-AntonioNeural"
+    ],
+    "French (France)": [
+      "fr-FR",
+      "fr-FR-AlainNeural"
+    ],
+    "French (Canada)": [
+      "fr-CA",
+      "fr-CA-AntoineNeural"
+    ],
+    "German (Germany)": [
+      "de-DE",
+      "de-DE-BerndNeural"
+    ],
+    "Japanese (Japan)": [
+      "ja-JP",
+      "ja-JP-NanamiNeural"
+    ],
+    "Chinese (Mandarin, Simplified)": [
+      "zh-CN",
+      "zh-CN-YunxiNeural"
+    ],
+    "Korean (Korea)": [
+      "ko-KR",
+      "ko-KR-BongJinNeural"
+    ],
+    "Vietnamese (Vietnam)": [
+      "vi-VN",
+      "vi-VN-NamMinhNeural"
+    ],
+    "Malay (Malaysia)": [
+      "ms-MY",
+      "ms-MY-OsmanNeural"
+    ],
+    "Tamil (India)": [
+      "ta-IN",
+      "ta-IN-ValluvarNeural"
+    ],
+    "Arabic (Saudi Arabia)": [
+      "ar-SA",
+      "ar-SA-HamedNeural"
+    ],
+    "English (Canada)": [
+      "en-CA",
+      "en-CA-LiamNeural"
+    ],
+    "Hindi (India)": [
+      "hi-IN",
+      "hi-IN-MadhurNeural"
+    ],
+    "Italian (Italy)": [
+      "it-IT",
+      "it-IT-DiegoNeural"
+    ],
+    "Norwegian Bokm\u00e5l (Norway)": [
+      "nb-NO",
+      "nb-NO-FinnNeural"
+    ],
+    "Russian (Russia)": [
+      "ru-RU",
+      "ru-RU-DmitryNeural"
+    ],
+    "Swedish (Sweden)": [
+      "sv-SE",
+      "sv-SE-MattiasNeural"
+    ],
+    "Chinese (Cantonese, Traditional)": [
+      "zh-HK",
+      "zh-HK-WanLungNeural"
+    ],
+    "Dutch (Netherlands)": [
+      "nl-NL",
+      "nl-NL-MaartenNeural"
+    ],
+    "Arabic (Egypt)": [
+      "ar-EG",
+      "ar-EG-ShakirNeural"
+    ],
+    "Portuguese (Portugal)": [
+      "pt-PT",
+      "pt-PT-DuarteNeural"
+    ],
+    "Chinese (Taiwanese Mandarin, Traditional)": [
+      "zh-TW",
+      "zh-TW-YunJheNeural"
+    ],
+    "Finnish (Finland)": [
+      "fi-FI",
+      "fi-FI-HarriNeural"
+    ],
+    "Polish (Poland)": [
+      "pl-PL",
+      "pl-PL-MarekNeural"
+    ]
+  },
+  "regions": [
+    "southafricanorth",
+    "eastasia",
+    "southeastasia",
+    "australiaeast",
+    "centralindia",
+    "japaneast",
+    "japanwest",
+    "koreacentral",
+    "canadacentral",
+    "northeurope",
+    "westeurope",
+    "francecentral",
+    "germanywestcentral",
+    "norwayeast",
+    "switzerlandnorth",
+    "switzerlandwest",
+    "uksouth",
+    "uaenorth",
+    "brazilsouth",
+    "centralus",
+    "eastus",
+    "eastus2",
+    "northcentralus",
+    "southcentralus",
+    "westcentralus",
+    "westus",
+    "westus2",
+    "westus3"
+  ]
+}
