@@ -1,13 +1,13 @@
 package io.github.warleysr.ankipadroid.viewmodels
 
-import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
 import com.github.squti.androidwaverecorder.WaveRecorder
 import com.microsoft.cognitiveservices.speech.PhonemeLevelTimingResult
 import com.microsoft.cognitiveservices.speech.PronunciationAssessmentResult
 import com.microsoft.cognitiveservices.speech.WordLevelTimingResult
 import io.github.warleysr.ankipadroid.api.AzureAPI
 
-class PronunciationViewModel(audioDir: String) {
+class PronunciationViewModel(audioDir: String) : ViewModel() {
 
     private var pronunciationResult: PronunciationResult? = null
     private val audioPath = "$audioDir/record.wav"
@@ -54,9 +54,11 @@ class PronunciationViewModel(audioDir: String) {
 
 data class PronunciationResult(val result: PronunciationAssessmentResult) {
 
+    val pronunciation = result.pronunciationScore.toFloat() / 100f
     val accuracy: Float = result.accuracyScore.toFloat() / 100f
     val fluency = result.fluencyScore.toFloat() / 100f
     val completeness = result.completenessScore.toFloat() / 100f
+    val prosody = result.prosodyScore.toFloat() / 100f
     val words = result.words.map { word -> WordResult(word) }
 }
 
