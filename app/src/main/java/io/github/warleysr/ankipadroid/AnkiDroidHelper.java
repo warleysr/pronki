@@ -41,10 +41,21 @@ public class AnkiDroidHelper {
     private AddContentApi mApi;
     private Context mContext;
     private final Handler uiHandler = new Handler();
+    private static AnkiDroidHelper instance;
 
     public AnkiDroidHelper(Context context) {
         mContext = context.getApplicationContext();
         mApi = new AddContentApi(mContext);
+        instance = this;
+    }
+
+    public static AnkiDroidHelper getInstance() {
+        return instance;
+    }
+
+    public static AddContentApi getAPI() {
+
+        return getInstance().mApi;
     }
 
     /**
@@ -61,9 +72,6 @@ public class AnkiDroidHelper {
      * Whether or not we should request full access to the AnkiDroid API
      */
     public boolean shouldRequestPermission() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return false;
-        }
         return ContextCompat.checkSelfPermission(mContext, READ_WRITE_PERMISSION) != PackageManager.PERMISSION_GRANTED;
     }
 

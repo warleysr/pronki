@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import io.github.warleysr.ankipadroid.navigation.AppNavigation
+import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +21,7 @@ class MainActivity : AppCompatActivity() {
 
     private var settingsViewModel: SettingsViewModel? = null
     private var pronunciationViewModel: PronunciationViewModel? = null
+    private var ankiDroidViewModel: AnkiDroidViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +50,7 @@ class MainActivity : AppCompatActivity() {
 
         settingsViewModel = SettingsViewModel(this)
         pronunciationViewModel = PronunciationViewModel(filesDir.absolutePath)
+        ankiDroidViewModel = AnkiDroidViewModel()
 
         CoroutineScope(Dispatchers.IO).launch {
             val language = settingsViewModel!!.getSetting("language_app")
@@ -55,15 +58,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContent {
-            AppNavigation(settingsViewModel!!, pronunciationViewModel!!)
+            AppNavigation(settingsViewModel!!, pronunciationViewModel!!, ankiDroidViewModel!!)
+        }
+
+        val ankiDroidHelper = AnkiDroidHelper(this)
+        if (ankiDroidHelper.shouldRequestPermission()) {
+            ankiDroidHelper.requestPermission(this, 0)
         }
 
         this.requestPermission()
-
-//        val mAnkiDroid = AnkiDroidHelper(this)
-//        if (mAnkiDroid.shouldRequestPermission()) {
-//            mAnkiDroid.requestPermission(this, 0)
-//        }
     }
 
     private fun requestPermission() {
