@@ -20,4 +20,9 @@
     <string name="add_vocabulary">Adc. vocabulário</string>
     <string name="language">Idioma</string>
     <string name="region">Região</string>
+    <string name="pronunciation">Pronúncia</string>
+    <string name="accuracy">Acurácia</string>
+    <string name="fluency">Fluência</string>
+    <string name="completeness">Completude</string>
+    <string name="prosody">Prosódia</string>
 </resources>

@@ -18,4 +18,11 @@
     <string name="api_key">API Key</string>
     <string name="cancel">Cancel</string>
     <string name="add_vocabulary">Add vocabulary</string>
+    <string name="language">Language</string>
+    <string name="region">Region</string>
+    <string name="pronunciation">Pronunciation</string>
+    <string name="accuracy">Accuracy</string>
+    <string name="fluency">Fluency</string>
+    <string name="completeness">Completeness</string>
+    <string name="prosody">Prosody</string>
 </resources>
