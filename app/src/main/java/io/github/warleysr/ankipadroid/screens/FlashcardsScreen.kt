@@ -5,9 +5,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -47,16 +50,40 @@ fun FlashcardsScreen(
     var performing by remember { mutableStateOf(false) }
     var recording by remember { mutableStateOf(false) }
 
+    var deckSelected by remember { mutableStateOf(false) }
+    var currentQuestion by remember { mutableStateOf("Waiting...") }
+    var currentAnswer by remember { mutableStateOf("Waiting...") }
 
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter
     ) {
-        var decks = ankiDroidViewModel.getDeckList()
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            if (deckSelected || ankiDroidViewModel.isDeckSelected) {
+                ankiDroidViewModel.queryNextCard(
+                    onResult = {question, answer ->
+                        currentQuestion = question
+                        currentAnswer = answer
+                    }
+                )
+                Text(currentQuestion, style = MaterialTheme.typography.bodyMedium)
+                Text(currentAnswer, style = MaterialTheme.typography.bodyMedium)
+            } else {
+                Text("Select a deck", style = MaterialTheme.typography.headlineMedium)
 
-        decks?.forEach { deck ->
-            Row {
-                Text(deck)
+                ankiDroidViewModel.getDeckList()?.forEach { deck ->
+                    Button(onClick = {
+                        ankiDroidViewModel.selectDeck(deck)
+                        deckSelected = true
+                    }) {
+                        Text(deck)
+                    }
+                }
             }
         }
 //        if (!success) {
