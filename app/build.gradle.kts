@@ -68,6 +68,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.0.0-alpha10")
     implementation("com.microsoft.cognitiveservices.speech:client-sdk:1.37.0")
     implementation("com.github.squti:Android-Wave-Recorder:1.7.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
     implementation(libs.androidx.datastore)
     testImplementation(libs.junit)

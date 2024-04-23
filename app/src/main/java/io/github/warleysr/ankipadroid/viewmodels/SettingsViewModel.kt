@@ -4,35 +4,27 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.os.LocaleListCompat
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
 import androidx.lifecycle.ViewModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import io.github.warleysr.ankipadroid.AnkiPADroid
+class SettingsViewModel() : ViewModel() {
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore("settings")
+    private val sharedPrefs = AnkiPADroid.instance.getSharedPreferences(
+        "settings", Context.MODE_PRIVATE
+    )
 
-class SettingsViewModel(private val context: Context) : ViewModel() {
-
-    suspend fun getSetting(key: String): String {
-        val keyPref = stringPreferencesKey(key)
-        val keyFlow: Flow<String> = context.dataStore.data
-            .map { preferences ->
-                preferences[keyPref] ?: ""
-            }
-        return keyFlow.first()
+    init {
+        println("SettingsViewModel initialized")
     }
 
-    suspend fun saveSetting(key: String, value: String) {
-        val keyPref = stringPreferencesKey(key)
-        context.dataStore.edit { settings ->
-            settings[keyPref] = value
+    fun getSetting(key: String): String {
+        return sharedPrefs.getString(key, "") ?: ""
+    }
+
+    fun saveSetting(key: String, value: String) {
+        with (sharedPrefs.edit()) {
+            putString(key, value)
+            apply()
         }
     }
 
@@ -43,7 +35,7 @@ class SettingsViewModel(private val context: Context) : ViewModel() {
     fun openAboutInfo() {
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = Uri.parse("https://github.com/warleysr/ankipadroid")
-        context.startActivity(intent)
+        AnkiPADroid.instance.startActivity(intent)
     }
 
 }

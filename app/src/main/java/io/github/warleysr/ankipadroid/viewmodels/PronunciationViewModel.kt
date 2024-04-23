@@ -13,6 +13,10 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
     private val audioPath = "$audioDir/record.wav"
     private var waveRecorder: WaveRecorder? = null
 
+    init {
+        println("PronunciationViewModel initialized")
+    }
+
     fun newAssessment(
         referenceText: String,
         language: String,

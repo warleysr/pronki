@@ -6,14 +6,28 @@ import io.github.warleysr.ankipadroid.CardInfo
 
 class AnkiDroidViewModel : ViewModel() {
 
-    var currentDeck: String = "tests"
+    var currentDeckId: Long? = null
     var currentQuestion: String? = null
     var currentAnswer: String? = null
 
+    init {
+        println("AnkiDroidViewModel initialized")
+    }
+
     fun queryNextCard(onResult: (String, String) -> Unit) {
-        val deckId = AnkiDroidHelper.getInstance().findDeckIdByName(currentDeck)
-        val cardInfo = AnkiDroidHelper.getInstance().queryCurrentScheduledCard(deckId)
+        val cardInfo = AnkiDroidHelper.getInstance().queryCurrentScheduledCard(currentDeckId!!)
         onResult(cardInfo.question, cardInfo.answer)
     }
+
+    fun getDeckList(): List<String>? {
+        return AnkiDroidHelper.getAPI().deckList?.map { deck -> deck.value }
+    }
+
+    fun selectDeck(deckName: String) {
+        currentDeckId = AnkiDroidHelper.getInstance().findDeckIdByName(deckName)
+    }
+
+    val isDeckSelected: Boolean
+        get() = currentDeckId != null
 
 }
