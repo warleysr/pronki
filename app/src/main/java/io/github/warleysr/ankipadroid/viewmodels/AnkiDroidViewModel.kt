@@ -12,6 +12,9 @@ class AnkiDroidViewModel : ViewModel() {
     var currentAnswer: String? = null
         private set
 
+    var useFront: Boolean = true
+        private set
+
     init {
         println("AnkiDroidViewModel initialized")
     }
@@ -29,6 +32,15 @@ class AnkiDroidViewModel : ViewModel() {
 
     fun selectDeck(deckName: String) {
         currentDeckId = AnkiDroidHelper.getInstance().findDeckIdByName(deckName)
+    }
+
+    fun exitFlashcardPreview() {
+        currentDeckId = null
+    }
+
+    fun toggleCardField(onToggle: (Boolean) -> Unit) {
+        useFront = !useFront
+        onToggle(useFront)
     }
 
     val isDeckSelected: Boolean

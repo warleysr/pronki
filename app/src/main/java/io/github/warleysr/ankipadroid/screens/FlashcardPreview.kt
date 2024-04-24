@@ -90,7 +90,10 @@ fun FlashcardPreview(
                         }
                     }
                 }
-                RecordFAB(settingsViewModel, pronunciationViewModel, ankiDroidViewModel, onResult)
+                RecordFAB(
+                    settingsViewModel, pronunciationViewModel, ankiDroidViewModel, onResult,
+                    onExit = { deckSelected = false }
+                )
             } else {
                 Text("Select a deck", style = MaterialTheme.typography.headlineMedium)
 
