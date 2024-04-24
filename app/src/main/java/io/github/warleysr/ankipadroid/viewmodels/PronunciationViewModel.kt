@@ -1,5 +1,6 @@
 package io.github.warleysr.ankipadroid.viewmodels
 
+import android.media.MediaPlayer
 import androidx.lifecycle.ViewModel
 import com.github.squti.androidwaverecorder.WaveRecorder
 import com.microsoft.cognitiveservices.speech.PhonemeLevelTimingResult
@@ -54,6 +55,23 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
         this.waveRecorder!!.stopRecording()
         this.waveRecorder = null
     }
+
+    fun replayVoice() {
+        val player = MediaPlayer()
+        player.setDataSource(audioPath)
+        player.prepare()
+        player.start()
+        player.setOnCompletionListener {
+            player.release()
+        }
+    }
+
+    fun exitResults() {
+        pronunciationResult = null
+    }
+
+    val hasAssessmentSucceeded: Boolean
+        get() = pronunciationResult != null
 }
 
 data class PronunciationResult(val result: PronunciationAssessmentResult) {

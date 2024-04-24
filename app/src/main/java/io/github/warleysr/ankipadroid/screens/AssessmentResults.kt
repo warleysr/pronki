@@ -7,9 +7,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Modifier
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.RecordVoiceOver
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,7 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -33,8 +42,8 @@ import io.github.warleysr.ankipadroid.R
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 
 @Composable
-fun AssessmentResults(pronunciationViewModel: PronunciationViewModel) {
-    val result = pronunciationViewModel.getPronunciationResult() ?: return
+fun AssessmentResults(pronunciationViewModel: PronunciationViewModel, onExit: () -> Unit) {
+    val result = pronunciationViewModel.getPronunciationResult()!!
 
     val scores1 = mapOf(
         Pair(stringResource(id = R.string.pronunciation), result.pronunciation),
@@ -66,10 +75,15 @@ fun AssessmentResults(pronunciationViewModel: PronunciationViewModel) {
     LaunchedEffect(key1 = true) {
         animationPlayed = true
     }
-    Column {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth().fillMaxHeight()
+    ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.padding(16.dp).fillMaxWidth()
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
         ) {
             scores1.forEach { score ->
                 ScoreGauge(
@@ -82,7 +96,9 @@ fun AssessmentResults(pronunciationViewModel: PronunciationViewModel) {
 
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.padding(16.dp).fillMaxWidth()
+            modifier = Modifier
+                .padding(16.dp)
+                .fillMaxWidth()
         ) {
             scores2.forEach { score ->
                 ScoreGauge(
@@ -113,6 +129,35 @@ fun AssessmentResults(pronunciationViewModel: PronunciationViewModel) {
                         .clickable {
                         }
                 )
+            }
+        }
+        Column(
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.Bottom,
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .padding(16.dp)
+        ) {
+            Row() {
+                SmallFloatingActionButton(onClick = {
+                    pronunciationViewModel.exitResults()
+                    onExit()
+                }) {
+                    Icon(Icons.Filled.ArrowBack, null)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                FloatingActionButton(onClick = {
+                    pronunciationViewModel.replayVoice()
+                }) {
+                    Icon(Icons.Filled.PlayCircle, null)
+                }
+                Spacer(modifier = Modifier.width(8.dp))
+                FloatingActionButton(onClick = {
+
+                }) {
+                    Icon(Icons.Filled.RecordVoiceOver, null)
+                }
             }
         }
     }
