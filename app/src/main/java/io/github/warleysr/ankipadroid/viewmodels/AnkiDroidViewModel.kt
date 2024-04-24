@@ -6,9 +6,11 @@ import io.github.warleysr.ankipadroid.CardInfo
 
 class AnkiDroidViewModel : ViewModel() {
 
-    var currentDeckId: Long? = null
+    private var currentDeckId: Long? = null
     var currentQuestion: String? = null
+        private set
     var currentAnswer: String? = null
+        private set
 
     init {
         println("AnkiDroidViewModel initialized")
@@ -16,6 +18,8 @@ class AnkiDroidViewModel : ViewModel() {
 
     fun queryNextCard(onResult: (String, String) -> Unit) {
         val cardInfo = AnkiDroidHelper.getInstance().queryCurrentScheduledCard(currentDeckId!!)
+        currentQuestion = cardInfo.question
+        currentAnswer = cardInfo.answer
         onResult(cardInfo.question, cardInfo.answer)
     }
 

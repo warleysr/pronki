@@ -1,17 +1,24 @@
 package io.github.warleysr.ankipadroid.screens
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -43,107 +50,14 @@ fun FlashcardsScreen(
     ankiDroidViewModel: AnkiDroidViewModel
 ) {
 
-    val coroutineScope = rememberCoroutineScope()
     var success by remember { mutableStateOf(false) }
-    var currentStatus by remember { mutableStateOf("Click here") }
-    var currentInput by remember { mutableStateOf("How are you?") }
-    var performing by remember { mutableStateOf(false) }
-    var recording by remember { mutableStateOf(false) }
 
-    var deckSelected by remember { mutableStateOf(false) }
-    var currentQuestion by remember { mutableStateOf("Waiting...") }
-    var currentAnswer by remember { mutableStateOf("Waiting...") }
-
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.TopCenter
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            if (deckSelected || ankiDroidViewModel.isDeckSelected) {
-                ankiDroidViewModel.queryNextCard(
-                    onResult = {question, answer ->
-                        currentQuestion = question
-                        currentAnswer = answer
-                    }
-                )
-                Text(currentQuestion, style = MaterialTheme.typography.bodyMedium)
-                Text(currentAnswer, style = MaterialTheme.typography.bodyMedium)
-            } else {
-                Text("Select a deck", style = MaterialTheme.typography.headlineMedium)
-
-                ankiDroidViewModel.getDeckList()?.forEach { deck ->
-                    Button(onClick = {
-                        ankiDroidViewModel.selectDeck(deck)
-                        deckSelected = true
-                    }) {
-                        Text(deck)
-                    }
-                }
-            }
-        }
-//        if (!success) {
-//            Column {
-//
-//                OutlinedTextField(
-//                    currentInput,
-//                    label = { Text("Text to pronounce") },
-//                    onValueChange = {
-//                        currentInput = it
-//                    },
-//                    enabled = !performing
-//                )
-//                Spacer(modifier = Modifier.height(8.dp))
-//                Row (
-//                    modifier = Modifier.padding(16.dp)
-//                ) {
-//                    Button(
-//                        enabled = !performing,
-//                        onClick = {
-//                            coroutineScope.launch {
-//                                performing = true
-//                                val azureKey = settingsViewModel.getSetting("azure_key")
-//                                val language = settingsViewModel.getSetting("language")
-//                                val region = settingsViewModel.getSetting("region")
-//
-//                                pronunciationViewModel.newAssessment(
-//                                    currentInput,
-//                                    language = language,
-//                                    speechApiKey = azureKey,
-//                                    speechRegion = region,
-//                                    onResult = { result ->
-//                                        success = result
-//                                        currentStatus = if (result) "OK" else "Canceled"
-//                                        performing = false
-//                                    }
-//                                )
-//                            }
-//                        }
-//                    ) {
-//                        Text(text = currentStatus)
-//                    }
-//                    Button (
-//                        enabled = !performing,
-//                        onClick = {
-//                            recording = !recording
-//                            if (recording) {
-//                                pronunciationViewModel.startRecording()
-//                            }
-//                            else {
-//                                pronunciationViewModel.stopRecording()
-//                            }
-//                        }
-//                    ) {
-//                        Text(if (recording) "Stop" else "Record")
-//                    }
-//                }
-//            }
-//        } else {
-//            PronunciationAssessmentResults(pronunciationViewModel)
-//        }
+    if (success) {
+        AssessmentResults(pronunciationViewModel)
+    } else {
+        FlashcardPreview(
+            settingsViewModel, pronunciationViewModel, ankiDroidViewModel,
+            onResult = { result -> success = result}
+        )
     }
 }
