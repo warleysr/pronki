@@ -31,8 +31,7 @@ import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 fun FlashcardPreview(
     settingsViewModel: SettingsViewModel,
     pronunciationViewModel: PronunciationViewModel,
-    ankiDroidViewModel: AnkiDroidViewModel,
-    onResult: (Boolean) -> Unit
+    ankiDroidViewModel: AnkiDroidViewModel
 ) {
     var currentQuestion by remember { mutableStateOf("Waiting...") }
     var currentAnswer by remember { mutableStateOf("Waiting...") }
@@ -50,7 +49,7 @@ fun FlashcardPreview(
                 .fillMaxHeight()
                 .padding(16.dp)
         ) {
-            if (deckSelected || ankiDroidViewModel.isDeckSelected) {
+            if (ankiDroidViewModel.isDeckSelected.value) {
                 ankiDroidViewModel.queryNextCard(
                     onResult = { question, answer ->
                         currentQuestion = question
@@ -91,7 +90,7 @@ fun FlashcardPreview(
                     }
                 }
                 RecordFAB(
-                    settingsViewModel, pronunciationViewModel, ankiDroidViewModel, onResult,
+                    settingsViewModel, pronunciationViewModel, ankiDroidViewModel,
                     onExit = { deckSelected = false }
                 )
             } else {

@@ -37,7 +37,6 @@ fun RecordFAB(
     settingsViewModel: SettingsViewModel,
     pronunciationViewModel: PronunciationViewModel,
     ankiDroidViewModel: AnkiDroidViewModel,
-    onResult: (Boolean) -> Unit,
     onExit: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -66,7 +65,6 @@ fun RecordFAB(
                     speechApiKey = azureKey,
                     speechRegion = region,
                     onResult = { result ->
-                        onResult(result)
                         performing = false
                     }
                 )
@@ -96,7 +94,7 @@ fun RecordFAB(
                     )
                 }
             ) {
-                Icon(if (useFront) Icons.Filled.FlipToBack else Icons.Filled.FlipToFront, null)
+                Icon(if (useFront) Icons.Filled.FlipToFront else Icons.Filled.FlipToBack, null)
             }
             Spacer(Modifier.width(8.dp))
 

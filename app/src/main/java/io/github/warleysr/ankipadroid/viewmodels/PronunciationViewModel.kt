@@ -1,6 +1,8 @@
 package io.github.warleysr.ankipadroid.viewmodels
 
 import android.media.MediaPlayer
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.github.squti.androidwaverecorder.WaveRecorder
 import com.microsoft.cognitiveservices.speech.PhonemeLevelTimingResult
@@ -13,6 +15,7 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
     private var pronunciationResult: PronunciationResult? = null
     private val audioPath = "$audioDir/record.wav"
     private var waveRecorder: WaveRecorder? = null
+    var hasAssessmentSucceeded: MutableState<Boolean> = mutableStateOf(false)
 
     init {
         println("PronunciationViewModel initialized")
@@ -30,6 +33,7 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
             wavFilePath = audioPath,
             onSuccess = {
                 pronunciationResult = PronunciationResult(it)
+                hasAssessmentSucceeded.value = true
                 onResult(true)
             },
             onFailure = {
@@ -68,10 +72,9 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
 
     fun exitResults() {
         pronunciationResult = null
+        hasAssessmentSucceeded.value = false
     }
 
-    val hasAssessmentSucceeded: Boolean
-        get() = pronunciationResult != null
 }
 
 data class PronunciationResult(val result: PronunciationAssessmentResult) {

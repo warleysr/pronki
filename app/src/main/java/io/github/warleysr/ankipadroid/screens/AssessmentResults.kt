@@ -42,7 +42,7 @@ import io.github.warleysr.ankipadroid.R
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 
 @Composable
-fun AssessmentResults(pronunciationViewModel: PronunciationViewModel, onExit: () -> Unit) {
+fun AssessmentResults(pronunciationViewModel: PronunciationViewModel) {
     val result = pronunciationViewModel.getPronunciationResult()!!
 
     val scores1 = mapOf(
@@ -142,7 +142,6 @@ fun AssessmentResults(pronunciationViewModel: PronunciationViewModel, onExit: ()
             Row() {
                 SmallFloatingActionButton(onClick = {
                     pronunciationViewModel.exitResults()
-                    onExit()
                 }) {
                     Icon(Icons.Filled.ArrowBack, null)
                 }

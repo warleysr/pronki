@@ -16,14 +16,9 @@ fun FlashcardsScreen(
     ankiDroidViewModel: AnkiDroidViewModel
 ) {
 
-    var success by remember { mutableStateOf(false) }
-
-    if (success || pronunciationViewModel.hasAssessmentSucceeded) {
-        AssessmentResults(pronunciationViewModel, onExit = {success = false})
+    if (pronunciationViewModel.hasAssessmentSucceeded.value) {
+        AssessmentResults(pronunciationViewModel)
     } else {
-        FlashcardPreview(
-            settingsViewModel, pronunciationViewModel, ankiDroidViewModel,
-            onResult = { result -> success = result }
-        )
+        FlashcardPreview(settingsViewModel, pronunciationViewModel, ankiDroidViewModel)
     }
 }
