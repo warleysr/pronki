@@ -10,19 +10,21 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,7 +34,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.warleysr.ankipadroid.R
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition")
@@ -41,8 +42,6 @@ fun SettingsScreen(
     viewModel: SettingsViewModel
 ) {
 
-    val coroutineScope = rememberCoroutineScope()
-
     val azureKey = remember { mutableStateOf("azure") }
     val geminiKey = remember { mutableStateOf("gemini") }
 
@@ -50,24 +49,19 @@ fun SettingsScreen(
     val selectedLanguage = remember { mutableStateOf("en-US") }
     val selectedLanguageApp = remember { mutableStateOf("pt") }
     val selectedRegion = remember { mutableStateOf("centralus") }
-
-    coroutineScope.launch {
-        azureKey.value = viewModel.getSetting("azure_key")
-        geminiKey.value = viewModel.getSetting("gemini_key")
-        selectedLanguage.value = viewModel.getSetting("language")
-        selectedLanguageApp.value = viewModel.getSetting("language_app")
-        selectedRegion.value = viewModel.getSetting("region")
-    }
-
-    val saveKey: (String, String) -> Unit = { key: String, value: String ->
-        coroutineScope.launch {
-            viewModel.saveSetting(key, value)
-        }
-    }
-
     var isAzureDialogShown by remember { mutableStateOf(false) }
     var isGeminiDialogShown by remember { mutableStateOf(false) }
     var isLanguagesDialogShown by remember { mutableStateOf(false) }
+    var isChecked by remember { mutableStateOf(false) }
+
+    azureKey.value = viewModel.getSetting("azure_key")
+    geminiKey.value = viewModel.getSetting("gemini_key")
+    selectedLanguage.value = viewModel.getSetting("language")
+    selectedLanguageApp.value = viewModel.getSetting("language_app")
+    selectedRegion.value = viewModel.getSetting("region")
+
+    val materialYou = viewModel.getSetting("material_you")
+    isChecked = materialYou.isNotEmpty() && materialYou.toBooleanStrict()
 
 
     if (isAzureDialogShown) {
@@ -89,10 +83,10 @@ fun SettingsScreen(
                     )
                 },
                 onSave = { finalValue ->
-                    saveKey("azure_key", finalValue)
-                    saveKey("language", selectedLanguage.value)
-                    saveKey("region", selectedRegion.value)
-                         }
+                    viewModel.saveSetting("azure_key", finalValue)
+                    viewModel.saveSetting("language", selectedLanguage.value)
+                    viewModel.saveSetting("region", selectedRegion.value)
+                     }
                 ) {
                     isAzureDialogShown = false
             }
@@ -110,7 +104,7 @@ fun SettingsScreen(
                 name = R.string.configure_gemini,
                 storedValue = geminiKey.value,
                 extraOptions = {},
-                onSave = { finalValue -> saveKey("gemini_key", finalValue)},
+                onSave = { finalValue -> viewModel.saveSetting("gemini_key", finalValue)},
             ) {
                 isGeminiDialogShown = false
             }
@@ -142,7 +136,7 @@ fun SettingsScreen(
                                 selected = (language.key == selectedLanguageApp.value),
                                 onClick = {
                                     selectedLanguageApp.value = language.key
-                                    saveKey("language_app", language.key)
+                                    viewModel.saveSetting("language_app", language.key)
                                     viewModel.changeLanguage(language.key)
                                 }
                             )
@@ -163,6 +157,7 @@ fun SettingsScreen(
         modifier = Modifier
             .fillMaxSize()
             .padding(32.dp)
+            .verticalScroll(rememberScrollState())
     ) {
 
         Text(
@@ -240,6 +235,33 @@ fun SettingsScreen(
             )
         }
 
+        Divider()
+
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Usar Material You",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.surfaceTint,
+                )
+                Text(
+                    text = "Aplicar ao app um tema com cores baseadas no seu papel de parede",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            Switch(
+                checked = isChecked,
+                onCheckedChange = {
+                    isChecked = it
+                    viewModel.setMaterialYou(it)
+                }
+            )
+        }
         Divider()
 
         Column(

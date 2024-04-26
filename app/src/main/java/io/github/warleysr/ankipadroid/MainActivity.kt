@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import io.github.warleysr.ankipadroid.navigation.AppNavigation
+import io.github.warleysr.ankipadroid.ui.theme.AppTheme
 import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
@@ -47,7 +48,11 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             )
-            AppNavigation(settingsViewModel, pronunciationViewModel, ankiDroidViewModel)
+
+
+            AppTheme(dynamicColor = settingsViewModel.materialYou.value) {
+                AppNavigation(settingsViewModel, pronunciationViewModel, ankiDroidViewModel)
+            }
         }
 
         val ankiDroidHelper = AnkiDroidHelper(this)
