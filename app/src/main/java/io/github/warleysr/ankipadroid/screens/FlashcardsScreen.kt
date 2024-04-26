@@ -17,7 +17,7 @@ fun FlashcardsScreen(
 ) {
 
     if (pronunciationViewModel.hasAssessmentSucceeded.value) {
-        AssessmentResults(pronunciationViewModel)
+        AssessmentResults(settingsViewModel, pronunciationViewModel)
     } else {
         FlashcardPreview(settingsViewModel, pronunciationViewModel, ankiDroidViewModel)
     }

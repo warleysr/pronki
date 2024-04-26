@@ -1,5 +1,8 @@
 package io.github.warleysr.ankipadroid.viewmodels
 
+import android.media.AudioAttributes
+import android.media.AudioFormat
+import android.media.AudioTrack
 import android.media.MediaPlayer
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -15,7 +18,13 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
     private var pronunciationResult: PronunciationResult? = null
     private val audioPath = "$audioDir/record.wav"
     private var waveRecorder: WaveRecorder? = null
+    private var audioDataTTS: ByteArray? = null
+    var referenceText: String = ""
+        private set
     var hasAssessmentSucceeded: MutableState<Boolean> = mutableStateOf(false)
+        private set
+    var generatedTTS: MutableState<Boolean> = mutableStateOf(false)
+        private set
 
     init {
         println("PronunciationViewModel initialized")
@@ -34,6 +43,7 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
             onSuccess = {
                 pronunciationResult = PronunciationResult(it)
                 hasAssessmentSucceeded.value = true
+                this.referenceText = referenceText
                 onResult(true)
             },
             onFailure = {
@@ -70,9 +80,51 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
         }
     }
 
+    fun playTTS(
+        referenceText: String,
+        voiceName: String,
+        speechRegion: String,
+        speechApiKey: String,
+    ) {
+        if (generatedTTS.value)
+            playTTSAudio()
+        else
+            AzureAPI.generateTTS(
+                referenceText, voiceName, speechApiKey, speechRegion,
+                onResult = { audioData ->
+                    audioDataTTS = audioData
+                    generatedTTS.value = true
+                    playTTSAudio()
+                }
+            )
+    }
+
+    private fun playTTSAudio() {
+        val audioTrack = AudioTrack.Builder()
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build())
+            .setAudioFormat(
+                AudioFormat.Builder()
+                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setSampleRate(24000)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                    .build())
+            .setBufferSizeInBytes(audioDataTTS!!.size)
+            .setTransferMode(AudioTrack.MODE_STATIC)
+            .build()
+
+        audioTrack.write(audioDataTTS!!, 0, audioDataTTS!!.size)
+        audioTrack.play()
+    }
+
     fun exitResults() {
         pronunciationResult = null
+        audioDataTTS = null
         hasAssessmentSucceeded.value = false
+        generatedTTS.value = false
     }
 
 }

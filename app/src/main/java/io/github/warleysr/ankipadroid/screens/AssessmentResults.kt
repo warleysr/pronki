@@ -38,11 +38,16 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.warleysr.ankipadroid.ConfigUtils
 import io.github.warleysr.ankipadroid.R
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
+import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 
 @Composable
-fun AssessmentResults(pronunciationViewModel: PronunciationViewModel) {
+fun AssessmentResults(
+    settingsViewModel: SettingsViewModel,
+    pronunciationViewModel: PronunciationViewModel,
+) {
     val result = pronunciationViewModel.getPronunciationResult()!!
 
     val scores1 = mapOf(
@@ -69,8 +74,6 @@ fun AssessmentResults(pronunciationViewModel: PronunciationViewModel) {
         )
         percentages[score.key] = currentPercentage
     }
-
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = true) {
         animationPlayed = true
@@ -154,6 +157,16 @@ fun AssessmentResults(pronunciationViewModel: PronunciationViewModel) {
                 Spacer(modifier = Modifier.width(8.dp))
                 FloatingActionButton(onClick = {
 
+                    val azureKey = settingsViewModel.getSetting("azure_key")
+                    val language = settingsViewModel.getSetting("language")
+                    val region = settingsViewModel.getSetting("region")
+
+                    pronunciationViewModel.playTTS(
+                        referenceText = pronunciationViewModel.referenceText,
+                        voiceName = ConfigUtils.getVoiceByLanguage(language),
+                        speechApiKey = azureKey,
+                        speechRegion = region
+                    )
                 }) {
                     Icon(Icons.Filled.RecordVoiceOver, null)
                 }
