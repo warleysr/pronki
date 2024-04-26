@@ -19,7 +19,7 @@ class ConfigUtils {
 
             for (key in languages!!.keys()) {
                 val code = languages!!.getJSONArray(key)[0].toString()
-                val voice = languages!!.getJSONArray(key)[0].toString()
+                val voice = languages!!.getJSONArray(key)[1].toString()
 
                 availableLanguages[code] = key
                 availableVoices[code] = voice
@@ -38,8 +38,8 @@ class ConfigUtils {
             return availableRegions
         }
 
-        fun getVoiceByLanguage(language: String): String? {
-            return availableVoices[language]
+        fun getVoiceByLanguage(language: String): String {
+            return availableVoices[language] ?: return "en-US-AvaMultilingualNeural"
         }
     }
 }
