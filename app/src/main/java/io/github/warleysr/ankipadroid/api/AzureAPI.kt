@@ -30,7 +30,7 @@ class AzureAPI {
                 referenceText,
                 PronunciationAssessmentGradingSystem.HundredMark,
                 PronunciationAssessmentGranularity.Phoneme,
-                false
+                true
             )
             pronunciationConfig.setPhonemeAlphabet("IPA")
             pronunciationConfig.enableProsodyAssessment()
