@@ -62,6 +62,7 @@ fun AssessmentResults(
     val scores = scores1 + scores2
 
     var animationPlayed by remember { mutableStateOf(false) }
+    var playingAudio by remember { mutableStateOf(false) }
 
     val percentages = HashMap<String, State<Float>>()
     scores.forEach {score ->
@@ -150,12 +151,17 @@ fun AssessmentResults(
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 FloatingActionButton(onClick = {
-                    pronunciationViewModel.replayVoice()
+                    if (playingAudio) return@FloatingActionButton
+                    playingAudio = true
+
+                    pronunciationViewModel.replayVoice(onFinish = { playingAudio = false })
                 }) {
                     Icon(Icons.Filled.PlayCircle, null)
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 FloatingActionButton(onClick = {
+                    if (playingAudio) return@FloatingActionButton
+                    playingAudio = true
 
                     val azureKey = settingsViewModel.getSetting("azure_key")
                     val language = settingsViewModel.getSetting("language")
@@ -165,7 +171,8 @@ fun AssessmentResults(
                         referenceText = pronunciationViewModel.referenceText,
                         voiceName = ConfigUtils.getVoiceByLanguage(language),
                         speechApiKey = azureKey,
-                        speechRegion = region
+                        speechRegion = region,
+                        onFinish = { playingAudio = false }
                     )
                 }) {
                     Icon(Icons.Filled.RecordVoiceOver, null)

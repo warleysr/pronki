@@ -70,13 +70,14 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
         this.waveRecorder = null
     }
 
-    fun replayVoice() {
+    fun replayVoice(onFinish: () -> Unit) {
         val player = MediaPlayer()
         player.setDataSource(audioPath)
         player.prepare()
         player.start()
         player.setOnCompletionListener {
             player.release()
+            onFinish()
         }
     }
 
@@ -85,21 +86,22 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
         voiceName: String,
         speechRegion: String,
         speechApiKey: String,
+        onFinish: () -> Unit
     ) {
         if (generatedTTS.value)
-            playTTSAudio()
+            playTTSAudio(onFinish)
         else
             AzureAPI.generateTTS(
                 referenceText, voiceName, speechApiKey, speechRegion,
                 onResult = { audioData ->
                     audioDataTTS = audioData
                     generatedTTS.value = true
-                    playTTSAudio()
+                    playTTSAudio(onFinish)
                 }
             )
     }
 
-    private fun playTTSAudio() {
+    private fun playTTSAudio(onFinish: () -> Unit) {
         val audioTrack = AudioTrack.Builder()
             .setAudioAttributes(
                 AudioAttributes.Builder()
@@ -117,8 +119,16 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
             .build()
 
         audioTrack.write(audioDataTTS!!, 0, audioDataTTS!!.size)
+
+        audioTrack.setNotificationMarkerPosition(audioDataTTS!!.size / 2)
+        audioTrack.setPlaybackPositionUpdateListener(object : AudioTrack.OnPlaybackPositionUpdateListener {
+            override fun onMarkerReached(track: AudioTrack?) { onFinish() }
+
+            override fun onPeriodicNotification(track: AudioTrack?) {}
+        })
+
         audioTrack.play()
-    }
+}
 
     fun exitResults() {
         pronunciationResult = null
