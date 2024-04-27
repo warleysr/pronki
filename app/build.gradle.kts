@@ -69,6 +69,7 @@ dependencies {
     implementation("com.microsoft.cognitiveservices.speech:client-sdk:1.37.0")
     implementation("com.github.squti:Android-Wave-Recorder:1.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
+    implementation("com.github.skydoves:balloon-compose:1.6.4")
 
     implementation(libs.androidx.datastore)
     testImplementation(libs.junit)

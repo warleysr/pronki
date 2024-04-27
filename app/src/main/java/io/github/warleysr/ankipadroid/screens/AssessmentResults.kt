@@ -27,7 +27,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
@@ -38,6 +37,11 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.skydoves.balloon.ArrowPositionRules
+import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.BalloonSizeSpec
+import com.skydoves.balloon.compose.Balloon
+import com.skydoves.balloon.compose.rememberBalloonBuilder
 import io.github.warleysr.ankipadroid.ConfigUtils
 import io.github.warleysr.ankipadroid.R
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
@@ -74,6 +78,18 @@ fun AssessmentResults(
             ), label = "FloatAnimation"
         )
         percentages[score.key] = currentPercentage
+    }
+
+    val builder = rememberBalloonBuilder {
+        setArrowSize(10)
+        setArrowPosition(0.5f)
+        setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+        setWidth(BalloonSizeSpec.WRAP)
+        setHeight(BalloonSizeSpec.WRAP)
+        setPadding(12)
+        setMarginHorizontal(12)
+        setCornerRadius(8f)
+        setBalloonAnimation(BalloonAnimation.ELASTIC)
     }
 
     LaunchedEffect(key1 = true) {
@@ -114,27 +130,46 @@ fun AssessmentResults(
         Spacer(modifier = Modifier.height(16.dp))
 
         FlowRow(
-            horizontalGap = 4.dp,
-            verticalGap = 4.dp,
             alignment = Alignment.CenterHorizontally,
         ) {
             result.words.forEach { word ->
-                Text(
-                    text = word.word,
-                    color = colorByPercentage(word.accuracy),
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp,
-                    style = TextStyle(
-                        textDecoration = TextDecoration.Underline,
-                        lineBreak = LineBreak.Simple
-                    ),
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .clickable {
+                Balloon(
+                    builder = builder,
+                    balloonContent = {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(errorName(word.error), color = errorColor(word.error))
+                            Row(modifier = Modifier.padding(8.dp)) {
+                                word.phonemes.forEachIndexed { i, phoneme ->
+                                    Text(
+                                        phoneme.phoneme,
+                                        color = colorByPercentage(phoneme.accuracy)
+                                    )
+                                    if (i < word.phonemes.size - 1)
+                                        Text("•", color = Color.White)
+                                }
+                            }
                         }
-                )
+                    }
+                ) { balloonWindow ->
+                    Text(
+                        text = word.word,
+                        color = if (word.error == "None") colorByPercentage(word.accuracy) else errorColor(word.error),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        style = TextStyle(
+                            textDecoration = TextDecoration.Underline,
+                            lineBreak = LineBreak.Simple
+                        ),
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .clickable {
+                                balloonWindow.showAlignBottom()
+                            }
+                    )
+                }
             }
         }
+
         Column(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.Bottom,
@@ -189,6 +224,24 @@ fun colorByPercentage(percentage: Float): Color {
         Color(red = 237, green = 97, blue = 16)
     else if (percentage < 0.7f)
         Color(red = 252, green = 211, blue = 3)
+    else
+        Color(red = 6, green = 162, blue = 6, alpha = 255)
+}
+
+fun errorName(error: String): String {
+    return if (error == "None")
+        "Correct"
+    else
+        error
+}
+
+fun errorColor(error: String): Color {
+    return if (error == "Omission")
+        Color(red = 156, green = 39, blue = 176, alpha = 255)
+    else if (error == "Insertion")
+        Color(red = 18, green = 75, blue = 226, alpha = 233)
+    else if (error == "Mispronunciation")
+        Color.Red
     else
         Color(red = 6, green = 162, blue = 6, alpha = 255)
 }
