@@ -37,6 +37,7 @@ fun RecordFAB(
     settingsViewModel: SettingsViewModel,
     pronunciationViewModel: PronunciationViewModel,
     ankiDroidViewModel: AnkiDroidViewModel,
+    onBackUse: () -> Unit,
     onExit: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -54,7 +55,7 @@ fun RecordFAB(
                 println("Released! Starting assessment...")
                 pronunciationViewModel.stopRecording()
 
-                val referenceText = if (useFront) ankiDroidViewModel.currentQuestion else ankiDroidViewModel.currentAnswer
+                val referenceText = if (useFront) ankiDroidViewModel.cardInfo!!.question else ankiDroidViewModel.cardInfo!!.answer
                 val azureKey = settingsViewModel.getSetting("azure_key")
                 val language = settingsViewModel.getSetting("language")
                 val region = settingsViewModel.getSetting("region")
@@ -90,7 +91,11 @@ fun RecordFAB(
             SmallFloatingActionButton(
                 onClick = {
                     ankiDroidViewModel.toggleCardField(
-                        onToggle = {newValue -> useFront = newValue }
+                        onToggle = {
+                            newValue -> useFront = newValue
+                            if (!useFront)
+                                onBackUse()
+                        }
                     )
                 }
             ) {
