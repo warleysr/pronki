@@ -4,6 +4,8 @@ import static com.ichi2.anki.api.AddContentApi.READ_WRITE_PERMISSION;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -29,6 +31,12 @@ import java.util.Map;
 
 
 public class AnkiDroidHelper {
+
+    public static final int EASE_1 = 1;
+    public static final int EASE_2 = 2;
+    public static final int EASE_3 = 3;
+    public static final int EASE_4 = 4;
+
     public static final String[] SIMPLE_CARD_PROJECTION = {
             FlashCardsContract.Card.ANSWER_PURE,
             FlashCardsContract.Card.QUESTION_SIMPLE
@@ -263,5 +271,18 @@ public class AnkiDroidHelper {
             }
         }
         return null;
+    }
+
+    public void reviewCard(long noteID, int cardOrd, long cardStartTime, int ease) {
+        long timeTaken = System.currentTimeMillis() - cardStartTime;
+        ContentResolver cr = mContext.getContentResolver();
+        Uri reviewInfoUri = FlashCardsContract.ReviewInfo.CONTENT_URI;
+        ContentValues values = new ContentValues();
+        values.put(FlashCardsContract.ReviewInfo.NOTE_ID, noteID);
+        values.put(FlashCardsContract.ReviewInfo.CARD_ORD, cardOrd);
+        values.put(FlashCardsContract.ReviewInfo.EASE, ease);
+        values.put(FlashCardsContract.ReviewInfo.TIME_TAKEN, timeTaken);
+        // Log.d(TAG, timeTaken + " time taken " + values.getAsLong(FlashCardsContract.ReviewInfo.TIME_TAKEN));
+        cr.update(reviewInfoUri, values, null, null);
     }
 }

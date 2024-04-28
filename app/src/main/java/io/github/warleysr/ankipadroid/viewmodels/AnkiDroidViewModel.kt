@@ -9,9 +9,7 @@ import io.github.warleysr.ankipadroid.CardInfo
 class AnkiDroidViewModel : ViewModel() {
 
     private var currentDeckId: Long? = null
-    var currentQuestion: String? = null
-        private set
-    var currentAnswer: String? = null
+    var cardInfo: CardInfo? = null
         private set
 
     var isDeckSelected: MutableState<Boolean> = mutableStateOf(false)
@@ -26,9 +24,18 @@ class AnkiDroidViewModel : ViewModel() {
 
     fun queryNextCard(onResult: (String, String) -> Unit) {
         val cardInfo = AnkiDroidHelper.getInstance().queryCurrentScheduledCard(currentDeckId!!)
-        currentQuestion = cardInfo.question
-        currentAnswer = cardInfo.answer
-        onResult(cardInfo.question, cardInfo.answer)
+        this.cardInfo = cardInfo
+        if (cardInfo != null)
+            onResult(cardInfo.question, cardInfo.answer)
+        else
+            onResult("NO CARD TO REVIEW.", "NONE.")
+    }
+
+    fun reviewCard(ease: Int, onNextResult: (String, String) -> Unit) {
+        AnkiDroidHelper.getInstance().reviewCard(
+            cardInfo!!.noteID, cardInfo!!.cardOrd, cardInfo!!.cardStartTime, ease
+        )
+        queryNextCard(onResult = onNextResult)
     }
 
     fun getDeckList(): List<String>? {
