@@ -55,11 +55,11 @@ fun AzureExtraOptions(
                 expanded = expandedLanguages,
                 onDismissRequest = { expandedLanguages = false }
             ) {
-                ConfigUtils.getAvailableLanguages().forEach { item ->
+                ConfigUtils.getAvailableLanguagesSorted()?.forEach { item ->
                     DropdownMenuItem(
-                        text = { Text(text = item.value) },
+                        text = { Text(text = item.second) },
                         onClick = {
-                            onLanguageChange(item.key)
+                            onLanguageChange(item.first)
                             expandedLanguages = false
                         }
                     )

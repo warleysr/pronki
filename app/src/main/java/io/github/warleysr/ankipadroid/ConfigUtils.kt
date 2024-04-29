@@ -11,6 +11,7 @@ class ConfigUtils {
         private var availableLanguages = HashMap<String, String>()
         private var availableVoices = HashMap<String, String>()
         private var availableRegions = ArrayList<String>()
+        private var availableLanguagesSorted: List<Pair<String, String>>? = null
 
         fun initialize(configJson: String) {
             config = JSONObject(configJson)
@@ -28,10 +29,18 @@ class ConfigUtils {
             for (idx in 0..<regions!!.length()) {
                 availableRegions.add(regions!![idx].toString())
             }
+
+            availableRegions.sort()
+            availableLanguagesSorted = availableLanguages.map {Pair(it.key, it.value)}
+            availableLanguagesSorted = availableLanguagesSorted!!.sortedBy { pair -> pair.second }
         }
 
         fun getAvailableLanguages(): HashMap<String, String> {
             return availableLanguages
+        }
+
+        fun getAvailableLanguagesSorted(): List<Pair<String, String>>? {
+            return availableLanguagesSorted
         }
 
         fun getAvailableRegions(): ArrayList<String> {
