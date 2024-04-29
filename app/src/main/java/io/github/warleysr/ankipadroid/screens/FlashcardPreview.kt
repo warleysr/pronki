@@ -1,10 +1,12 @@
 package io.github.warleysr.ankipadroid.screens
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -68,7 +70,7 @@ fun FlashcardPreview(
                 ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(128.dp),
+                        .defaultMinSize(minHeight = 128.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     ),
@@ -91,72 +93,96 @@ fun FlashcardPreview(
                 Divider()
                 Spacer(Modifier.height(16.dp))
 
-                if (showAnswer) {
-                    ElevatedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(128.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        )
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
+                AnimatedVisibility(visible = showAnswer) {
+                    Column {
+                        ElevatedCard(
                             modifier = Modifier
-                                .verticalScroll(rememberScrollState())
-                                .weight(1f, false)
-                        ) {
-                            Text(currentAnswer, style = MaterialTheme.typography.bodyLarge,
-                                modifier = Modifier.padding(16.dp),
-                                textAlign = TextAlign.Center,
+                                .fillMaxWidth()
+                                .defaultMinSize(minHeight = 128.dp)
+                            ,
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
                             )
+                        ) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .verticalScroll(rememberScrollState())
+                                    .weight(1f, false)
+                            ) {
+                                Text(
+                                    currentAnswer, style = MaterialTheme.typography.bodyLarge,
+                                    modifier = Modifier.padding(16.dp),
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
                         }
-                    }
 
-                    Spacer(Modifier.height(16.dp))
-                    Divider()
-                    Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.height(16.dp))
+                        Divider()
+                        Spacer(Modifier.height(16.dp))
 
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Button(
-                            onClick = { ankiDroidViewModel.reviewCard(AnkiDroidHelper.EASE_1, onNextResult = onResult) },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFFD32F2F),
-                                contentColor = Color.White
-                            )
+                        Row(
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Text("Again")
-                        }
-                        Button(
-                            onClick = { ankiDroidViewModel.reviewCard(AnkiDroidHelper.EASE_2, onNextResult = onResult) },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF455A64),
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Text("Hard")
-                        }
-                        Button(
-                            onClick = { ankiDroidViewModel.reviewCard(AnkiDroidHelper.EASE_3, onNextResult = onResult) },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF4CAF50),
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Text("Good")
-                        }
-                        Button(
-                            onClick = { ankiDroidViewModel.reviewCard(AnkiDroidHelper.EASE_4, onNextResult = onResult) },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF03A9F4),
-                                contentColor = Color.White
-                            )
-                        ) {
-                            Column {
-                                Text("Easy")
+                            Button(
+                                onClick = {
+                                    ankiDroidViewModel.reviewCard(
+                                        AnkiDroidHelper.EASE_1,
+                                        onNextResult = onResult
+                                    )
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFFD32F2F),
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Again")
+                            }
+                            Button(
+                                onClick = {
+                                    ankiDroidViewModel.reviewCard(
+                                        AnkiDroidHelper.EASE_2,
+                                        onNextResult = onResult
+                                    )
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF455A64),
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Hard")
+                            }
+                            Button(
+                                onClick = {
+                                    ankiDroidViewModel.reviewCard(
+                                        AnkiDroidHelper.EASE_3,
+                                        onNextResult = onResult
+                                    )
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF4CAF50),
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Good")
+                            }
+                            Button(
+                                onClick = {
+                                    ankiDroidViewModel.reviewCard(
+                                        AnkiDroidHelper.EASE_4,
+                                        onNextResult = onResult
+                                    )
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF03A9F4),
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Column {
+                                    Text("Easy")
+                                }
                             }
                         }
                     }
