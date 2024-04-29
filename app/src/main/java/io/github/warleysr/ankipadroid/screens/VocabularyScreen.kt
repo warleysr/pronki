@@ -1,5 +1,10 @@
 package io.github.warleysr.ankipadroid.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,13 +27,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.warleysr.ankipadroid.R
 
+@Preview
 @Composable
 fun VocabularyScreen() {
     var fabState by remember { mutableStateOf(false) }
+
+    val fabRotation = animateFloatAsState(
+        targetValue = if (fabState) 180f else 0f,
+        animationSpec = tween(
+            durationMillis = 300,
+            delayMillis = 5
+        ), label = "FloatAnimation"
+    )
 
     Column (
         modifier = Modifier
@@ -37,27 +53,39 @@ fun VocabularyScreen() {
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom
     ) {
-        if (fabState) {
-            SmallFloatingActionButton(
-                onClick = { },
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.secondary
-            ) {
-                Icon(Icons.Filled.List, null)
+        AnimatedVisibility(
+            visible = fabState,
+            enter = scaleIn(),
+            exit = scaleOut(),
+        ) {
+            Column {
+                SmallFloatingActionButton(
+                    onClick = { },
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.secondary
+                ) {
+                    Icon(Icons.Filled.List, null)
+                }
+                Spacer(Modifier.padding(4.dp))
+                SmallFloatingActionButton(
+                    onClick = { },
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.secondary
+                ) {
+                    Icon(Icons.Filled.CameraAlt, null)
+                }
+                Spacer(Modifier.padding(4.dp))
             }
-            Spacer(Modifier.padding(4.dp))
-            SmallFloatingActionButton(
-                onClick = { },
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.secondary
-            ) {
-                Icon(Icons.Filled.CameraAlt, null)
-            }
-            Spacer(Modifier.padding(4.dp))
         }
         ExtendedFloatingActionButton(
             onClick = { fabState = !fabState },
-            icon = { Icon(if (fabState) Icons.Filled.Close else Icons.Filled.Add , null) },
+            icon = {
+                Icon(
+                    if (fabState) Icons.Filled.Close else Icons.Filled.Add ,
+                    null,
+                    modifier = Modifier.rotate(fabRotation.value)
+                )
+            },
             text = { 
                 Text(
                     text =
