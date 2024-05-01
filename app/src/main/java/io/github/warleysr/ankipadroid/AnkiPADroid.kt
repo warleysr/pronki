@@ -1,6 +1,7 @@
 package io.github.warleysr.ankipadroid
 
 import android.app.Application
+import org.opencv.android.OpenCVLoader
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -32,6 +33,13 @@ class AnkiPADroid : Application() {
         }
 
         ConfigUtils.initialize(configJson)
+
+        if (OpenCVLoader.initLocal()) {
+            println("OpenCV loaded successfully")
+        } else {
+            println("OpenCV initialization failed!");
+        }
+
     }
     companion object {
         lateinit var instance: AnkiPADroid

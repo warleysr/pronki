@@ -15,6 +15,7 @@ import io.github.warleysr.ankipadroid.ui.theme.AppTheme
 import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
+import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,6 +49,13 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             )
+            val vocabularyViewModel = viewModel<VocabularyViewModel>(
+                factory = object: ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        return VocabularyViewModel() as T
+                    }
+                }
+            )
 
             LaunchedEffect(key1 = true) {
                 CoroutineScope(Dispatchers.IO).launch {
@@ -64,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                 dynamicColor = settingsViewModel.materialYou.value,
                 darkTheme = darkTheme
             ) {
-                AppNavigation(settingsViewModel, pronunciationViewModel, ankiDroidViewModel)
+                AppNavigation(settingsViewModel, pronunciationViewModel, ankiDroidViewModel, vocabularyViewModel)
             }
         }
 
@@ -83,6 +91,7 @@ class MainActivity : AppCompatActivity() {
                 Manifest.permission.INTERNET,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.CAMERA
             ),
             1 )
     }

@@ -24,12 +24,14 @@ import io.github.warleysr.ankipadroid.screens.vocabulary.VocabularyScreen
 import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
+import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
 
 @Composable
 fun AppNavigation(
     settingsViewModel: SettingsViewModel,
     pronunciationViewModel: PronunciationViewModel,
-    ankiDroidViewModel: AnkiDroidViewModel
+    ankiDroidViewModel: AnkiDroidViewModel,
+    vocabularyViewModel: VocabularyViewModel
 ) {
 
     val navController : NavHostController = rememberNavController()
@@ -77,7 +79,7 @@ fun AppNavigation(
                 FlashcardsScreen(settingsViewModel, pronunciationViewModel, ankiDroidViewModel)
             }
             composable(route = Screens.VocabularyScreen.name) {
-                VocabularyScreen()
+                VocabularyScreen(vocabularyViewModel)
             }
             composable(route = Screens.SettingsScreen.name) {
                 SettingsScreen(settingsViewModel)

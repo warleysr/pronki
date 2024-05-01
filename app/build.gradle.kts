@@ -38,6 +38,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
@@ -70,6 +71,9 @@ dependencies {
     implementation("com.github.squti:Android-Wave-Recorder:1.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
     implementation("com.github.skydoves:balloon-compose:1.6.4")
+    implementation("com.vanniktech:android-image-cropper:4.5.0")
+    implementation("org.opencv:opencv:4.9.0")
+    implementation("com.google.mlkit:text-recognition:16.0.0")
 
     implementation(libs.androidx.datastore)
     testImplementation(libs.junit)
