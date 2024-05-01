@@ -30,9 +30,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.warleysr.ankipadroid.AnkiDroidHelper
+import io.github.warleysr.ankipadroid.R
 import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
@@ -138,7 +140,7 @@ fun FlashcardPreview(
                                     contentColor = Color.White
                                 )
                             ) {
-                                Text("Again")
+                                Text(stringResource(id = R.string.again))
                             }
                             Button(
                                 onClick = {
@@ -152,7 +154,7 @@ fun FlashcardPreview(
                                     contentColor = Color.White
                                 )
                             ) {
-                                Text("Hard")
+                                Text(stringResource(id = R.string.hard))
                             }
                             Button(
                                 onClick = {
@@ -166,7 +168,7 @@ fun FlashcardPreview(
                                     contentColor = Color.White
                                 )
                             ) {
-                                Text("Good")
+                                Text(stringResource(id = R.string.good))
                             }
                             Button(
                                 onClick = {
@@ -181,7 +183,7 @@ fun FlashcardPreview(
                                 )
                             ) {
                                 Column {
-                                    Text("Easy")
+                                    Text(stringResource(id = R.string.easy))
                                 }
                             }
                         }
@@ -194,7 +196,7 @@ fun FlashcardPreview(
                     onExit = { deckSelected = false }
                 )
             } else {
-                Text("Select a deck", style = MaterialTheme.typography.headlineMedium)
+                Text(stringResource(id = R.string.select_deck), style = MaterialTheme.typography.headlineMedium)
 
                 ankiDroidViewModel.getDeckList()?.forEach { deck ->
                     Button(onClick = {

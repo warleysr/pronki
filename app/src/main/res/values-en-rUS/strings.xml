@@ -25,4 +25,17 @@
     <string name="fluency">Fluency</string>
     <string name="completeness">Completeness</string>
     <string name="prosody">Prosody</string>
+    <string name="select_theme">Select theme</string>
+    <string name="dark">Dark</string>
+    <string name="light">Light</string>
+    <string name="system">System</string>
+    <string name="app_theme">App theme</string>
+    <string name="app_theme_description">Choose dark or light theme or if should follow system.</string>
+    <string name="material_you">Use Material You</string>
+    <string name="material_you_description">Apply to the app a theme based on your wallpaper colors.</string>
+    <string name="select_deck">Select deck</string>
+    <string name="again">Again</string>
+    <string name="hard">Hard</string>
+    <string name="good">Good</string>
+    <string name="easy">Easy</string>
 </resources>
