@@ -18,9 +18,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import io.github.warleysr.ankipadroid.screens.FlashcardsScreen
-import io.github.warleysr.ankipadroid.screens.SettingsScreen
-import io.github.warleysr.ankipadroid.screens.VocabularyScreen
+import io.github.warleysr.ankipadroid.screens.flashcards.FlashcardsScreen
+import io.github.warleysr.ankipadroid.screens.settings.SettingsScreen
+import io.github.warleysr.ankipadroid.screens.vocabulary.VocabularyScreen
 import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel

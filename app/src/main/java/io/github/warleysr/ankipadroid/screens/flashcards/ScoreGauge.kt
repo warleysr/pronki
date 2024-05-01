@@ -1,4 +1,4 @@
-package io.github.warleysr.ankipadroid.screens
+package io.github.warleysr.ankipadroid.screens.flashcards
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box

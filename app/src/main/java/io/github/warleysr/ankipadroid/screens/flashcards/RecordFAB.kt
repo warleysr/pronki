@@ -1,4 +1,4 @@
-package io.github.warleysr.ankipadroid.screens
+package io.github.warleysr.ankipadroid.screens.flashcards
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween

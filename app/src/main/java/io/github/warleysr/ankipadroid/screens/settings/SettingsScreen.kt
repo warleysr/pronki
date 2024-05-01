@@ -1,6 +1,5 @@
-package io.github.warleysr.ankipadroid.screens
+package io.github.warleysr.ankipadroid.screens.settings
 
-import TextEditDialog
 import android.annotation.SuppressLint
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

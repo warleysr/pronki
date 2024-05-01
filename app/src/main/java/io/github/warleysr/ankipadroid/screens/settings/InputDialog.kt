@@ -1,3 +1,5 @@
+package io.github.warleysr.ankipadroid.screens.settings
+
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
