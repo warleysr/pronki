@@ -4,6 +4,8 @@ import android.Manifest
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -13,6 +15,9 @@ import io.github.warleysr.ankipadroid.ui.theme.AppTheme
 import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -20,11 +25,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
-//        CoroutineScope(Dispatchers.IO).launch {
-//            val language = settingsViewModel!!.getSetting("language_app")
-//            settingsViewModel!!.changeLanguage(language.ifEmpty { "en" })
-//        }
 
         setContent {
             val settingsViewModel = viewModel<SettingsViewModel>(
@@ -49,8 +49,21 @@ class MainActivity : AppCompatActivity() {
                 }
             )
 
+            LaunchedEffect(key1 = true) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val language = settingsViewModel.getSetting("language_app")
+                    settingsViewModel.changeLanguage(language.ifEmpty { "en" })
+                }
+            }
 
-            AppTheme(dynamicColor = settingsViewModel.materialYou.value) {
+            val darkTheme = (
+                settingsViewModel.theme.value == "dark"
+                || (settingsViewModel.theme.value == "system" && isSystemInDarkTheme())
+            )
+            AppTheme(
+                dynamicColor = settingsViewModel.materialYou.value,
+                darkTheme = darkTheme
+            ) {
                 AppNavigation(settingsViewModel, pronunciationViewModel, ankiDroidViewModel)
             }
         }

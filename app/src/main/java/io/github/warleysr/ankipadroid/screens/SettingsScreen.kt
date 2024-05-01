@@ -14,6 +14,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +53,7 @@ fun SettingsScreen(
     var isAzureDialogShown by remember { mutableStateOf(false) }
     var isGeminiDialogShown by remember { mutableStateOf(false) }
     var isLanguagesDialogShown by remember { mutableStateOf(false) }
+    var isThemeDialogShown by remember { mutableStateOf(false) }
     var isChecked by remember { mutableStateOf(false) }
 
     azureKey.value = viewModel.getSetting("azure_key")
@@ -59,6 +61,7 @@ fun SettingsScreen(
     selectedLanguage.value = viewModel.getSetting("language")
     selectedLanguageApp.value = viewModel.getSetting("language_app")
     selectedRegion.value = viewModel.getSetting("region")
+    viewModel.theme.value = viewModel.getSetting("theme")
 
     val materialYou = viewModel.getSetting("material_you")
     isChecked = materialYou.isNotEmpty() && materialYou.toBooleanStrict()
@@ -152,6 +155,51 @@ fun SettingsScreen(
         }
     }
 
+    if (isThemeDialogShown) {
+        AlertDialog(
+            onDismissRequest = {
+                isThemeDialogShown = false
+            },
+            modifier = Modifier.clip(RoundedCornerShape(12.dp)),
+        ) {
+            Surface {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(stringResource(id = R.string.select_theme), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth())
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = viewModel.theme.value == "system",
+                            onClick = {
+                                viewModel.theme.value = "system"
+                                viewModel.saveSetting("theme", "system")
+                            }
+                        )
+                        Text(stringResource(id = R.string.system))
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = viewModel.theme.value == "dark",
+                            onClick = {
+                                viewModel.theme.value = "dark"
+                                viewModel.saveSetting("theme", "dark")
+                            }
+                        )
+                        Text(stringResource(id = R.string.dark))
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        RadioButton(
+                            selected = viewModel.theme.value == "light",
+                            onClick = {
+                                viewModel.theme.value = "light"
+                                viewModel.saveSetting("theme", "light")
+                            }
+                        )
+                        Text(stringResource(id = R.string.light))
+                    }
+                }
+            }
+        }
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -238,18 +286,20 @@ fun SettingsScreen(
         Divider()
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Usar Material You",
+                    text = stringResource(id = R.string.material_you),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.surfaceTint,
                 )
                 Text(
-                    text = "Aplicar ao app um tema com cores baseadas no seu papel de parede",
+                    text = stringResource(id = R.string.material_you_description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -261,6 +311,31 @@ fun SettingsScreen(
                     viewModel.setMaterialYou(it)
                 }
             )
+        }
+        Divider()
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(id = R.string.app_theme),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.surfaceTint,
+                )
+                Text(
+                    text = stringResource(id = R.string.app_theme_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            Button(onClick = {isThemeDialogShown = true}) {
+                Text(stringResource(id = themeString(viewModel.theme.value)))
+            }
         }
         Divider()
 
@@ -284,5 +359,14 @@ fun SettingsScreen(
                 color = MaterialTheme.colorScheme.onSurface,
             )
         }
+    }
+}
+
+fun themeString(theme: String): Int {
+    return when (theme) {
+        "dark" -> R.string.dark
+        "light" -> R.string.light
+        "system" -> R.string.system
+        else -> R.string.system
     }
 }

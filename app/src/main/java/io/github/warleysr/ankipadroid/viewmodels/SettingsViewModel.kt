@@ -6,11 +6,9 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import io.github.warleysr.ankipadroid.AnkiPADroid
-import kotlinx.coroutines.flow.StateFlow
 
 class SettingsViewModel() : ViewModel() {
 
@@ -20,10 +18,15 @@ class SettingsViewModel() : ViewModel() {
     var materialYou: MutableState<Boolean> = mutableStateOf(false)
         private set
 
+    var theme: MutableState<String> = mutableStateOf("system")
+        private set
+
     init {
         println("SettingsViewModel initialized")
         val materialYou = getSetting("material_you")
         this.materialYou.value = materialYou.isNotEmpty() && materialYou.toBooleanStrict()
+
+        theme.value = getSetting("theme")
     }
 
     fun getSetting(key: String): String {
@@ -43,7 +46,9 @@ class SettingsViewModel() : ViewModel() {
     }
 
     fun changeLanguage(language: String) {
-        AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(language))
+        AnkiPADroid.instance.run {
+            AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(language))
+        }
     }
 
     fun openAboutInfo() {
