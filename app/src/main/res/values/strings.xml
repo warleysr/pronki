@@ -38,4 +38,6 @@
     <string name="hard">Difícil</string>
     <string name="good">Bom</string>
     <string name="easy">Fácil</string>
+    <string name="opencv">Configurar OpenCV</string>
+    <string name="opencv_description">Configure o comportamento para o reconhecimento de imagens</string>
 </resources>

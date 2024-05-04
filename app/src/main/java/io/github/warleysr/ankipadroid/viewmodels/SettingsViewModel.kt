@@ -9,6 +9,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.ViewModel
 import io.github.warleysr.ankipadroid.AnkiPADroid
+import io.github.warleysr.ankipadroid.screens.settings.HSVColor
 
 class SettingsViewModel() : ViewModel() {
 
@@ -19,6 +20,9 @@ class SettingsViewModel() : ViewModel() {
         private set
 
     var theme: MutableState<String> = mutableStateOf("system")
+        private set
+
+    var adjustingColors: MutableState<Boolean> = mutableStateOf(false)
         private set
 
     init {
@@ -49,6 +53,40 @@ class SettingsViewModel() : ViewModel() {
         AnkiPADroid.instance.run {
             AppCompatDelegate.setApplicationLocales(LocaleListCompat.forLanguageTags(language))
         }
+    }
+
+    fun toggleAdjustingColors() {
+        adjustingColors.value = !adjustingColors.value
+    }
+
+    fun saveRangeColors(lower: HSVColor, upper: HSVColor) {
+        with (sharedPrefs.edit()) {
+            putFloat("color_lower_H", lower.H)
+            putFloat("color_lower_S", lower.S)
+            putFloat("color_lower_V", lower.V)
+
+            putFloat("color_upper_H", upper.H)
+            putFloat("color_upper_S", upper.S)
+            putFloat("color_upper_V", upper.V)
+
+            apply()
+        }
+
+        toggleAdjustingColors()
+    }
+
+    fun getRangeColors(): Pair<HSVColor, HSVColor> {
+        val lower = HSVColor(
+            sharedPrefs.getFloat("color_lower_H", 120f),
+            sharedPrefs.getFloat("color_lower_S", 0.5f),
+            sharedPrefs.getFloat("color_lower_V", 0.5f),
+        )
+        val upper = HSVColor(
+            sharedPrefs.getFloat("color_upper_H", 125f),
+            sharedPrefs.getFloat("color_upper_S", 0.55f),
+            sharedPrefs.getFloat("color_upper_V", 0.55f),
+        )
+        return Pair(lower, upper)
     }
 
     fun openAboutInfo() {

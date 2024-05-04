@@ -38,9 +38,7 @@ import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition")
 @Composable
-fun SettingsScreen(
-    viewModel: SettingsViewModel
-) {
+fun SettingsScreen(viewModel: SettingsViewModel) {
 
     val azureKey = remember { mutableStateOf("azure") }
     val geminiKey = remember { mutableStateOf("gemini") }
@@ -265,6 +263,29 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
+                    onClick = { viewModel.toggleAdjustingColors() },
+                )
+                .padding(all = 16.dp),
+        ) {
+            Text(
+                text = stringResource(id = R.string.opencv),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.surfaceTint,
+            )
+
+            Text(
+                text = stringResource(id = R.string.opencv_description),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+
+        Divider()
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
                     onClick = { isLanguagesDialogShown = true },
                 )
                 .padding(all = 16.dp),
@@ -359,6 +380,14 @@ fun SettingsScreen(
             )
         }
     }
+}
+
+@Composable
+fun SettingsScreenRoot(viewModel: SettingsViewModel) {
+    if (viewModel.adjustingColors.value)
+        HighlighterColorPicker(viewModel)
+    else
+        SettingsScreen(viewModel)
 }
 
 fun themeString(theme: String): Int {
