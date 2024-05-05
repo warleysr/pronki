@@ -1,6 +1,13 @@
 package io.github.warleysr.ankipadroid.screens.settings
 
+import android.app.Activity
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.os.Build
+import android.provider.MediaStore
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -9,12 +16,16 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,15 +36,49 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.canhub.cropper.CropImageContract
+import com.canhub.cropper.CropImageContractOptions
+import com.canhub.cropper.CropImageOptions
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
+import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
+import org.opencv.core.Scalar
+import kotlin.math.max
 
 @Composable
-fun HighlighterColorPicker(viewModel: SettingsViewModel) {
+fun HighlighterColorPicker(viewModel: SettingsViewModel, vocabularyViewModel: VocabularyViewModel) {
 
     val rangeColors = viewModel.getRangeColors()
     var lowerHSV by remember { mutableStateOf(rangeColors.first) }
     var upperHSV by remember { mutableStateOf(rangeColors.second) }
+    var originalBitmap: Bitmap? by remember { mutableStateOf(null) }
+    var processedBitmap: Bitmap? by remember { mutableStateOf(null) }
+    var rotation: Int? by remember { mutableStateOf(0) }
+    val context = LocalContext.current as Activity
+
+    val imageCropLauncher =
+        rememberLauncherForActivityResult(contract = CropImageContract()) { result ->
+            if (result.isSuccessful) {
+                result.uriContent?.let {
+                    originalBitmap = if (Build.VERSION.SDK_INT < 28) {
+                        MediaStore.Images.Media.getBitmap(context.contentResolver, it)
+                    } else {
+                        val source = ImageDecoder.createSource(context.contentResolver, it)
+                        ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
+                            decoder.isMutableRequired = true
+                        }
+                    }
+                    rotation = result.rotation
+                    vocabularyViewModel.applyAdjustment(
+                        originalBitmap!!, lowerHSV, upperHSV, onResult = { processedBitmap = it }
+                    )
+                }
+            } else {
+                println("ImageCropping error: ${result.error}")
+            }
+        }
     
     Column(
         modifier = Modifier
@@ -53,15 +98,42 @@ fun HighlighterColorPicker(viewModel: SettingsViewModel) {
             }
         }
         Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .defaultMinSize(minHeight = 256.dp)
+                .height(256.dp)
                 .fillMaxWidth()
                 .border(2.dp, Color.Black)
-        )
+                .clickable {
+                    val cropOptions = CropImageContractOptions(
+                        null,
+                        CropImageOptions()
+                    )
+                    imageCropLauncher.launch(cropOptions)
+                }
+        ) {
+            if (originalBitmap != null || processedBitmap != null) {
+                val bitmap = if (processedBitmap != null) processedBitmap else originalBitmap
+                Image(
+                    bitmap = bitmap!!.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else
+                Icon(
+                    Icons.Outlined.CameraAlt, null,
+                    modifier = Modifier.defaultMinSize(minWidth = 64.dp, minHeight = 64.dp)
+                )
+        }
         HSVLimitSelector(
             title = "Lower color",
             hsvColor = lowerHSV,
-            onColorChange = { lowerHSV = it }
+            onColorChange = {
+                lowerHSV = it
+                vocabularyViewModel.applyAdjustment(
+                    originalBitmap!!, lowerHSV, upperHSV,
+                    onResult = { result -> processedBitmap = result }
+                )
+            }
         )
 
         Spacer(Modifier.height(16.dp))
@@ -69,7 +141,13 @@ fun HighlighterColorPicker(viewModel: SettingsViewModel) {
         HSVLimitSelector(
             title = "Upper color",
             hsvColor = upperHSV,
-            onColorChange = { upperHSV = it },
+            onColorChange = {
+                upperHSV = it
+                vocabularyViewModel.applyAdjustment(
+                    originalBitmap!!, lowerHSV, upperHSV,
+                    onResult = { result -> processedBitmap = result }
+                )
+            },
             minimumValues = lowerHSV
         )
     }
@@ -166,6 +244,10 @@ data class HSVColor(
             if (S < other.S) other.S else S,
             if (V < other.V) other.V else V
         )
+    }
+
+    fun toScalar(): Scalar {
+        return Scalar(max(H.toDouble() / 2.0 - 1.0, 0.0), S * 255.0, V * 255.0)
     }
 
 }

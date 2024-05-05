@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.warleysr.ankipadroid.R
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
+import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnrememberedMutableState", "CoroutineCreationDuringComposition")
@@ -383,9 +384,9 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
 }
 
 @Composable
-fun SettingsScreenRoot(viewModel: SettingsViewModel) {
+fun SettingsScreenRoot(viewModel: SettingsViewModel, vocabularyViewModel: VocabularyViewModel) {
     if (viewModel.adjustingColors.value)
-        HighlighterColorPicker(viewModel)
+        HighlighterColorPicker(viewModel, vocabularyViewModel)
     else
         SettingsScreen(viewModel)
 }

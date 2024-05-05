@@ -82,7 +82,7 @@ fun AppNavigation(
                 VocabularyScreen(vocabularyViewModel)
             }
             composable(route = Screens.SettingsScreen.name) {
-                SettingsScreenRoot(settingsViewModel)
+                SettingsScreenRoot(settingsViewModel, vocabularyViewModel)
             }
         }
     }

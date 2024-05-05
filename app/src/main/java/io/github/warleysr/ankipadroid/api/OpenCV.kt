@@ -5,6 +5,7 @@ import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import org.opencv.android.Utils
+import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.Point
 import org.opencv.core.Scalar
@@ -16,46 +17,62 @@ class OpenCV {
 
         fun processImage(bitmap: Bitmap, rotation: Int, onSuccess: (String) -> Unit) {
 
-            val originalMat = Mat()
-            Utils.bitmapToMat(bitmap, originalMat)
+            val originalImage = Mat()
+            Utils.bitmapToMat(bitmap, originalImage)
 
-            val tempMat = Mat()
+            val imageHSV = Mat()
             var tempMat2 = Mat()
-            Imgproc.cvtColor(originalMat, tempMat, Imgproc.COLOR_BGR2GRAY)
+            Imgproc.cvtColor(originalImage, imageHSV, Imgproc.COLOR_BGR2HSV)
 //            Imgproc.threshold(tempMat, tempMat2, 0.0, 255.0, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU)
-            tempMat2 = tempMat
 
             val tempBitmap = Bitmap.createBitmap(bitmap)
             Utils.matToBitmap(tempMat2, tempBitmap)
 
-            val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-            val image = InputImage.fromBitmap(tempBitmap, rotation)
+//            val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+//            val image = InputImage.fromBitmap(tempBitmap, rotation)
+//
+//            val result = recognizer.process(image)
+//
+//            result.addOnSuccessListener { visionText ->
+//                visionText.textBlocks.forEach { textBlock ->
+//                    textBlock.lines.forEach { line ->
+//                        line.elements.forEach { elem ->
+//                            val box = elem.boundingBox!!
+//                            Imgproc.rectangle(
+//                                originalMat,
+//                                Point(box.left.toDouble(), box.top.toDouble()),
+//                                Point(box.right.toDouble(), box.bottom.toDouble()),
+//                                Scalar(255.0, 0.0, 1.0, 255.0),
+//                                2
+//                            )
+//                        }
+//                    }
+//                }
+//
+//                Utils.matToBitmap(originalMat, bitmap)
+//
+//                onSuccess(visionText.text)
+//            }
+//            .addOnFailureListener { e ->
+//            }
 
-            val result = recognizer.process(image)
+        }
 
-            result.addOnSuccessListener { visionText ->
-                visionText.textBlocks.forEach { textBlock ->
-                    textBlock.lines.forEach { line ->
-                        line.elements.forEach { elem ->
-                            val box = elem.boundingBox!!
-                            Imgproc.rectangle(
-                                originalMat,
-                                Point(box.left.toDouble(), box.top.toDouble()),
-                                Point(box.right.toDouble(), box.bottom.toDouble()),
-                                Scalar(255.0, 0.0, 1.0, 255.0),
-                                2
-                            )
-                        }
-                    }
-                }
+        fun applyMaskToImage(bitmap: Bitmap, lower: Scalar, upper: Scalar): Bitmap {
+            val originalImage = Mat()
+            val hsvImage = Mat()
+            val imageMask = Mat()
+            val finalImage = Mat()
 
-                Utils.matToBitmap(originalMat, bitmap)
+            Utils.bitmapToMat(bitmap, originalImage)
+            Imgproc.cvtColor(originalImage, hsvImage, Imgproc.COLOR_RGB2HSV)
+            Core.inRange(hsvImage, lower, upper, imageMask)
+            Core.bitwise_and(originalImage, originalImage, finalImage, imageMask)
 
-                onSuccess(visionText.text)
-            }
-            .addOnFailureListener { e ->
-            }
+            val finalBitmap = Bitmap.createBitmap(bitmap)
+            Utils.matToBitmap(finalImage, finalBitmap)
 
+            return finalBitmap
         }
     }
 }
