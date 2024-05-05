@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import io.github.warleysr.ankipadroid.api.OpenCV
 import io.github.warleysr.ankipadroid.screens.settings.HSVColor
+import org.opencv.core.Scalar
 
 
 class VocabularyViewModel: ViewModel() {
@@ -16,9 +17,9 @@ class VocabularyViewModel: ViewModel() {
     var text: MutableState<String?> = mutableStateOf(null)
         private set
 
-    fun processBitmap(bitmap: Bitmap, rotation: Int) {
+    fun processBitmap(bitmap: Bitmap, rotation: Int, lower: Scalar, upper: Scalar) {
         this.bitmap.value = bitmap
-        OpenCV.processImage(this.bitmap.value!!, rotation, onSuccess = { text.value = it })
+        OpenCV.processImage(this.bitmap.value!!, rotation, lower, upper, onSuccess = { text.value = it })
     }
 
     fun applyAdjustment(bitmap: Bitmap, lower: HSVColor, upper: HSVColor, onResult: (Bitmap) -> Unit) {

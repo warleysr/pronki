@@ -15,46 +15,46 @@ class OpenCV {
 
     companion object {
 
-        fun processImage(bitmap: Bitmap, rotation: Int, onSuccess: (String) -> Unit) {
+        fun processImage(
+            bitmap: Bitmap,
+            rotation: Int,
+            lower: Scalar,
+            upper: Scalar,
+            onSuccess: (String) -> Unit
+        ) {
 
             val originalImage = Mat()
             Utils.bitmapToMat(bitmap, originalImage)
 
-            val imageHSV = Mat()
-            var tempMat2 = Mat()
-            Imgproc.cvtColor(originalImage, imageHSV, Imgproc.COLOR_BGR2HSV)
-//            Imgproc.threshold(tempMat, tempMat2, 0.0, 255.0, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU)
+            val processedBitmap = applyMaskToImage(bitmap, lower, upper)
 
-            val tempBitmap = Bitmap.createBitmap(bitmap)
-            Utils.matToBitmap(tempMat2, tempBitmap)
+            val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+            val image = InputImage.fromBitmap(processedBitmap, rotation)
 
-//            val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-//            val image = InputImage.fromBitmap(tempBitmap, rotation)
-//
-//            val result = recognizer.process(image)
-//
-//            result.addOnSuccessListener { visionText ->
-//                visionText.textBlocks.forEach { textBlock ->
-//                    textBlock.lines.forEach { line ->
-//                        line.elements.forEach { elem ->
-//                            val box = elem.boundingBox!!
-//                            Imgproc.rectangle(
-//                                originalMat,
-//                                Point(box.left.toDouble(), box.top.toDouble()),
-//                                Point(box.right.toDouble(), box.bottom.toDouble()),
-//                                Scalar(255.0, 0.0, 1.0, 255.0),
-//                                2
-//                            )
-//                        }
-//                    }
-//                }
-//
-//                Utils.matToBitmap(originalMat, bitmap)
-//
-//                onSuccess(visionText.text)
-//            }
-//            .addOnFailureListener { e ->
-//            }
+            val result = recognizer.process(image)
+
+            result.addOnSuccessListener { visionText ->
+                visionText.textBlocks.forEach { textBlock ->
+                    textBlock.lines.forEach { line ->
+                        line.elements.forEach { elem ->
+                            val box = elem.boundingBox!!
+                            Imgproc.rectangle(
+                                originalImage,
+                                Point(box.left.toDouble(), box.top.toDouble()),
+                                Point(box.right.toDouble(), box.bottom.toDouble()),
+                                Scalar(255.0, 0.0, 1.0, 255.0),
+                                2
+                            )
+                        }
+                    }
+                }
+
+                Utils.matToBitmap(originalImage, bitmap)
+
+                onSuccess(visionText.text)
+            }
+            .addOnFailureListener { e ->
+            }
 
         }
 

@@ -45,10 +45,13 @@ import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import io.github.warleysr.ankipadroid.R
+import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
 
 @Composable
-fun VocabularyScreen(vocabularyViewModel: VocabularyViewModel) {
+fun VocabularyScreen(
+    settingsViewModel: SettingsViewModel, vocabularyViewModel: VocabularyViewModel
+) {
     var fabState by remember { mutableStateOf(false) }
 
     val fabRotation = animateFloatAsState(
@@ -74,7 +77,8 @@ fun VocabularyScreen(vocabularyViewModel: VocabularyViewModel) {
                             decoder.isMutableRequired = true
                         }
                     }
-                    vocabularyViewModel.processBitmap(bitmap!!, result.rotation)
+                    val colors = settingsViewModel.getRangeColors()
+                    vocabularyViewModel.processBitmap(bitmap!!, result.rotation, colors.first.toScalar(), colors.second.toScalar())
                 }
             } else {
                 println("ImageCropping error: ${result.error}")

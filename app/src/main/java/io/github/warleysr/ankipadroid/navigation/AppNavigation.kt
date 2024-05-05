@@ -79,7 +79,7 @@ fun AppNavigation(
                 FlashcardsScreen(settingsViewModel, pronunciationViewModel, ankiDroidViewModel)
             }
             composable(route = Screens.VocabularyScreen.name) {
-                VocabularyScreen(vocabularyViewModel)
+                VocabularyScreen(settingsViewModel, vocabularyViewModel)
             }
             composable(route = Screens.SettingsScreen.name) {
                 SettingsScreenRoot(settingsViewModel, vocabularyViewModel)
