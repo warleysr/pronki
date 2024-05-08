@@ -116,7 +116,7 @@ fun VocabularyScreen(
                 SmallFloatingActionButton(
                     onClick = { },
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.secondary
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 ) {
                     Icon(Icons.Filled.List, null)
                 }
@@ -132,7 +132,7 @@ fun VocabularyScreen(
                         imageCropLauncher.launch(cropOptions)
                     },
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.secondary
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 ) {
                     Icon(Icons.Filled.Image, null)
                 }
@@ -147,7 +147,7 @@ fun VocabularyScreen(
                         imageCropLauncher.launch(cropOptions)
                     },
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.secondary
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 ) {
                     Icon(Icons.Filled.CameraAlt, null)
                 }
