@@ -1,11 +1,13 @@
 package io.github.warleysr.ankipadroid.screens.vocabulary
 
+import android.Manifest
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -85,6 +87,22 @@ fun VocabularyScreen(
             }
         }
 
+    val cropOptions = CropImageContractOptions(
+        null,
+        CropImageOptions(imageSourceIncludeGallery = false)
+    )
+   val launchCamera: () -> Unit = { imageCropLauncher.launch(cropOptions) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                vocabularyViewModel.cameraPermissionGranted()
+                launchCamera()
+            }
+        }
+    )
+
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -92,7 +110,9 @@ fun VocabularyScreen(
         horizontalAlignment = Alignment.End,
         verticalArrangement = Arrangement.Bottom
     ) {
-        Box(modifier = Modifier.fillMaxSize().weight(1f)) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .weight(1f)) {
             bitmap?.let {
                 Image(
                     bitmap = it.asImageBitmap(),
@@ -102,7 +122,9 @@ fun VocabularyScreen(
             }
         }
 
-        Box(modifier = Modifier.fillMaxSize().weight(1f)) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .weight(1f)) {
             val text = vocabularyViewModel.text.value
             if (text != null)
                 Text(text)
@@ -125,11 +147,11 @@ fun VocabularyScreen(
 
                 SmallFloatingActionButton(
                     onClick = {
-                        val cropOptions = CropImageContractOptions(
+                        val cropOptionsImage = CropImageContractOptions(
                             null,
                             CropImageOptions(imageSourceIncludeCamera = false)
                         )
-                        imageCropLauncher.launch(cropOptions)
+                        imageCropLauncher.launch(cropOptionsImage)
                     },
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer
@@ -140,11 +162,11 @@ fun VocabularyScreen(
 
                 SmallFloatingActionButton(
                     onClick = {
-                        val cropOptions = CropImageContractOptions(
-                            null,
-                            CropImageOptions(imageSourceIncludeGallery = false)
-                        )
-                        imageCropLauncher.launch(cropOptions)
+                        if (vocabularyViewModel.permissionCameraGranted.value) {
+                            launchCamera()
+                        } else {
+                            permissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
                     },
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer

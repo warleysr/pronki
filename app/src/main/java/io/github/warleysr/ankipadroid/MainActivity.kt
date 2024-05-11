@@ -16,40 +16,42 @@ import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
+
+    private var settingsViewModel: SettingsViewModel? = null
+    private var ankiDroidViewModel: AnkiDroidViewModel? = null
+    private var pronunciationViewModel: PronunciationViewModel? = null
+    private var vocabularyViewModel: VocabularyViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
 
         setContent {
-            val settingsViewModel = viewModel<SettingsViewModel>(
+            settingsViewModel = viewModel<SettingsViewModel>(
                 factory = object: ViewModelProvider.Factory {
                     override fun <T : ViewModel> create(modelClass: Class<T>): T {
                         return SettingsViewModel() as T
                     }
                 }
             )
-            val pronunciationViewModel = viewModel<PronunciationViewModel>(
+            pronunciationViewModel = viewModel<PronunciationViewModel>(
                 factory = object: ViewModelProvider.Factory {
                     override fun <T : ViewModel> create(modelClass: Class<T>): T {
                         return PronunciationViewModel(filesDir.absolutePath) as T
                     }
                 }
             )
-            val ankiDroidViewModel = viewModel<AnkiDroidViewModel>(
+            ankiDroidViewModel = viewModel<AnkiDroidViewModel>(
                 factory = object: ViewModelProvider.Factory {
                     override fun <T : ViewModel> create(modelClass: Class<T>): T {
                         return AnkiDroidViewModel() as T
                     }
                 }
             )
-            val vocabularyViewModel = viewModel<VocabularyViewModel>(
+            vocabularyViewModel = viewModel<VocabularyViewModel>(
                 factory = object: ViewModelProvider.Factory {
                     override fun <T : ViewModel> create(modelClass: Class<T>): T {
                         return VocabularyViewModel() as T
@@ -58,42 +60,28 @@ class MainActivity : AppCompatActivity() {
             )
 
             LaunchedEffect(key1 = true) {
-                CoroutineScope(Dispatchers.IO).launch {
-                    val language = settingsViewModel.getSetting("language_app")
-                    settingsViewModel.changeLanguage(language.ifEmpty { "en" })
-                }
+                val language = settingsViewModel!!.getSetting("language_app")
+                settingsViewModel!!.changeLanguage(language.ifEmpty { "en" })
             }
 
             val darkTheme = (
-                settingsViewModel.theme.value == "dark"
-                || (settingsViewModel.theme.value == "system" && isSystemInDarkTheme())
+                settingsViewModel!!.theme.value == "dark"
+                || (settingsViewModel!!.theme.value == "system" && isSystemInDarkTheme())
             )
             AppTheme(
-                dynamicColor = settingsViewModel.materialYou.value,
+                dynamicColor = settingsViewModel!!.materialYou.value,
                 darkTheme = darkTheme
             ) {
-                AppNavigation(settingsViewModel, pronunciationViewModel, ankiDroidViewModel, vocabularyViewModel)
+                AppNavigation(
+                    settingsViewModel!!,
+                    pronunciationViewModel!!,
+                    ankiDroidViewModel!!,
+                    vocabularyViewModel!!
+                )
             }
         }
 
-        val ankiDroidHelper = AnkiDroidHelper(this)
-        if (ankiDroidHelper.shouldRequestPermission()) {
-            ankiDroidHelper.requestPermission(this, 0)
-        }
-
-        this.requestPermission()
-    }
-
-    private fun requestPermission() {
-        ActivityCompat.requestPermissions(this,
-            arrayOf(
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.INTERNET,
-                Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.RECORD_AUDIO,
-                Manifest.permission.CAMERA
-            ),
-            1 )
+        AnkiDroidHelper(this)
     }
 
 }

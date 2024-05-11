@@ -248,6 +248,13 @@ fun FlashcardPreviewContent(
                         scope.launch {
                             snackbarHostState.showSnackbar(reason)
                         }
+                    },
+                    onPermissionDenied = {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                "Without the permission, it's not possible to do pronunciation assessments."
+                            )
+                        }
                     }
                 )
             } else {

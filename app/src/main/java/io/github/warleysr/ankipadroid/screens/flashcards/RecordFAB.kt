@@ -1,5 +1,8 @@
 package io.github.warleysr.ankipadroid.screens.flashcards
 
+import android.Manifest
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -49,7 +52,8 @@ fun RecordFAB(
     ankiDroidViewModel: AnkiDroidViewModel,
     onBackUse: () -> Unit,
     onExit: () -> Unit,
-    onFailure: (String) -> Unit
+    onFailure: (String) -> Unit,
+    onPermissionDenied: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var recording by remember { mutableStateOf(false) }
@@ -57,25 +61,51 @@ fun RecordFAB(
     var performing by remember { mutableStateOf(false) }
     var useFront by remember { mutableStateOf(true) }
 
-
     val viewConfiguration = LocalViewConfiguration.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted)
+                pronunciationViewModel.audioPermissionGranted()
+            else
+                onPermissionDenied()
+        }
+    )
 
     LaunchedEffect(interactionSource) {
 
         interactionSource.interactions.collectLatest { interaction ->
+            val azureKey = settingsViewModel.getSetting("azure_key")
+            val language = settingsViewModel.getSetting("language")
+            val region = settingsViewModel.getSetting("region")
+            val isAzureConfigured = (
+                    azureKey.isNotEmpty() && language.isNotEmpty() && region.isNotEmpty()
+            )
             when (interaction) {
                 is PressInteraction.Press -> {
-                    delay(viewConfiguration.longPressTimeoutMillis)
-                    println("Recording...")
-                    recording = true
+                    if (!pronunciationViewModel.permissionAudioGranted.value)
+                        permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
 
-                    pronunciationViewModel.startRecording()
+                    else if (!isAzureConfigured)
+                        onFailure("You need to configure the Azure API on settings screen.")
+
+                    else {
+                        delay(viewConfiguration.longPressTimeoutMillis)
+                        println("Recording...")
+                        recording = true
+
+                        pronunciationViewModel.startRecording()
+                    }
                 }
 
                 is PressInteraction.Release -> {
+                    if (
+                        !pronunciationViewModel.permissionAudioGranted.value || !isAzureConfigured
+                    )
+                        return@collectLatest
+
                     println("Released! Starting assessment...")
                     pronunciationViewModel.stopRecording()
-
                     recording = false
                     performing = true
 
@@ -84,10 +114,6 @@ fun RecordFAB(
                             ankiDroidViewModel.cardInfo!!.question.parseAsHtml().toString()
                         else
                             ankiDroidViewModel.cardInfo!!.answer.parseAsHtml().toString()
-
-                    val azureKey = settingsViewModel.getSetting("azure_key")
-                    val language = settingsViewModel.getSetting("language")
-                    val region = settingsViewModel.getSetting("region")
 
                     pronunciationViewModel.newAssessment(
                         referenceText = referenceText,
@@ -103,6 +129,11 @@ fun RecordFAB(
                 }
 
                 is PressInteraction.Cancel -> {
+                    if (
+                        !pronunciationViewModel.permissionAudioGranted.value || !isAzureConfigured
+                    )
+                        return@collectLatest
+
                     println("Cancelled...")
                     pronunciationViewModel.stopRecording()
                     recording = false

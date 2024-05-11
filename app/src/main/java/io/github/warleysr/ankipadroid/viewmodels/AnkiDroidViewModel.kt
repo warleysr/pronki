@@ -9,6 +9,9 @@ import io.github.warleysr.ankipadroid.CardInfo
 class AnkiDroidViewModel : ViewModel() {
 
     private var currentDeckId: Long? = null
+    var permissionGranted = mutableStateOf(false)
+        private set
+
     var cardInfo: CardInfo? = null
         private set
 
@@ -20,6 +23,7 @@ class AnkiDroidViewModel : ViewModel() {
 
     init {
         println("AnkiDroidViewModel initialized")
+        permissionGranted.value = AnkiDroidHelper.getInstance().isPermissionGranted
     }
 
     fun queryNextCard(onResult: (String, String) -> Unit) {
@@ -55,6 +59,10 @@ class AnkiDroidViewModel : ViewModel() {
     fun toggleCardField(onToggle: (Boolean) -> Unit) {
         useFront = !useFront
         onToggle(useFront)
+    }
+
+    fun ankiPermissionGranted() {
+        permissionGranted.value = true
     }
 
 }

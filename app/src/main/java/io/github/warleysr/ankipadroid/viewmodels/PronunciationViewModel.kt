@@ -1,5 +1,7 @@
 package io.github.warleysr.ankipadroid.viewmodels
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
@@ -11,6 +13,7 @@ import com.github.squti.androidwaverecorder.WaveRecorder
 import com.microsoft.cognitiveservices.speech.PhonemeLevelTimingResult
 import com.microsoft.cognitiveservices.speech.PronunciationAssessmentResult
 import com.microsoft.cognitiveservices.speech.WordLevelTimingResult
+import io.github.warleysr.ankipadroid.AnkiPADroid
 import io.github.warleysr.ankipadroid.api.AzureAPI
 
 class PronunciationViewModel(audioDir: String) : ViewModel() {
@@ -26,8 +29,14 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
     var generatedTTS: MutableState<Boolean> = mutableStateOf(false)
         private set
 
+    var permissionAudioGranted = mutableStateOf(false)
+        private set
+
     init {
         println("PronunciationViewModel initialized")
+        permissionAudioGranted.value = AnkiPADroid.instance.checkSelfPermission(
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     fun newAssessment(
@@ -136,6 +145,10 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
         audioDataTTS = null
         hasAssessmentSucceeded.value = false
         generatedTTS.value = false
+    }
+
+    fun audioPermissionGranted() {
+        permissionAudioGranted.value = true
     }
 
 }
