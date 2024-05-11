@@ -50,7 +50,7 @@ class AzureAPI {
                  onSuccess(PronunciationAssessmentResult.fromResult(e.result))
             }
             speechRecognizer.canceled.addEventListener { _, e ->
-                onFailure(e.result.text)
+                onFailure(e.errorDetails)
             }
         }
 

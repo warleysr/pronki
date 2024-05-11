@@ -35,6 +35,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.dp
+import androidx.core.text.parseAsHtml
 import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
@@ -47,7 +48,8 @@ fun RecordFAB(
     pronunciationViewModel: PronunciationViewModel,
     ankiDroidViewModel: AnkiDroidViewModel,
     onBackUse: () -> Unit,
-    onExit: () -> Unit
+    onExit: () -> Unit,
+    onFailure: (String) -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     var recording by remember { mutableStateOf(false) }
@@ -77,18 +79,25 @@ fun RecordFAB(
                     recording = false
                     performing = true
 
-                    val referenceText = if (useFront) ankiDroidViewModel.cardInfo!!.question else ankiDroidViewModel.cardInfo!!.answer
+                    val referenceText =
+                        if (useFront)
+                            ankiDroidViewModel.cardInfo!!.question.parseAsHtml().toString()
+                        else
+                            ankiDroidViewModel.cardInfo!!.answer.parseAsHtml().toString()
+
                     val azureKey = settingsViewModel.getSetting("azure_key")
                     val language = settingsViewModel.getSetting("language")
                     val region = settingsViewModel.getSetting("region")
 
                     pronunciationViewModel.newAssessment(
-                        referenceText = referenceText!!,
+                        referenceText = referenceText,
                         language = language,
                         speechApiKey = azureKey,
                         speechRegion = region,
-                        onResult = { result ->
+                        onSuccess = { performing = false },
+                        onFailure = {
                             performing = false
+                            onFailure(it)
                         }
                     )
                 }
@@ -154,7 +163,10 @@ fun RecordFAB(
                     )
             ) {
                 if (performing) {
-                    CircularProgressIndicator(strokeWidth = 2.dp)
+                    CircularProgressIndicator(
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 } else {
                     Icon(
                         Icons.Filled.Mic, null,

@@ -35,7 +35,8 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
         language: String,
         speechApiKey: String,
         speechRegion: String,
-        onResult: (Boolean) -> Unit
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
     ) {
         AzureAPI.performPronunciationAssessment(
             referenceText, language, speechApiKey, speechRegion,
@@ -44,11 +45,11 @@ class PronunciationViewModel(audioDir: String) : ViewModel() {
                 pronunciationResult = PronunciationResult(it)
                 hasAssessmentSucceeded.value = true
                 this.referenceText = referenceText
-                onResult(true)
+                onSuccess()
             },
             onFailure = {
                 pronunciationResult = null
-                onResult(false)
+                onFailure(it)
             }
         )
 
