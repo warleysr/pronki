@@ -19,19 +19,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,16 +47,32 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import io.github.warleysr.ankipadroid.R
+import io.github.warleysr.ankipadroid.api.ImportedVocabulary
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun VocabularyScreen(
+    settingsViewModel: SettingsViewModel, vocabularyViewModel: VocabularyViewModel
+) {
+    if (vocabularyViewModel.showingRecognized.value) {
+        VocabularyRecognitionScreen(vocabularyViewModel)
+    } else {
+        VocabularyScreenList(settingsViewModel, vocabularyViewModel)
+    }
+}
+
+@Composable
+fun VocabularyScreenList(
     settingsViewModel: SettingsViewModel, vocabularyViewModel: VocabularyViewModel
 ) {
     var fabState by remember { mutableStateOf(false) }
@@ -91,7 +112,7 @@ fun VocabularyScreen(
         null,
         CropImageOptions(imageSourceIncludeGallery = false)
     )
-   val launchCamera: () -> Unit = { imageCropLauncher.launch(cropOptions) }
+    val launchCamera: () -> Unit = { imageCropLauncher.launch(cropOptions) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -103,6 +124,14 @@ fun VocabularyScreen(
         }
     )
 
+    var vocabList: List<ImportedVocabulary>? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(key1 = true) {
+        vocabularyViewModel.getVocabularyList(onFinish = { vocabList = it })
+    }
+
+    val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US)
+
     Column (
         modifier = Modifier
             .fillMaxSize()
@@ -112,23 +141,29 @@ fun VocabularyScreen(
     ) {
         Box(modifier = Modifier
             .fillMaxSize()
-            .weight(1f)) {
-            bitmap?.let {
-                Image(
-                    bitmap = it.asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize()
-                )
+            .weight(1f)
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                vocabList?.let {
+                    it.forEach { vocab ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(vocab.data ?: "", fontWeight = FontWeight.Bold)
+                            Text(dateFormatter.format(vocab.importedAt?: Date(0)) )
+                        }
+                    }
+                }
             }
         }
 
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .weight(1f)) {
-            val text = vocabularyViewModel.text.value
-            if (text != null)
-                Text(text)
-        }
         AnimatedVisibility(
             visible = fabState,
             enter = scaleIn(),
