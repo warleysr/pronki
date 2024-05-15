@@ -20,40 +20,55 @@ class OpenCV {
             rotation: Int,
             lower: Scalar,
             upper: Scalar,
-            onSuccess: (String) -> Unit
+            onSuccess: (ArrayList<String>, ArrayList<String>) -> Unit
         ) {
 
             val originalImage = Mat()
             Utils.bitmapToMat(bitmap, originalImage)
 
-            val processedBitmap = applyMaskToImage(bitmap, lower, upper)
+
 
             val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-            val image = InputImage.fromBitmap(processedBitmap, rotation)
+            val imageOrig = InputImage.fromBitmap(bitmap, rotation)
+            val resultOrig = recognizer.process(imageOrig)
 
+            val processedBitmap = applyMaskToImage(bitmap, lower, upper)
+            val image = InputImage.fromBitmap(processedBitmap, rotation)
             val result = recognizer.process(image)
+
+            val allWords = ArrayList<String>()
+            val recognizedWords = ArrayList<String>()
+
+            resultOrig.addOnSuccessListener { visionText ->
+                visionText.textBlocks.forEach { textBlock ->
+                    textBlock.lines.forEach { line ->
+                        line.elements.forEach { elem ->
+                            allWords.add(elem.text)
+                        }
+                    }
+                }
+            }
 
             result.addOnSuccessListener { visionText ->
                 visionText.textBlocks.forEach { textBlock ->
                     textBlock.lines.forEach { line ->
                         line.elements.forEach { elem ->
-                            val box = elem.boundingBox!!
-                            Imgproc.rectangle(
-                                originalImage,
-                                Point(box.left.toDouble(), box.top.toDouble()),
-                                Point(box.right.toDouble(), box.bottom.toDouble()),
-                                Scalar(255.0, 0.0, 1.0, 255.0),
-                                2
-                            )
+                            recognizedWords.add(elem.text)
+//                            val box = elem.boundingBox!!
+//                            Imgproc.rectangle(
+//                                originalImage,
+//                                Point(box.left.toDouble(), box.top.toDouble()),
+//                                Point(box.right.toDouble(), box.bottom.toDouble()),
+//                                Scalar(255.0, 0.0, 1.0, 255.0),
+//                                2
+//                            )
                         }
                     }
                 }
 
                 Utils.matToBitmap(originalImage, bitmap)
 
-                onSuccess(visionText.text)
-            }
-            .addOnFailureListener { e ->
+                onSuccess(allWords, recognizedWords)
             }
 
         }
