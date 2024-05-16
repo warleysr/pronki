@@ -76,6 +76,7 @@ dependencies {
     implementation("org.opencv:opencv:4.9.0")
     implementation("com.google.mlkit:text-recognition:16.0.0")
     implementation("androidx.room:room-runtime:2.6.1")
+    implementation("com.google.ai.client.generativeai:generativeai:0.6.0")
     kapt("androidx.room:room-compiler:2.6.1")
 
     implementation(libs.androidx.datastore)
