@@ -82,7 +82,7 @@ class VocabularyViewModel: ViewModel() {
 
     fun getVocabularyList(onFinish: (List<ImportedVocabulary>) -> Unit) {
         CoroutineScope(Dispatchers.IO).launch {
-            val vocabList = AnkiPADroid.vocabularyDatabase.vocabularyDAO().getAll()
+            val vocabList = AnkiPADroid.vocabularyDatabase.vocabularyDAO().getAllNew()
             onFinish(vocabList)
         }
     }

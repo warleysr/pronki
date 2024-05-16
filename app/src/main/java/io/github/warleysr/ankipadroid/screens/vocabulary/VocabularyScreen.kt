@@ -13,10 +13,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Card
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -65,7 +66,7 @@ fun VocabularyScreen(
     settingsViewModel: SettingsViewModel, vocabularyViewModel: VocabularyViewModel
 ) {
     if (vocabularyViewModel.showingRecognized.value) {
-        VocabularyRecognitionScreen(vocabularyViewModel)
+        VocabularyRecognitionScreen(settingsViewModel, vocabularyViewModel)
     } else {
         VocabularyScreenList(settingsViewModel, vocabularyViewModel)
     }
@@ -151,13 +152,29 @@ fun VocabularyScreenList(
             ) {
                 vocabList?.let {
                     it.forEach { vocab ->
+                        var selected by remember { mutableStateOf(false) }
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp)
                         ) {
-                            Text(vocab.data ?: "", fontWeight = FontWeight.Bold)
-                            Text(dateFormatter.format(vocab.importedAt?: Date(0)) )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Checkbox(
+                                    checked = selected,
+                                    onCheckedChange = { newState -> selected = newState }
+                                )
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.fillMaxWidth().weight(1f)
+                                ) {
+                                    Text(vocab.data, fontWeight = FontWeight.Bold)
+                                    Text(vocab.language)
+                                    Text(dateFormatter.format(vocab.importedAt ?: Date(0)))
+                                }
+                            }
                         }
                     }
                 }

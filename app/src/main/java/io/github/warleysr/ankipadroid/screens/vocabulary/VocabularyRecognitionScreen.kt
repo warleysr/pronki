@@ -17,14 +17,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.github.warleysr.ankipadroid.AnkiPADroid
+import io.github.warleysr.ankipadroid.ConfigUtils
 import io.github.warleysr.ankipadroid.api.ImportedVocabulary
+import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun VocabularyRecognitionScreen(viewModel: VocabularyViewModel) {
-    val selected = remember { viewModel.allWords.map { mutableStateOf(it in viewModel.recognizedWords)} }
+fun VocabularyRecognitionScreen(settingsViewModel: SettingsViewModel, viewModel: VocabularyViewModel) {
+    val selected = remember {
+        viewModel.allWords.map { mutableStateOf(it in viewModel.recognizedWords)}
+    }
+    // TODO: Implement auto language identification with ML Kit instead
+    val language = ConfigUtils.getAvailableLanguages().getOrDefault(
+        settingsViewModel.getSetting("language"), "English"
+    ).split("(")[0]
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
@@ -52,7 +60,9 @@ fun VocabularyRecognitionScreen(viewModel: VocabularyViewModel) {
                     val newVocab = ArrayList<ImportedVocabulary>()
                     for (idx in viewModel.allWords.indices) {
                         if (!selected[idx].value) continue
-                        val vocab = ImportedVocabulary(data = viewModel.allWords[idx])
+                        val vocab = ImportedVocabulary(
+                            data = viewModel.allWords[idx], language = language
+                        )
                         newVocab.add(vocab)
                     }
                     viewModel.insertVocabulary(newVocab)

@@ -31,12 +31,16 @@ interface VocabularyDAO {
     @Query("SELECT * FROM ImportedVocabulary")
     fun getAll(): List<ImportedVocabulary>
 
+    @Query("SELECT * FROM ImportedVocabulary WHERE flashcard is NULL")
+    fun getAllNew(): List<ImportedVocabulary>
+
 }
 
 @Entity
 data class ImportedVocabulary(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    @ColumnInfo(name = "data") val data: String?,
+    @ColumnInfo(name = "data") val data: String,
+    @ColumnInfo(name = "language") val language: String,
     @ColumnInfo(name = "imported_at") val importedAt: Date? = Date(),
     @ColumnInfo(name = "flashcard") val flashcard: Long? = null,
 )
