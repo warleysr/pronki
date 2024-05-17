@@ -31,7 +31,7 @@ interface VocabularyDAO {
     @Query("SELECT * FROM ImportedVocabulary")
     fun getAll(): List<ImportedVocabulary>
 
-    @Query("SELECT * FROM ImportedVocabulary WHERE flashcard is NULL")
+    @Query("SELECT * FROM ImportedVocabulary WHERE flashcard is NULL ORDER BY imported_at DESC")
     fun getAllNew(): List<ImportedVocabulary>
 
 }
