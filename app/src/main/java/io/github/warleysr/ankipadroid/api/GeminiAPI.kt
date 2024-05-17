@@ -10,8 +10,8 @@ class GeminiAPI {
 
     companion object {
 
-        fun generateContent(apiKey: String, prompt: String, onSuccess: (String?) -> Unit) {
-            val model = GenerativeModel(modelName = "gemini-pro", apiKey = apiKey)
+        fun generateContent(apiKey: String, modelName: String, prompt: String, onSuccess: (String?) -> Unit) {
+            val model = GenerativeModel(modelName = modelName, apiKey = apiKey)
 
             CoroutineScope(Dispatchers.IO).launch {
                 try {

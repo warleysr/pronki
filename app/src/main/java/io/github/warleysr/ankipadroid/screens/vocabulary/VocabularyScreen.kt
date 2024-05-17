@@ -54,6 +54,7 @@ import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import io.github.warleysr.ankipadroid.R
+import io.github.warleysr.ankipadroid.api.GeminiAPI
 import io.github.warleysr.ankipadroid.api.ImportedVocabulary
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
@@ -153,6 +154,7 @@ fun VocabularyScreenList(
                 vocabList?.let {
                     it.forEach { vocab ->
                         var selected by remember { mutableStateOf(false) }
+                        val text = remember { mutableStateOf(vocab.data) }
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -164,13 +166,29 @@ fun VocabularyScreenList(
                             ) {
                                 Checkbox(
                                     checked = selected,
-                                    onCheckedChange = { newState -> selected = newState }
+                                    onCheckedChange = {
+                                        newState -> selected = newState
+                                        if (newState) {
+                                            val key = settingsViewModel.getSetting("gemini_key")
+                                            val model = settingsViewModel.getSetting("model")
+                                            val prompt = settingsViewModel.getSetting("prompt")
+                                                .replace("{LANGUAGE}", vocab.language)
+                                                .replace("{WORD}", vocab.data)
+
+                                            GeminiAPI.generateContent(
+                                                apiKey = key, modelName = model, prompt = prompt,
+                                                onSuccess = {
+                                                    text.value = it!!
+                                                }
+                                            )
+                                        }
+                                    }
                                 )
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     modifier = Modifier.fillMaxWidth().weight(1f)
                                 ) {
-                                    Text(vocab.data, fontWeight = FontWeight.Bold)
+                                    Text(text.value, fontWeight = FontWeight.Bold)
                                     Text(vocab.language)
                                     Text(dateFormatter.format(vocab.importedAt ?: Date(0)))
                                 }
