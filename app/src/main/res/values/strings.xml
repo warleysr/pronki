@@ -39,5 +39,7 @@
     <string name="good">Bom</string>
     <string name="easy">Fácil</string>
     <string name="opencv">Configurar OpenCV</string>
-    <string name="opencv_description">Configure o comportamento para o reconhecimento de imagens</string>
+    <string name="opencv_description">Configure o comportamento para o reconhecimento de texto por imagem.</string>
+    <string name="model">Modelo</string>
+    <string name="default_prompt" translatable="false">Your task is to create an example phrase in {LANGUAGE} using the word \"{WORD}\" and a short explanation of the meaning of this word. Give the output in the the format: phrase // explanation</string>
 </resources>

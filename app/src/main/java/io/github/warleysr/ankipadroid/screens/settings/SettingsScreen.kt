@@ -22,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,29 +42,31 @@ import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel) {
 
-    val azureKey = remember { mutableStateOf("azure") }
-    val geminiKey = remember { mutableStateOf("gemini") }
+    val azureKey = remember { mutableStateOf(viewModel.getSetting("azure_key")) }
+    val geminiKey = remember { mutableStateOf(viewModel.getSetting("gemini_key")) }
+    val selectedLanguage = remember { mutableStateOf(viewModel.getSetting("language")) }
+    val selectedLanguageApp = remember { mutableStateOf(viewModel.getSetting("language_app")) }
+    val selectedRegion = remember { mutableStateOf(viewModel.getSetting("region")) }
+    val selectedModel = remember { mutableStateOf(viewModel.getSetting("model")) }
+    val prompt = remember { mutableStateOf(viewModel.getSetting("prompt")) }
+    val defaultPrompt = stringResource(id = R.string.default_prompt)
 
-    val languageOptions = mapOf(Pair("pt", "Português"), Pair("en", "English"))
-    val selectedLanguage = remember { mutableStateOf("en-US") }
-    val selectedLanguageApp = remember { mutableStateOf("pt") }
-    val selectedRegion = remember { mutableStateOf("centralus") }
+    LaunchedEffect(key1 = true) {
+        if (prompt.value.isEmpty())
+            prompt.value = defaultPrompt
+    }
+
     var isAzureDialogShown by remember { mutableStateOf(false) }
     var isGeminiDialogShown by remember { mutableStateOf(false) }
     var isLanguagesDialogShown by remember { mutableStateOf(false) }
     var isThemeDialogShown by remember { mutableStateOf(false) }
     var isChecked by remember { mutableStateOf(false) }
 
-    azureKey.value = viewModel.getSetting("azure_key")
-    geminiKey.value = viewModel.getSetting("gemini_key")
-    selectedLanguage.value = viewModel.getSetting("language")
-    selectedLanguageApp.value = viewModel.getSetting("language_app")
-    selectedRegion.value = viewModel.getSetting("region")
-    viewModel.theme.value = viewModel.getSetting("theme")
+    val languageOptions = mapOf(Pair("pt", "Português"), Pair("en", "English"))
 
+    viewModel.theme.value = viewModel.getSetting("theme")
     val materialYou = viewModel.getSetting("material_you")
     isChecked = materialYou.isNotEmpty() && materialYou.toBooleanStrict()
-
 
     if (isAzureDialogShown) {
         AlertDialog(
@@ -83,11 +86,12 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                         onRegionChange = {newRegion -> selectedRegion.value = newRegion}
                     )
                 },
-                onSave = { finalValue ->
-                    viewModel.saveSetting("azure_key", finalValue)
+                onSave = { apiKey ->
+                    azureKey.value = apiKey
+                    viewModel.saveSetting("azure_key", apiKey)
                     viewModel.saveSetting("language", selectedLanguage.value)
                     viewModel.saveSetting("region", selectedRegion.value)
-                     }
+                }
                 ) {
                     isAzureDialogShown = false
             }
@@ -104,8 +108,18 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
             TextEditDialog(
                 name = R.string.configure_gemini,
                 storedValue = geminiKey.value,
-                extraOptions = {},
-                onSave = { finalValue -> viewModel.saveSetting("gemini_key", finalValue)},
+                extraOptions = {
+                    GeminiExtraOptions(
+                        selectedModel = selectedModel,
+                        prompt = prompt
+                    )
+                },
+                onSave = { apiKey ->
+                    geminiKey.value = apiKey
+                    viewModel.saveSetting("gemini_key", apiKey)
+                    viewModel.saveSetting("model", selectedModel.value)
+                    viewModel.saveSetting("prompt", prompt.value)
+                 },
             ) {
                 isGeminiDialogShown = false
             }
