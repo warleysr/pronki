@@ -28,11 +28,11 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,7 +56,6 @@ import io.github.warleysr.ankipadroid.R
 import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -69,16 +68,36 @@ fun FlashcardPreview(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val deckSelected = remember { mutableStateOf(false) }
+    val showAnswer = remember { mutableStateOf(false) }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         content = {
             FlashcardPreviewContent(
-                settingsViewModel = settingsViewModel,
-                pronunciationViewModel = pronunciationViewModel,
                 ankiDroidViewModel = ankiDroidViewModel,
-                snackbarHostState = snackbarHostState,
-                scope = scope
+                showAnswer = showAnswer,
+                deckSelected = deckSelected
+            )
+        },
+        floatingActionButton = {
+            if (!ankiDroidViewModel.isDeckSelected.value) return@Scaffold
+            RecordFAB(
+                settingsViewModel, pronunciationViewModel, ankiDroidViewModel,
+                onBackUse = { showAnswer.value = true },
+                onExit = { deckSelected.value = false },
+                onFailure = { reason ->
+                    scope.launch {
+                        snackbarHostState.showSnackbar(reason)
+                    }
+                },
+                onPermissionDenied = {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(
+                            "Without the permission, it's not possible to do pronunciation assessments."
+                        )
+                    }
+                }
             )
         }
     )
@@ -88,16 +107,12 @@ fun FlashcardPreview(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlashcardPreviewContent(
-    settingsViewModel: SettingsViewModel,
-    pronunciationViewModel: PronunciationViewModel,
     ankiDroidViewModel: AnkiDroidViewModel,
-    snackbarHostState: SnackbarHostState,
-    scope: CoroutineScope
+    showAnswer: MutableState<Boolean>,
+    deckSelected: MutableState<Boolean>,
 ) {
     var currentQuestion by remember { mutableStateOf("Waiting...") }
     var currentAnswer by remember { mutableStateOf("Waiting...") }
-    var deckSelected by remember { mutableStateOf(false) }
-    var showAnswer by remember { mutableStateOf(false) }
 
     val onResult: (String, String) -> Unit = {question, answer ->
         currentQuestion = question
@@ -110,9 +125,9 @@ fun FlashcardPreviewContent(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
+                .fillMaxSize()
                 .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             if (ankiDroidViewModel.isDeckSelected.value) {
                 ankiDroidViewModel.queryNextCard(onResult = onResult)
@@ -123,7 +138,7 @@ fun FlashcardPreviewContent(
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     ),
-                    onClick = { showAnswer = !showAnswer }
+                    onClick = { showAnswer.value = !showAnswer.value }
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -144,7 +159,7 @@ fun FlashcardPreviewContent(
                 Divider()
                 Spacer(Modifier.height(16.dp))
 
-                AnimatedVisibility(visible = showAnswer) {
+                AnimatedVisibility(visible = showAnswer.value) {
                     Column {
                         ElevatedCard(
                             modifier = Modifier
@@ -232,38 +247,18 @@ fun FlashcardPreviewContent(
                                     contentColor = Color.White
                                 )
                             ) {
-                                Column {
-                                    Text(stringResource(id = R.string.easy))
-                                }
+                                Text(stringResource(id = R.string.easy))
                             }
                         }
                     }
                 }
-
-                RecordFAB(
-                    settingsViewModel, pronunciationViewModel, ankiDroidViewModel,
-                    onBackUse = { showAnswer = true },
-                    onExit = { deckSelected = false },
-                    onFailure = { reason ->
-                        scope.launch {
-                            snackbarHostState.showSnackbar(reason)
-                        }
-                    },
-                    onPermissionDenied = {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                "Without the permission, it's not possible to do pronunciation assessments."
-                            )
-                        }
-                    }
-                )
             } else {
                 Text(stringResource(id = R.string.select_deck), style = MaterialTheme.typography.headlineMedium)
 
                 ankiDroidViewModel.getDeckList()?.forEach { deck ->
                     Button(onClick = {
                         ankiDroidViewModel.selectDeck(deck)
-                        deckSelected = true
+                        deckSelected.value = true
                     }) {
                         Text(deck)
                     }

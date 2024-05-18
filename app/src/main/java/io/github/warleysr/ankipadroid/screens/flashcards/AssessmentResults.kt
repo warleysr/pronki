@@ -1,5 +1,6 @@
 package io.github.warleysr.ankipadroid.screens.flashcards
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
@@ -12,6 +13,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -19,6 +22,7 @@ import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.RecordVoiceOver
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,9 +51,19 @@ import io.github.warleysr.ankipadroid.R
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun AssessmentResults(
     settingsViewModel: SettingsViewModel,
+    pronunciationViewModel: PronunciationViewModel,
+) {
+    Scaffold(
+        content = { AssessmentResultsContent(pronunciationViewModel) },
+        floatingActionButton = { AssessmentResultsFAB(settingsViewModel, pronunciationViewModel) }
+    )
+}
+@Composable
+fun AssessmentResultsContent(
     pronunciationViewModel: PronunciationViewModel,
 ) {
     val result = pronunciationViewModel.getPronunciationResult()!!
@@ -66,7 +80,6 @@ fun AssessmentResults(
     val scores = scores1 + scores2
 
     var animationPlayed by remember { mutableStateOf(false) }
-    var playingAudio by remember { mutableStateOf(false) }
 
     val percentages = HashMap<String, State<Float>>()
     scores.forEach {score ->
@@ -97,7 +110,9 @@ fun AssessmentResults(
     }
     Column(
         modifier = Modifier
-            .fillMaxWidth().fillMaxHeight()
+            .fillMaxWidth()
+            .fillMaxHeight()
+            .verticalScroll(rememberScrollState())
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -139,13 +154,11 @@ fun AssessmentResults(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text(errorName(word.error), color = errorColor(word.error))
                             Row(modifier = Modifier.padding(8.dp)) {
-                                word.phonemes.forEachIndexed { i, phoneme ->
+                                word.phonemes.forEachIndexed { _, phoneme ->
                                     Text(
                                         phoneme.phoneme,
                                         color = colorByPercentage(phoneme.accuracy)
                                     )
-                                    if (i < word.phonemes.size - 1)
-                                        Text("•", color = Color.White)
                                 }
                             }
                         }
@@ -169,50 +182,48 @@ fun AssessmentResults(
                 }
             }
         }
+    }
+}
 
-        Column(
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .padding(16.dp)
-        ) {
-            Row() {
-                SmallFloatingActionButton(onClick = {
-                    pronunciationViewModel.exitResults()
-                }) {
-                    Icon(Icons.Filled.ArrowBack, null)
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                FloatingActionButton(onClick = {
-                    if (playingAudio) return@FloatingActionButton
-                    playingAudio = true
+@Composable
+fun AssessmentResultsFAB(
+    settingsViewModel: SettingsViewModel,
+    pronunciationViewModel: PronunciationViewModel,
+) {
+    var playingAudio by remember { mutableStateOf(false) }
+    Row {
+        SmallFloatingActionButton(onClick = {
+            pronunciationViewModel.exitResults()
+        }) {
+            Icon(Icons.Filled.ArrowBack, null)
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        FloatingActionButton(onClick = {
+            if (playingAudio) return@FloatingActionButton
+            playingAudio = true
 
-                    pronunciationViewModel.replayVoice(onFinish = { playingAudio = false })
-                }) {
-                    Icon(Icons.Filled.PlayCircle, null)
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                FloatingActionButton(onClick = {
-                    if (playingAudio) return@FloatingActionButton
-                    playingAudio = true
+            pronunciationViewModel.replayVoice(onFinish = { playingAudio = false })
+        }) {
+            Icon(Icons.Filled.PlayCircle, null)
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+        FloatingActionButton(onClick = {
+            if (playingAudio) return@FloatingActionButton
+            playingAudio = true
 
-                    val azureKey = settingsViewModel.getSetting("azure_key")
-                    val language = settingsViewModel.getSetting("language")
-                    val region = settingsViewModel.getSetting("region")
+            val azureKey = settingsViewModel.getSetting("azure_key")
+            val language = settingsViewModel.getSetting("language")
+            val region = settingsViewModel.getSetting("region")
 
-                    pronunciationViewModel.playTTS(
-                        referenceText = pronunciationViewModel.referenceText,
-                        voiceName = ConfigUtils.getVoiceByLanguage(language),
-                        speechApiKey = azureKey,
-                        speechRegion = region,
-                        onFinish = { playingAudio = false }
-                    )
-                }) {
-                    Icon(Icons.Filled.RecordVoiceOver, null)
-                }
-            }
+            pronunciationViewModel.playTTS(
+                referenceText = pronunciationViewModel.referenceText,
+                voiceName = ConfigUtils.getVoiceByLanguage(language),
+                speechApiKey = azureKey,
+                speechRegion = region,
+                onFinish = { playingAudio = false }
+            )
+        }) {
+            Icon(Icons.Filled.RecordVoiceOver, null)
         }
     }
 }
@@ -236,12 +247,10 @@ fun errorName(error: String): String {
 }
 
 fun errorColor(error: String): Color {
-    return if (error == "Omission")
-        Color(red = 156, green = 39, blue = 176, alpha = 255)
-    else if (error == "Insertion")
-        Color(red = 18, green = 75, blue = 226, alpha = 233)
-    else if (error == "Mispronunciation")
-        Color.Red
-    else
-        Color(red = 6, green = 162, blue = 6, alpha = 255)
+    return when (error) {
+        "Omission" -> Color(red = 156, green = 39, blue = 176, alpha = 255)
+        "Insertion" -> Color(red = 18, green = 75, blue = 226, alpha = 233)
+        "Mispronunciation" -> Color.Red
+        else -> Color(red = 6, green = 162, blue = 6, alpha = 255)
+    }
 }

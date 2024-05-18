@@ -143,70 +143,62 @@ fun RecordFAB(
         }
     }
 
-    Column(
-        horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.Bottom,
-        modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight()
-    ) {
-        Row {
-            SmallFloatingActionButton(
-                onClick = {
-                    ankiDroidViewModel.exitFlashcardPreview()
-                    onExit()
-                }
-            ) {
-                Icon(Icons.Filled.ArrowBack, null)
+    Row {
+        SmallFloatingActionButton(
+            onClick = {
+                ankiDroidViewModel.exitFlashcardPreview()
+                onExit()
             }
-            Spacer(Modifier.width(8.dp))
+        ) {
+            Icon(Icons.Filled.ArrowBack, null)
+        }
+        Spacer(Modifier.width(8.dp))
 
-            SmallFloatingActionButton(
-                onClick = {
-                    ankiDroidViewModel.toggleCardField(
-                        onToggle = {
-                            newValue -> useFront = newValue
-                            if (!useFront)
-                                onBackUse()
-                        }
-                    )
-                }
-            ) {
-                Icon(if (useFront) Icons.Filled.FlipToFront else Icons.Filled.FlipToBack, null)
+        SmallFloatingActionButton(
+            onClick = {
+                ankiDroidViewModel.toggleCardField(
+                    onToggle = {
+                        newValue -> useFront = newValue
+                        if (!useFront)
+                            onBackUse()
+                    }
+                )
             }
-            Spacer(Modifier.width(8.dp))
+        ) {
+            Icon(if (useFront) Icons.Filled.FlipToFront else Icons.Filled.FlipToBack, null)
+        }
+        Spacer(Modifier.width(8.dp))
 
-            val sizeState = animateDpAsState(
-                targetValue = if (recording) 84.dp else 56.dp,
-                animationSpec = tween(durationMillis = 300, delayMillis = 5),
-                label = ""
-            )
+        val sizeState = animateDpAsState(
+            targetValue = if (recording) 84.dp else 56.dp,
+            animationSpec = tween(durationMillis = 300, delayMillis = 5),
+            label = ""
+        )
 
-            FloatingActionButton(
-                shape = CircleShape,
-                onClick = { },
-                interactionSource = interactionSource,
-                containerColor = if (recording) Color.LightGray else FloatingActionButtonDefaults.containerColor,
-                modifier = Modifier
-                    .defaultMinSize(
-                        minWidth = sizeState.value,
-                        minHeight = sizeState.value
+        FloatingActionButton(
+            shape = CircleShape,
+            onClick = { },
+            interactionSource = interactionSource,
+            containerColor = if (recording) Color.LightGray else FloatingActionButtonDefaults.containerColor,
+            modifier = Modifier
+                .defaultMinSize(
+                    minWidth = sizeState.value,
+                    minHeight = sizeState.value
+                )
+        ) {
+            if (performing) {
+                CircularProgressIndicator(
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            } else {
+                Icon(
+                    Icons.Filled.Mic, null,
+                    modifier = Modifier.defaultMinSize(
+                        minWidth = sizeState.value.div(2),
+                        minHeight = sizeState.value.div(2)
                     )
-            ) {
-                if (performing) {
-                    CircularProgressIndicator(
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                } else {
-                    Icon(
-                        Icons.Filled.Mic, null,
-                        modifier = Modifier.defaultMinSize(
-                            minWidth = sizeState.value.div(2),
-                            minHeight = sizeState.value.div(2)
-                        )
-                    )
-                }
+                )
             }
         }
     }
