@@ -1,6 +1,7 @@
 package io.github.warleysr.ankipadroid.screens.vocabulary
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -31,21 +32,25 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -69,13 +74,141 @@ fun VocabularyScreen(
     if (vocabularyViewModel.showingRecognized.value) {
         VocabularyRecognitionScreen(settingsViewModel, vocabularyViewModel)
     } else {
-        VocabularyScreenList(settingsViewModel, vocabularyViewModel)
+        VocabularyScreenScaffold(settingsViewModel, vocabularyViewModel)
+    }
+}
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun VocabularyScreenScaffold(
+    settingsViewModel: SettingsViewModel, vocabularyViewModel: VocabularyViewModel
+) {
+
+    var vocabList: List<VocabularyState>? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(key1 = true) {
+        vocabularyViewModel.getVocabularyList(
+            onFinish = { vocabList = it.map{ vocab -> VocabularyState(vocab) } }
+        )
+    }
+
+    val selectedVocabs = remember { mutableIntStateOf(0) }
+    val topBarVisible = selectedVocabs.intValue > 0
+
+    Scaffold(
+        topBar = {
+            VocabularyOptionsBar(
+                visible = topBarVisible,
+                selectedVocabs = selectedVocabs,
+                selectAll = {
+                    vocabList?.forEach {
+                        it.selected.value = true
+                        selectedVocabs.intValue = vocabList!!.size
+                    }
+                },
+                unselectAll = {
+                    vocabList?.forEach {
+                        it.selected.value = false
+                        selectedVocabs.intValue = 0
+                    }
+                }
+            )
+        },
+        floatingActionButton = {
+            VocabularyFAB(settingsViewModel, vocabularyViewModel, topBarVisible)
+        }
+    ) {
+        Surface(Modifier.padding(top = it.calculateTopPadding())) {
+            VocabularyScreenList(vocabList, selectedVocabs)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun VocabularyScreenList(
+    vocabList: List<VocabularyState>?,
+    selectedVocabs: MutableState<Int>
+) {
+    val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US)
+    val updateVocabularySelected: (VocabularyState, Boolean) -> Unit = { vocab, selected ->
+        vocab.selected.value = selected
+        selectedVocabs.value += if (selected) 1 else -1
+    }
+
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.Bottom
+    ) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                vocabList?.let {
+                    it.forEach { vocab ->
+                        val text = remember { mutableStateOf(vocab.vocabulary.data) }
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            onClick = { updateVocabularySelected(vocab, !vocab.selected.value) }
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Checkbox(
+                                    checked = vocab.selected.value,
+                                    onCheckedChange = { newState ->
+                                        updateVocabularySelected(vocab, newState)
+//                                        if (newState) {
+//                                            val key = settingsViewModel.getSetting("gemini_key")
+//                                            val model = settingsViewModel.getSetting("model")
+//                                            val prompt = settingsViewModel.getSetting("prompt")
+//                                                .replace("{LANGUAGE}", vocab.language)
+//                                                .replace("{WORD}", vocab.data)
+//
+//                                            GeminiAPI.generateContent(
+//                                                apiKey = key, modelName = model, prompt = prompt,
+//                                                onSuccess = {
+//                                                    text.value = it!!
+//                                                }
+//                                            )
+//                                        }
+                                    }
+                                )
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f)
+                                ) {
+                                    Text(text.value, fontWeight = FontWeight.Bold)
+                                    Text(vocab.vocabulary.language)
+                                    Text(dateFormatter.format(vocab.vocabulary.importedAt ?: Date(0)))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
 @Composable
-fun VocabularyScreenList(
-    settingsViewModel: SettingsViewModel, vocabularyViewModel: VocabularyViewModel
+fun VocabularyFAB(
+    settingsViewModel: SettingsViewModel,
+    vocabularyViewModel: VocabularyViewModel,
+    topBarVisible: Boolean
 ) {
     var fabState by remember { mutableStateOf(false) }
 
@@ -125,82 +258,9 @@ fun VocabularyScreenList(
             }
         }
     )
-
-    var vocabList: List<ImportedVocabulary>? by remember { mutableStateOf(null) }
-
-    LaunchedEffect(key1 = true) {
-        vocabularyViewModel.getVocabularyList(onFinish = { vocabList = it })
-    }
-
-    val dateFormatter = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.US)
-
-    Column (
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.End,
-        verticalArrangement = Arrangement.Bottom
-    ) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .weight(1f)
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                vocabList?.let {
-                    it.forEach { vocab ->
-                        var selected by remember { mutableStateOf(false) }
-                        val text = remember { mutableStateOf(vocab.data) }
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Checkbox(
-                                    checked = selected,
-                                    onCheckedChange = {
-                                        newState -> selected = newState
-                                        if (newState) {
-                                            val key = settingsViewModel.getSetting("gemini_key")
-                                            val model = settingsViewModel.getSetting("model")
-                                            val prompt = settingsViewModel.getSetting("prompt")
-                                                .replace("{LANGUAGE}", vocab.language)
-                                                .replace("{WORD}", vocab.data)
-
-                                            GeminiAPI.generateContent(
-                                                apiKey = key, modelName = model, prompt = prompt,
-                                                onSuccess = {
-                                                    text.value = it!!
-                                                }
-                                            )
-                                        }
-                                    }
-                                )
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier.fillMaxWidth().weight(1f)
-                                ) {
-                                    Text(text.value, fontWeight = FontWeight.Bold)
-                                    Text(vocab.language)
-                                    Text(dateFormatter.format(vocab.importedAt ?: Date(0)))
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
+    Column( horizontalAlignment = Alignment.End ) {
         AnimatedVisibility(
-            visible = fabState,
+            visible = !topBarVisible && fabState,
             enter = scaleIn(),
             exit = scaleOut(),
         ) {
@@ -212,8 +272,6 @@ fun VocabularyScreenList(
                 ) {
                     Icon(Icons.Filled.List, null)
                 }
-
-                Spacer(Modifier.padding(4.dp))
 
                 SmallFloatingActionButton(
                     onClick = {
@@ -228,7 +286,6 @@ fun VocabularyScreenList(
                 ) {
                     Icon(Icons.Filled.Image, null)
                 }
-                Spacer(Modifier.padding(4.dp))
 
                 SmallFloatingActionButton(
                     onClick = {
@@ -247,24 +304,35 @@ fun VocabularyScreenList(
                 Spacer(Modifier.padding(4.dp))
             }
         }
-        ExtendedFloatingActionButton(
-            onClick = { fabState = !fabState },
-            icon = {
-                Icon(
-                    if (fabState) Icons.Filled.Close else Icons.Filled.Add ,
-                    null,
-                    modifier = Modifier.rotate(fabRotation.value)
-                )
-            },
-            text = { 
-                Text(
-                    text =
-                    if (fabState)
-                        stringResource(id = R.string.cancel)
-                    else
-                        stringResource(id = R.string.add_vocabulary)
-                ) 
-               },
-        )
+
+        AnimatedVisibility(
+            visible = !topBarVisible,
+            enter = scaleIn(),
+            exit = scaleOut(),
+        ) {
+            ExtendedFloatingActionButton(
+                onClick = { fabState = !fabState },
+                icon = {
+                    Icon(
+                        if (fabState) Icons.Filled.Close else Icons.Filled.Add,
+                        null,
+                        modifier = Modifier.rotate(fabRotation.value)
+                    )
+                },
+                text = {
+                    Text(
+                        text =
+                        if (fabState)
+                            stringResource(id = R.string.cancel)
+                        else
+                            stringResource(id = R.string.add_vocabulary)
+                    )
+                },
+            )
+        }
     }
+}
+
+data class VocabularyState(val vocabulary: ImportedVocabulary) {
+    val selected = mutableStateOf(false)
 }

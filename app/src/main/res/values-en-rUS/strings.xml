@@ -41,4 +41,5 @@
     <string name="opencv">Configure OpenCV</string>
     <string name="opencv_description">Configure the behaviour of text recognition from image.</string>
     <string name="model">Model</string>
+    <string name="selected_text">selected</string>
 </resources>

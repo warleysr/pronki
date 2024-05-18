@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">AnkiPADroid</string>
     <string name="permission_not_granted">A permissão ao Anki não foi concedida.</string>
     <string name="allow">Permitir</string>
@@ -42,4 +42,5 @@
     <string name="opencv_description">Configure o comportamento para o reconhecimento de texto por imagem.</string>
     <string name="model">Modelo</string>
     <string name="default_prompt" translatable="false">Your task is to create an example phrase in {LANGUAGE} using the word \"{WORD}\" and a short explanation of the meaning of this word. Give the output in the the format: phrase // explanation</string>
+    <string name="selected_text" tools:ignore="PrivateResource">selecionado</string>
 </resources>
