@@ -87,4 +87,11 @@ class VocabularyViewModel: ViewModel() {
         }
     }
 
+    fun deleteVocabulary(vararg vocabularies: ImportedVocabulary) {
+        CoroutineScope(Dispatchers.IO).launch {
+            for (vocab in vocabularies)
+                AnkiPADroid.vocabularyDatabase.vocabularyDAO().delete(vocab)
+        }
+    }
+
 }

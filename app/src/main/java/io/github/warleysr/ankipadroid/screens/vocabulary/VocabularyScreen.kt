@@ -45,6 +45,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -59,7 +60,6 @@ import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import io.github.warleysr.ankipadroid.R
-import io.github.warleysr.ankipadroid.api.GeminiAPI
 import io.github.warleysr.ankipadroid.api.ImportedVocabulary
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
@@ -78,17 +78,16 @@ fun VocabularyScreen(
     }
 }
 
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
 @Composable
 fun VocabularyScreenScaffold(
     settingsViewModel: SettingsViewModel, vocabularyViewModel: VocabularyViewModel
 ) {
 
-    var vocabList: List<VocabularyState>? by remember { mutableStateOf(null) }
-
+    val vocabList = remember { mutableStateListOf<VocabularyState>() }
     LaunchedEffect(key1 = true) {
         vocabularyViewModel.getVocabularyList(
-            onFinish = { vocabList = it.map{ vocab -> VocabularyState(vocab) } }
+            onFinish = { it.forEach { vocab -> vocabList.add(VocabularyState(vocab)) } }
         )
     }
 
@@ -98,20 +97,10 @@ fun VocabularyScreenScaffold(
     Scaffold(
         topBar = {
             VocabularyOptionsBar(
+                vocabularyViewModel = vocabularyViewModel,
                 visible = topBarVisible,
                 selectedVocabs = selectedVocabs,
-                selectAll = {
-                    vocabList?.forEach {
-                        it.selected.value = true
-                        selectedVocabs.intValue = vocabList!!.size
-                    }
-                },
-                unselectAll = {
-                    vocabList?.forEach {
-                        it.selected.value = false
-                        selectedVocabs.intValue = 0
-                    }
-                }
+                vocabList = vocabList
             )
         },
         floatingActionButton = {
@@ -152,49 +141,32 @@ fun VocabularyScreenList(
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
             ) {
-                vocabList?.let {
-                    it.forEach { vocab ->
-                        val text = remember { mutableStateOf(vocab.vocabulary.data) }
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            onClick = { updateVocabularySelected(vocab, !vocab.selected.value) }
+                vocabList?.forEach { vocab ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        onClick = { updateVocabularySelected(vocab, !vocab.selected.value) }
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Checkbox(
-                                    checked = vocab.selected.value,
-                                    onCheckedChange = { newState ->
-                                        updateVocabularySelected(vocab, newState)
-//                                        if (newState) {
-//                                            val key = settingsViewModel.getSetting("gemini_key")
-//                                            val model = settingsViewModel.getSetting("model")
-//                                            val prompt = settingsViewModel.getSetting("prompt")
-//                                                .replace("{LANGUAGE}", vocab.language)
-//                                                .replace("{WORD}", vocab.data)
-//
-//                                            GeminiAPI.generateContent(
-//                                                apiKey = key, modelName = model, prompt = prompt,
-//                                                onSuccess = {
-//                                                    text.value = it!!
-//                                                }
-//                                            )
-//                                        }
-                                    }
-                                )
-                                Column(
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .weight(1f)
-                                ) {
-                                    Text(text.value, fontWeight = FontWeight.Bold)
-                                    Text(vocab.vocabulary.language)
-                                    Text(dateFormatter.format(vocab.vocabulary.importedAt ?: Date(0)))
+                            Checkbox(
+                                checked = vocab.selected.value,
+                                onCheckedChange = { newState ->
+                                    updateVocabularySelected(vocab, newState)
                                 }
+                            )
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f)
+                            ) {
+                                Text(vocab.vocabulary.data, fontWeight = FontWeight.Bold)
+                                Text(vocab.vocabulary.language)
+                                Text(dateFormatter.format(vocab.vocabulary.importedAt ?: Date(0)))
                             }
                         }
                     }
