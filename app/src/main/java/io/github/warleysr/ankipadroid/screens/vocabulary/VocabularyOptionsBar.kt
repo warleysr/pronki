@@ -19,9 +19,12 @@ import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -39,17 +42,28 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.warleysr.ankipadroid.R
+import io.github.warleysr.ankipadroid.api.GeminiAPI
+import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
+import androidx.compose.material3.ExposedDropdownMenuBox
+import io.github.warleysr.ankipadroid.AnkiDroidHelper
+import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VocabularyOptionsBar(
+    settingsViewModel: SettingsViewModel,
     vocabularyViewModel: VocabularyViewModel,
+    ankiDroidViewModel: AnkiDroidViewModel,
     visible: Boolean,
     selectedVocabs: MutableIntState,
     vocabList: SnapshotStateList<VocabularyState>,
+    onFailure: (String) -> Unit
 ) {
     var isDeleteDialogShown by remember { mutableStateOf(false) }
+    var isCreateDialogShown by remember { mutableStateOf(false) }
+    var expandedDecks by remember { mutableStateOf(false) }
+    var selectedDeck by remember { mutableStateOf("") }
 
     if (isDeleteDialogShown) {
         AlertDialog(
@@ -89,6 +103,82 @@ fun VocabularyOptionsBar(
         }
     }
 
+    if (isCreateDialogShown) {
+        AlertDialog(
+            onDismissRequest = { isCreateDialogShown = false },
+            modifier = Modifier.clip(RoundedCornerShape(12.dp))
+        ) {
+            Surface {
+                Column(
+                    Modifier.fillMaxWidth().wrapContentHeight().padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val language = vocabList[0].vocabulary.language
+
+                    Text("Proceed to create ${selectedVocabs.intValue} flashcards?")
+                    Spacer(Modifier.height(16.dp))
+
+                    ExposedDropdownMenuBox(
+                        expanded = expandedDecks,
+                        onExpandedChange = { expandedDecks = !expandedDecks }
+                    ) {
+                        OutlinedTextField(
+                            value = selectedDeck,
+                            label = { Text("Deck") },
+                            onValueChange = {},
+                            readOnly = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDecks) },
+                            modifier = Modifier.menuAnchor()
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = expandedDecks,
+                            onDismissRequest = { expandedDecks = false }
+                        ) {
+                            ankiDroidViewModel.getDeckList()?.forEach {
+                                DropdownMenuItem(
+                                    text = { Text(text = it) },
+                                    onClick = {
+                                        selectedDeck = it
+                                        expandedDecks = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                    Spacer(Modifier.height(16.dp))
+
+                    Text(
+                        vocabList.filter { it.selected.value }.joinToString { it.vocabulary.data },
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Spacer(Modifier.height(16.dp))
+
+                    Button(
+                        modifier = Modifier.align(Alignment.End),
+                        onClick = {
+                            val apiKey = settingsViewModel.getSetting("gemini_key")
+                            val model = settingsViewModel.getSetting("model")
+                            val prompt = settingsViewModel.getSetting("prompt")
+
+                            vocabularyViewModel.createFlashcards(
+                                apiKey = apiKey,
+                                modelName = model,
+                                prompt = prompt,
+                                language = language,
+                                deckName = selectedDeck,
+                                vocabularies = vocabList.filter { it.selected.value }.map { it.vocabulary}.toTypedArray()
+                            )
+                        }
+                    ) {
+                        Text("Create")
+                    }
+                }
+            }
+        }
+    }
+
     AnimatedVisibility(
         visible = visible,
         enter = fadeIn() + slideInVertically(),
@@ -109,7 +199,27 @@ fun VocabularyOptionsBar(
                 }
             },
             actions = {
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(
+                    onClick = {
+                        val selectedLanguages = vocabList
+                            .filter { it.selected.value }
+                            .map { it.vocabulary.language }
+                            .toSet().size
+                        if (selectedLanguages > 1) {
+                            onFailure("It's possible to create flashcards of one language at a time.")
+                            return@IconButton
+                        }
+                        val apiKey = settingsViewModel.getSetting("gemini_key")
+                        val model = settingsViewModel.getSetting("model")
+                        val prompt = settingsViewModel.getSetting("prompt")
+
+                        if (apiKey.isEmpty() || model.isEmpty() || prompt.isEmpty()) {
+                            onFailure("You need to configure Gemini properly in settings screen.")
+                            return@IconButton
+                        }
+                        isCreateDialogShown = true
+                    }
+                ) {
                     Icon(Icons.Filled.LibraryAdd, null)
                 }
 

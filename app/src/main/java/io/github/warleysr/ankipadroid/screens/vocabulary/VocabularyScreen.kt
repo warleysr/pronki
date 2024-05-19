@@ -38,6 +38,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,6 +50,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,27 +64,33 @@ import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
 import io.github.warleysr.ankipadroid.R
 import io.github.warleysr.ankipadroid.api.ImportedVocabulary
+import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
 @Composable
 fun VocabularyScreen(
-    settingsViewModel: SettingsViewModel, vocabularyViewModel: VocabularyViewModel
+    settingsViewModel: SettingsViewModel,
+    vocabularyViewModel: VocabularyViewModel,
+    ankiDroidViewModel: AnkiDroidViewModel
 ) {
     if (vocabularyViewModel.showingRecognized.value) {
         VocabularyRecognitionScreen(settingsViewModel, vocabularyViewModel)
     } else {
-        VocabularyScreenScaffold(settingsViewModel, vocabularyViewModel)
+        VocabularyScreenScaffold(settingsViewModel, vocabularyViewModel, ankiDroidViewModel)
     }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "MutableCollectionMutableState")
 @Composable
 fun VocabularyScreenScaffold(
-    settingsViewModel: SettingsViewModel, vocabularyViewModel: VocabularyViewModel
+    settingsViewModel: SettingsViewModel,
+    vocabularyViewModel: VocabularyViewModel,
+    ankiDroidViewModel: AnkiDroidViewModel
 ) {
 
     val vocabList = remember { mutableStateListOf<VocabularyState>() }
@@ -93,14 +102,24 @@ fun VocabularyScreenScaffold(
 
     val selectedVocabs = remember { mutableIntStateOf(0) }
     val topBarVisible = selectedVocabs.intValue > 0
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             VocabularyOptionsBar(
+                settingsViewModel = settingsViewModel,
                 vocabularyViewModel = vocabularyViewModel,
+                ankiDroidViewModel = ankiDroidViewModel,
                 visible = topBarVisible,
                 selectedVocabs = selectedVocabs,
-                vocabList = vocabList
+                vocabList = vocabList,
+                onFailure = {
+                    scope.launch {
+                        snackbarHostState.showSnackbar(it)
+                    }
+                }
             )
         },
         floatingActionButton = {

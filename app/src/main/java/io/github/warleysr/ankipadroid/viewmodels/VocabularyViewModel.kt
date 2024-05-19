@@ -6,7 +6,9 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.ichi2.anki.api.AddContentApi
 import io.github.warleysr.ankipadroid.AnkiPADroid
+import io.github.warleysr.ankipadroid.api.GeminiAPI
 import io.github.warleysr.ankipadroid.api.ImportedVocabulary
 import io.github.warleysr.ankipadroid.api.OpenCV
 import io.github.warleysr.ankipadroid.screens.settings.HSVColor
@@ -91,6 +93,37 @@ class VocabularyViewModel: ViewModel() {
         CoroutineScope(Dispatchers.IO).launch {
             for (vocab in vocabularies)
                 AnkiPADroid.vocabularyDatabase.vocabularyDAO().delete(vocab)
+        }
+    }
+
+    fun createFlashcards(
+        apiKey: String,
+        modelName: String,
+        prompt: String,
+        language: String,
+        deckName: String,
+        vararg vocabularies: ImportedVocabulary
+    ) {
+        val wordList = vocabularies.map { it.data }.toString()
+        val finalPrompt = prompt
+            .replace("{LANGUAGE}", language)
+            .replace("{WORD_LIST}", wordList)
+        CoroutineScope(Dispatchers.IO).launch {
+            GeminiAPI.generateContent(
+                apiKey = apiKey, modelName = modelName, prompt = finalPrompt,
+                onSuccess = { content ->
+                    val ankiApi = AddContentApi(AnkiPADroid.instance.applicationContext)
+                    val deckId = ankiApi.deckList?.filter { it.value == deckName }?.map { it.key }?.get(0)
+                        ?: return@generateContent
+                    val cards = content?.split("\n")
+                    cards?.forEach { card ->
+                        val fields = card.split("//").toTypedArray()
+                        if (fields.size == 2) {
+                            ankiApi.addNote(ankiApi.currentModelId, deckId, fields, null)
+                        }
+                    }
+                }
+            )
         }
     }
 
