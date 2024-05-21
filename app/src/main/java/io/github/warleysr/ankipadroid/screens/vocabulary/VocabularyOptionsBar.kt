@@ -7,6 +7,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -15,10 +16,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.LibraryAdd
 import androidx.compose.material.icons.filled.SelectAll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuDefaults
@@ -42,11 +45,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.warleysr.ankipadroid.R
-import io.github.warleysr.ankipadroid.api.GeminiAPI
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
 import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
 import androidx.compose.material3.ExposedDropdownMenuBox
-import io.github.warleysr.ankipadroid.AnkiDroidHelper
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.text.style.TextAlign
 import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,7 +75,10 @@ fun VocabularyOptionsBar(
         ) {
             Surface {
                 Column(
-                    Modifier.fillMaxWidth().wrapContentHeight().padding(16.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text("Are you sure you want to delete ${selectedVocabs.intValue} vocabularies?")
@@ -105,74 +111,109 @@ fun VocabularyOptionsBar(
 
     if (isCreateDialogShown) {
         AlertDialog(
-            onDismissRequest = { isCreateDialogShown = false },
+            onDismissRequest = {
+                if (!vocabularyViewModel.creatingCards.value)
+                    isCreateDialogShown = false
+            },
             modifier = Modifier.clip(RoundedCornerShape(12.dp))
         ) {
             Surface {
                 Column(
-                    Modifier.fillMaxWidth().wrapContentHeight().padding(16.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    val language = vocabList[0].vocabulary.language
-
-                    Text("Proceed to create ${selectedVocabs.intValue} flashcards?")
-                    Spacer(Modifier.height(16.dp))
-
-                    ExposedDropdownMenuBox(
-                        expanded = expandedDecks,
-                        onExpandedChange = { expandedDecks = !expandedDecks }
-                    ) {
-                        OutlinedTextField(
-                            value = selectedDeck,
-                            label = { Text("Deck") },
-                            onValueChange = {},
-                            readOnly = true,
-                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDecks) },
-                            modifier = Modifier.menuAnchor()
+                    if (vocabularyViewModel.creatingCards.value) {
+                        CircularProgressIndicator()
+                        Spacer(Modifier.height(16.dp))
+                        Text("Creating cards, please wait...")
+                    } else if (vocabularyViewModel.successCreation.value) {
+                        Icon(
+                            Icons.Filled.Done, null,
+                            tint = MaterialTheme.colorScheme.surfaceTint,
+                            modifier = Modifier.defaultMinSize(minHeight = 64.dp, minWidth = 64.dp)
                         )
-
-                        ExposedDropdownMenu(
-                            expanded = expandedDecks,
-                            onDismissRequest = { expandedDecks = false }
+                        Text("${vocabularyViewModel.cardsCreated.intValue} flashcards was successfuly created!", textAlign = TextAlign.Center)
+                        Text("${vocabularyViewModel.usedTokens.intValue} tokens were used.")
+                        Spacer(Modifier.height(16.dp))
+                        Button(
+                            modifier = Modifier.align(Alignment.End),
+                            onClick = { isCreateDialogShown = false }
                         ) {
-                            ankiDroidViewModel.getDeckList()?.forEach {
-                                DropdownMenuItem(
-                                    text = { Text(text = it) },
-                                    onClick = {
-                                        selectedDeck = it
-                                        expandedDecks = false
-                                    }
-                                )
+                            Text("Ok")
+                        }
+                    } else {
+                        val language = vocabList[0].vocabulary.language
+
+                        Text("Proceed to create ${selectedVocabs.intValue} flashcards?")
+                        Spacer(Modifier.height(16.dp))
+
+                        ExposedDropdownMenuBox(
+                            expanded = expandedDecks,
+                            onExpandedChange = { expandedDecks = !expandedDecks }
+                        ) {
+                            OutlinedTextField(
+                                value = selectedDeck,
+                                label = { Text("Deck") },
+                                onValueChange = {},
+                                readOnly = true,
+                                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDecks) },
+                                modifier = Modifier.menuAnchor()
+                            )
+
+                            ExposedDropdownMenu(
+                                expanded = expandedDecks,
+                                onDismissRequest = { expandedDecks = false }
+                            ) {
+                                ankiDroidViewModel.getDeckList()?.forEach {
+                                    DropdownMenuItem(
+                                        text = { Text(text = it) },
+                                        onClick = {
+                                            selectedDeck = it
+                                            expandedDecks = false
+                                        }
+                                    )
+                                }
                             }
                         }
-                    }
-                    Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.height(16.dp))
 
-                    Text(
-                        vocabList.filter { it.selected.value }.joinToString { it.vocabulary.data },
-                        fontWeight = FontWeight.Bold
-                    )
+                        Text(
+                            vocabList
+                                .filter { it.selected.value }
+                                .joinToString { it.vocabulary.data },
+                            fontWeight = FontWeight.Bold
+                        )
 
-                    Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.height(16.dp))
 
-                    Button(
-                        modifier = Modifier.align(Alignment.End),
-                        onClick = {
-                            val apiKey = settingsViewModel.getSetting("gemini_key")
-                            val model = settingsViewModel.getSetting("model")
-                            val prompt = settingsViewModel.getSetting("prompt")
+                        Button(
+                            modifier = Modifier.align(Alignment.End),
+                            onClick = {
+                                val apiKey = settingsViewModel.getSetting("gemini_key")
+                                val model = settingsViewModel.getSetting("model")
+                                val prompt = settingsViewModel.getSetting("prompt")
 
-                            vocabularyViewModel.createFlashcards(
-                                apiKey = apiKey,
-                                modelName = model,
-                                prompt = prompt,
-                                language = language,
-                                deckName = selectedDeck,
-                                vocabularies = vocabList.filter { it.selected.value }.map { it.vocabulary}.toTypedArray()
-                            )
+                                vocabularyViewModel.createFlashcards(
+                                    apiKey = apiKey,
+                                    modelName = model,
+                                    prompt = prompt,
+                                    language = language,
+                                    deckName = selectedDeck,
+                                    onFailure = {
+                                        isCreateDialogShown = false
+                                        onFailure(it ?: "Error")
+                                    },
+                                    vocabularies = vocabList
+                                        .filter { it.selected.value }
+                                        .map { it.vocabulary }.toTypedArray()
+                                )
+                            }
+                        ) {
+                            Text("Create")
                         }
-                    ) {
-                        Text("Create")
                     }
                 }
             }

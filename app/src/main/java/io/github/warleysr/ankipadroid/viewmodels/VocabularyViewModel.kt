@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.ichi2.anki.api.AddContentApi
@@ -30,6 +31,18 @@ class VocabularyViewModel: ViewModel() {
         private set
 
     var showingRecognized = mutableStateOf(false)
+        private set
+
+    var creatingCards = mutableStateOf(false)
+        private set
+
+    var successCreation = mutableStateOf(false)
+        private set
+
+    var cardsCreated = mutableIntStateOf(0)
+        private set
+
+    var usedTokens = mutableIntStateOf(0)
         private set
 
     var allWords = ArrayList<String>()
@@ -102,29 +115,48 @@ class VocabularyViewModel: ViewModel() {
         prompt: String,
         language: String,
         deckName: String,
+        onFailure: (String?) -> Unit,
         vararg vocabularies: ImportedVocabulary
     ) {
+        creatingCards.value = true
         val wordList = vocabularies.map { it.data }.toString()
         val finalPrompt = prompt
             .replace("{LANGUAGE}", language)
             .replace("{WORD_LIST}", wordList)
+
         CoroutineScope(Dispatchers.IO).launch {
             GeminiAPI.generateContent(
                 apiKey = apiKey, modelName = modelName, prompt = finalPrompt,
-                onSuccess = { content ->
+                onSuccess = { content, tokens ->
                     val ankiApi = AddContentApi(AnkiPADroid.instance.applicationContext)
                     val deckId = ankiApi.deckList?.filter { it.value == deckName }?.map { it.key }?.get(0)
-                        ?: return@generateContent
+                    if (deckId == null) {
+                        onFailure("Deck not found")
+                        return@generateContent
+                    }
+                    var successCards = 0
                     val cards = content?.split("\n")
+
                     cards?.forEach { card ->
-                        val fields = card.split("//").toTypedArray()
-                        if (fields.size == 2) {
-                            ankiApi.addNote(ankiApi.currentModelId, deckId, fields, null)
+                        val fields = card.split(";").toTypedArray()
+                        if (fields.size == 3) {
+                            val word = fields[0]
+                            val ankiFields = arrayOf(fields[1], fields[2])
+                            val cardId = ankiApi.addNote(ankiApi.currentModelId, deckId, ankiFields, null)
+                            if (cardId != null) {
+                                println("Created a flashcard for word: $word")
+                                successCards++
+                            }
                         }
                     }
-                }
+
+                    creatingCards.value = false
+                    successCreation.value = true
+                    cardsCreated.intValue = successCards
+                    usedTokens.intValue = tokens ?: 0
+                },
+                onFailure = onFailure
             )
         }
     }
-
 }

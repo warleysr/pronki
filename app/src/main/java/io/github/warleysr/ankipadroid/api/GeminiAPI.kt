@@ -10,13 +10,19 @@ class GeminiAPI {
 
     companion object {
 
-        suspend fun generateContent(apiKey: String, modelName: String, prompt: String, onSuccess: (String?) -> Unit) {
+        suspend fun generateContent(
+            apiKey: String,
+            modelName: String,
+            prompt: String,
+            onSuccess: (String?, Int?) -> Unit,
+            onFailure: (String?) -> Unit
+        ) {
             val model = GenerativeModel(modelName = modelName, apiKey = apiKey)
             try {
                 val content = model.generateContent(prompt)
-                onSuccess(content.text)
+                onSuccess(content.text, content.usageMetadata?.totalTokenCount)
             } catch (exception: GoogleGenerativeAIException) {
-                println("Failure")
+                onFailure(exception.localizedMessage)
             }
         }
 
