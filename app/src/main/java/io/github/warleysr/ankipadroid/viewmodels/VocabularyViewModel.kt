@@ -179,5 +179,5 @@ class VocabularyViewModel: ViewModel() {
 }
 
 fun String.processForFlashcard(): String {
-    return this.replace("\\*\\*(.*?)\\*\\*", "<b>\$1/b>")
+    return this.replace("\\*\\*(.*?)\\*\\*".toRegex(), "<b>\$1</b>")
 }
