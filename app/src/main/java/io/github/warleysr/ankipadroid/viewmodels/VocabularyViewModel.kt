@@ -5,7 +5,9 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.toMutableStateList
 import androidx.lifecycle.ViewModel
 import com.ichi2.anki.api.AddContentApi
 import io.github.warleysr.ankipadroid.AnkiPADroid
@@ -13,6 +15,7 @@ import io.github.warleysr.ankipadroid.api.GeminiAPI
 import io.github.warleysr.ankipadroid.api.ImportedVocabulary
 import io.github.warleysr.ankipadroid.api.OpenCV
 import io.github.warleysr.ankipadroid.screens.settings.HSVColor
+import io.github.warleysr.ankipadroid.screens.vocabulary.VocabularyState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,10 +48,7 @@ class VocabularyViewModel: ViewModel() {
     var usedTokens = mutableIntStateOf(0)
         private set
 
-    var allWords = ArrayList<String>()
-        private set
-
-    var recognizedWords = ArrayList<String>()
+    var allWords = mutableStateListOf<VocabularyState>()
         private set
 
 
@@ -63,9 +63,8 @@ class VocabularyViewModel: ViewModel() {
         this.bitmap.value = bitmap
         OpenCV.processImage(
             this.bitmap.value!!, rotation, lower, upper,
-            onSuccess = { allWords, recognizedWords ->
+            onSuccess = { allWords ->
                 this.allWords = allWords
-                this.recognizedWords = recognizedWords
                 showRecognized()
             }
         )
@@ -92,10 +91,9 @@ class VocabularyViewModel: ViewModel() {
         successCreation.value = false
     }
 
-    fun insertVocabulary(vocabulary: ArrayList<ImportedVocabulary>) {
+    fun insertVocabulary(vararg vocabularies: ImportedVocabulary) {
         CoroutineScope(Dispatchers.IO).launch {
-            for (vocab in vocabulary)
-                AnkiPADroid.vocabularyDatabase.vocabularyDAO().insertAll(vocab)
+            AnkiPADroid.vocabularyDatabase.vocabularyDAO().insertAll(*vocabularies)
         }
     }
 

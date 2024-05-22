@@ -79,7 +79,7 @@ fun VocabularyScreen(
     ankiDroidViewModel: AnkiDroidViewModel
 ) {
     if (vocabularyViewModel.showingRecognized.value) {
-        VocabularyRecognitionScreen(settingsViewModel, vocabularyViewModel)
+        VocabularyRecognitionScreen(vocabularyViewModel)
     } else {
         VocabularyScreenScaffold(settingsViewModel, vocabularyViewModel, ankiDroidViewModel)
     }
@@ -324,6 +324,6 @@ fun VocabularyFAB(
     }
 }
 
-data class VocabularyState(val vocabulary: ImportedVocabulary) {
-    val selected = mutableStateOf(false)
+data class VocabularyState(val vocabulary: ImportedVocabulary, val initialState: Boolean = false) {
+    val selected = mutableStateOf(initialState)
 }

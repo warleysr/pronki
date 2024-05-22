@@ -1,14 +1,24 @@
 package io.github.warleysr.ankipadroid.screens.vocabulary
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.warleysr.ankipadroid.ConfigUtils
 import io.github.warleysr.ankipadroid.api.ImportedVocabulary
@@ -24,48 +35,58 @@ import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun VocabularyRecognitionScreen(settingsViewModel: SettingsViewModel, viewModel: VocabularyViewModel) {
-    val selected = remember {
-        viewModel.allWords.map { mutableStateOf(it in viewModel.recognizedWords)}
-    }
-    // TODO: Implement auto language identification with ML Kit instead
-    val language = ConfigUtils.getAvailableLanguages().getOrDefault(
-        settingsViewModel.getSetting("language"), "English"
-    ).split("(")[0]
-
+fun VocabularyRecognitionScreen(
+    viewModel: VocabularyViewModel
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
     ) {
-        FlowRow {
+        Text("Check if your highlighted vocabulary was recognized correctly. You can click to select others.", fontWeight = FontWeight.Bold)
+        Spacer(Modifier.height(8.dp))
+        FlowRow(
+            modifier = Modifier
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+        ) {
             viewModel.allWords.forEachIndexed { idx, vocab ->
-                Text(
-                    vocab,
-                    color = if (selected[idx].value) Color.Red else Color.Black,
-                    modifier = Modifier.clickable(
-                        onClick = {
-                            selected[idx].value = !selected[idx].value
-                        }
-                    ).padding(8.dp)
-                )
+                Box(
+                    modifier = Modifier.background(
+                        if (vocab.selected.value)
+                            Color.Yellow
+                        else
+                            MaterialTheme.colorScheme.surface
+                    )
+                ) {
+                    Text(
+                        vocab.vocabulary.data,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .clickable(
+                                onClick = {
+                                    vocab.selected.value= !vocab.selected.value
+                                }
+                            )
+                    )
+                }
             }
         }
         Row(
             verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.End,
-            modifier = Modifier.weight(1f)
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth().padding(8.dp)
         ) {
+            Button(onClick = { viewModel.hideRecognized() }) {
+                Text("Cancel")
+            }
+            Spacer(Modifier.width(16.dp))
             Button(
                 onClick = {
-                    val newVocab = ArrayList<ImportedVocabulary>()
-                    for (idx in viewModel.allWords.indices) {
-                        if (!selected[idx].value) continue
-                        val vocab = ImportedVocabulary(
-                            data = viewModel.allWords[idx], language = language
-                        )
-                        newVocab.add(vocab)
-                    }
-                    viewModel.insertVocabulary(newVocab)
+                    val newVocab = viewModel.allWords
+                        .filter { it.selected.value }
+                        .map { it.vocabulary }
+                        .toTypedArray()
+                    viewModel.insertVocabulary(*newVocab)
                     viewModel.hideRecognized()
                 }
             ) {

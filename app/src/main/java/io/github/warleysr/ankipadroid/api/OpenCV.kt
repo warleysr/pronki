@@ -1,9 +1,12 @@
 package io.github.warleysr.ankipadroid.api
 
 import android.graphics.Bitmap
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.toMutableStateList
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import io.github.warleysr.ankipadroid.screens.vocabulary.VocabularyState
 import org.opencv.android.Utils
 import org.opencv.core.Core
 import org.opencv.core.Mat
@@ -20,7 +23,7 @@ class OpenCV {
             rotation: Int,
             lower: Scalar,
             upper: Scalar,
-            onSuccess: (ArrayList<String>, ArrayList<String>) -> Unit
+            onSuccess: (SnapshotStateList<VocabularyState>) -> Unit
         ) {
 
             val originalImage = Mat()
@@ -68,7 +71,13 @@ class OpenCV {
 
                 Utils.matToBitmap(originalImage, bitmap)
 
-                onSuccess(allWords, recognizedWords)
+                val allWordsState = allWords.map {
+                    VocabularyState(
+                        vocabulary = ImportedVocabulary(data = it, language = "None"),
+                        initialState = it in recognizedWords
+                    )
+                }.toMutableStateList()
+                onSuccess(allWordsState)
             }
 
         }
