@@ -11,6 +11,7 @@ import androidx.room.Query
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import androidx.room.Update
 import java.util.Date
 
 @Database(entities = [ImportedVocabulary::class], version = 1)
@@ -34,6 +35,9 @@ interface VocabularyDAO {
     @Query("SELECT * FROM ImportedVocabulary WHERE flashcard is NULL ORDER BY imported_at DESC")
     fun getAllNew(): List<ImportedVocabulary>
 
+    @Update
+    fun updateAll(vararg vocabs: ImportedVocabulary)
+
 }
 
 @Entity
@@ -42,7 +46,7 @@ data class ImportedVocabulary(
     @ColumnInfo(name = "data") val data: String,
     @ColumnInfo(name = "language") val language: String,
     @ColumnInfo(name = "imported_at") val importedAt: Date? = Date(),
-    @ColumnInfo(name = "flashcard") val flashcard: Long? = null,
+    @ColumnInfo(name = "flashcard") var flashcard: Long? = null,
 )
 
 class Converters {

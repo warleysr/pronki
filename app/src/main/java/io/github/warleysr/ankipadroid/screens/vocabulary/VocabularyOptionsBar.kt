@@ -112,8 +112,10 @@ fun VocabularyOptionsBar(
     if (isCreateDialogShown) {
         AlertDialog(
             onDismissRequest = {
-                if (!vocabularyViewModel.creatingCards.value)
+                if (!vocabularyViewModel.creatingCards.value) {
                     isCreateDialogShown = false
+                    vocabularyViewModel.hideSuccessDialog()
+                }
             },
             modifier = Modifier.clip(RoundedCornerShape(12.dp))
         ) {
@@ -140,7 +142,10 @@ fun VocabularyOptionsBar(
                         Spacer(Modifier.height(16.dp))
                         Button(
                             modifier = Modifier.align(Alignment.End),
-                            onClick = { isCreateDialogShown = false }
+                            onClick = {
+                                isCreateDialogShown = false
+                                vocabularyViewModel.hideSuccessDialog()
+                            }
                         ) {
                             Text("Ok")
                         }

@@ -88,6 +88,10 @@ class VocabularyViewModel: ViewModel() {
         showingRecognized.value = false
     }
 
+    fun hideSuccessDialog() {
+        successCreation.value = false
+    }
+
     fun insertVocabulary(vocabulary: ArrayList<ImportedVocabulary>) {
         CoroutineScope(Dispatchers.IO).launch {
             for (vocab in vocabulary)
@@ -139,16 +143,29 @@ class VocabularyViewModel: ViewModel() {
 
                     cards?.forEach { card ->
                         val fields = card.split(";").toTypedArray()
-                        if (fields.size == 3) {
+                        if (fields.size >= 3) {
                             val word = fields[0]
-                            val ankiFields = arrayOf(fields[1], fields[2])
-                            val cardId = ankiApi.addNote(ankiApi.currentModelId, deckId, ankiFields, null)
-                            if (cardId != null) {
-                                println("Created a flashcard for word: $word")
-                                successCards++
+                            val ankiFields = arrayOf(
+                                fields[1].processForFlashcard(), fields[2].processForFlashcard()
+                            )
+                            val vocab = vocabularies.filter { it.data == word }.getOrNull(0)
+                            if (vocab != null) {
+                                val cardId = ankiApi.addNote(
+                                    ankiApi.currentModelId,
+                                    deckId,
+                                    ankiFields,
+                                    null
+                                )
+                                if (cardId != null) {
+                                    vocab.flashcard = cardId
+                                    println("Created a flashcard for word: $word")
+                                    successCards++
+                                }
                             }
                         }
                     }
+
+                    AnkiPADroid.vocabularyDatabase.vocabularyDAO().updateAll(*vocabularies)
 
                     creatingCards.value = false
                     successCreation.value = true
@@ -159,4 +176,8 @@ class VocabularyViewModel: ViewModel() {
             )
         }
     }
+}
+
+fun String.processForFlashcard(): String {
+    return this.replace("\\*\\*(.*?)\\*\\*", "<b>\$1/b>")
 }
