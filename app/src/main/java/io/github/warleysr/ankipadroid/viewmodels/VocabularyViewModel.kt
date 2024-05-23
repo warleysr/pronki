@@ -59,10 +59,12 @@ class VocabularyViewModel: ViewModel() {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    fun processBitmap(bitmap: Bitmap, rotation: Int, lower: Scalar, upper: Scalar) {
+    fun processBitmap(
+        bitmap: Bitmap, rotation: Int, lower: Scalar, upper: Scalar, defaultLanguage: String
+    ) {
         this.bitmap.value = bitmap
         OpenCV.processImage(
-            this.bitmap.value!!, rotation, lower, upper,
+            this.bitmap.value!!, rotation, lower, upper, defaultLanguage,
             onSuccess = { allWords ->
                 this.allWords = allWords
                 showRecognized()

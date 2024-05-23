@@ -3,6 +3,7 @@ package io.github.warleysr.ankipadroid.api
 import android.graphics.Bitmap
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import com.google.mlkit.nl.languageid.LanguageIdentification
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
@@ -13,6 +14,7 @@ import org.opencv.core.Mat
 import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
+import java.util.Locale
 
 class OpenCV {
 
@@ -23,13 +25,12 @@ class OpenCV {
             rotation: Int,
             lower: Scalar,
             upper: Scalar,
+            defaultLanguage: String,
             onSuccess: (SnapshotStateList<VocabularyState>) -> Unit
         ) {
 
             val originalImage = Mat()
             Utils.bitmapToMat(bitmap, originalImage)
-
-
 
             val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
             val imageOrig = InputImage.fromBitmap(bitmap, rotation)
@@ -38,15 +39,28 @@ class OpenCV {
             val processedBitmap = applyMaskToImage(bitmap, lower, upper)
             val image = InputImage.fromBitmap(processedBitmap, rotation)
             val result = recognizer.process(image)
+            val languageIdentifier = LanguageIdentification.getClient()
 
-            val allWords = ArrayList<String>()
+            val allWords = HashMap<String, String>()
             val recognizedWords = ArrayList<String>()
 
             resultOrig.addOnSuccessListener { visionText ->
                 visionText.textBlocks.forEach { textBlock ->
                     textBlock.lines.forEach { line ->
                         line.elements.forEach { elem ->
-                            allWords.add(elem.text)
+
+                            languageIdentifier.identifyLanguage(elem.text)
+                                .addOnSuccessListener { languageCode ->
+                                    var language = defaultLanguage
+                                    if (languageCode != "und")
+                                        language = Locale.forLanguageTag(languageCode)
+                                            .getDisplayLanguage(Locale.ENGLISH)
+                                    allWords[elem.text] = language
+                                }
+                                .addOnFailureListener {
+                                    allWords[elem.text] = defaultLanguage
+                                }
+
                         }
                     }
                 }
@@ -73,8 +87,8 @@ class OpenCV {
 
                 val allWordsState = allWords.map {
                     VocabularyState(
-                        vocabulary = ImportedVocabulary(data = it, language = "None"),
-                        initialState = it in recognizedWords
+                        vocabulary = ImportedVocabulary(data = it.key, language = it.value),
+                        initialState = it.key in recognizedWords
                     )
                 }.toMutableStateList()
                 onSuccess(allWordsState)

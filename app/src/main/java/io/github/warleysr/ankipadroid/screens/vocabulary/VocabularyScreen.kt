@@ -213,6 +213,8 @@ fun VocabularyFAB(
 
     var bitmap: Bitmap? by remember { mutableStateOf(null) }
     val context = LocalContext.current as Activity
+    var defaultLanguage by remember { mutableStateOf(settingsViewModel.getSetting("language")) }
+    defaultLanguage =  if (defaultLanguage.isEmpty()) "English" else defaultLanguage.split("(")[0]
 
     val imageCropLauncher =
         rememberLauncherForActivityResult(contract = CropImageContract()) { result ->
@@ -227,7 +229,13 @@ fun VocabularyFAB(
                         }
                     }
                     val colors = settingsViewModel.getRangeColors()
-                    vocabularyViewModel.processBitmap(bitmap!!, result.rotation, colors.first.toScalar(), colors.second.toScalar())
+                    vocabularyViewModel.processBitmap(
+                        bitmap!!,
+                        result.rotation,
+                        colors.first.toScalar(),
+                        colors.second.toScalar(),
+                        defaultLanguage = defaultLanguage
+                    )
                 }
             } else {
                 println("ImageCropping error: ${result.error}")

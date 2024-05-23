@@ -75,6 +75,7 @@ dependencies {
     implementation("com.vanniktech:android-image-cropper:4.5.0")
     implementation("org.opencv:opencv:4.9.0")
     implementation("com.google.mlkit:text-recognition:16.0.0")
+    implementation ("com.google.mlkit:language-id:17.0.5")
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("com.google.ai.client.generativeai:generativeai:0.6.0")
     kapt("androidx.room:room-compiler:2.6.1")
