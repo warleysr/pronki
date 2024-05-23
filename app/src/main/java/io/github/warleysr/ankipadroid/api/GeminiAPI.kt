@@ -2,9 +2,6 @@ package io.github.warleysr.ankipadroid.api
 
 import com.google.ai.client.generativeai.GenerativeModel
 import com.google.ai.client.generativeai.type.GoogleGenerativeAIException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 class GeminiAPI {
 
@@ -17,11 +14,19 @@ class GeminiAPI {
             onSuccess: (String?, Int?) -> Unit,
             onFailure: (String?) -> Unit
         ) {
-            val model = GenerativeModel(modelName = modelName, apiKey = apiKey)
+            val model = GenerativeModel(
+                modelName = modelName,
+                apiKey = apiKey,
+                safetySettings = arrayListOf()
+            )
             try {
                 val content = model.generateContent(prompt)
+                println("############# Gemini generated content #############")
+                println(content.text)
+                println("##################################")
                 onSuccess(content.text, content.usageMetadata?.totalTokenCount)
             } catch (exception: GoogleGenerativeAIException) {
+                exception.printStackTrace()
                 onFailure(exception.localizedMessage)
             }
         }
