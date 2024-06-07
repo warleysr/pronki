@@ -4,7 +4,9 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import com.google.mlkit.nl.languageid.LanguageIdentification
+import com.google.mlkit.nl.languageid.LanguageIdentificationOptions
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import io.github.warleysr.ankipadroid.screens.vocabulary.VocabularyState
@@ -44,26 +46,52 @@ class OpenCV {
             val allWords = HashMap<String, String>()
             val recognizedWords = ArrayList<String>()
 
-            resultOrig.addOnSuccessListener { visionText ->
-                visionText.textBlocks.forEach { textBlock ->
+            var mainLanguage = defaultLanguage
+            var mainConfidence = 1.0f
+
+            val recognizeEachWord: (visionText: Text) -> Unit = {
+                it.textBlocks.forEach { textBlock ->
                     textBlock.lines.forEach { line ->
                         line.elements.forEach { elem ->
+                            languageIdentifier.identifyPossibleLanguages(elem.text)
+                                .addOnSuccessListener { identifiedLanguages ->
+                                    var language = mainLanguage
 
-                            languageIdentifier.identifyLanguage(elem.text)
-                                .addOnSuccessListener { languageCode ->
-                                    var language = defaultLanguage
-                                    if (languageCode != "und")
-                                        language = Locale.forLanguageTag(languageCode)
+                                    // To identify words of different languages in the same text
+                                    // check if the word confidence is higher than the main
+                                    if (
+                                        identifiedLanguages[0].languageTag != "und"
+                                        && identifiedLanguages[0].confidence > mainConfidence
+                                    )
+                                        language = Locale
+                                            .forLanguageTag(identifiedLanguages[0].languageTag)
                                             .getDisplayLanguage(Locale.ENGLISH)
+
                                     allWords[elem.text] = language
                                 }
                                 .addOnFailureListener {
-                                    allWords[elem.text] = defaultLanguage
+                                    allWords[elem.text] = mainLanguage
                                 }
 
                         }
                     }
                 }
+            }
+
+            resultOrig.addOnSuccessListener { visionText ->
+                languageIdentifier.identifyPossibleLanguages(visionText.text)
+                    .addOnSuccessListener {
+                        mainLanguage = Locale
+                            .forLanguageTag(it[0].languageTag)
+                            .getDisplayLanguage(Locale.ENGLISH)
+
+                        mainConfidence = it[0].confidence
+
+                        recognizeEachWord(visionText)
+                    }
+                    .addOnFailureListener {
+                        recognizeEachWord(visionText)
+                    }
             }
 
             result.addOnSuccessListener { visionText ->
