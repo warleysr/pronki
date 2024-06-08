@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import com.google.mlkit.nl.languageid.LanguageIdentification
-import com.google.mlkit.nl.languageid.LanguageIdentificationOptions
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -13,7 +12,6 @@ import io.github.warleysr.ankipadroid.screens.vocabulary.VocabularyState
 import org.opencv.android.Utils
 import org.opencv.core.Core
 import org.opencv.core.Mat
-import org.opencv.core.Point
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
 import java.util.Locale
@@ -43,8 +41,9 @@ class OpenCV {
             val result = recognizer.process(image)
             val languageIdentifier = LanguageIdentification.getClient()
 
-            val allWords = HashMap<String, String>()
+            val wordsMap = HashMap<String, String>()
             val recognizedWords = ArrayList<String>()
+            val allWords = ArrayList<String>()
 
             var mainLanguage = defaultLanguage
             var mainConfidence = 1.0f
@@ -67,10 +66,12 @@ class OpenCV {
                                             .forLanguageTag(identifiedLanguages[0].languageTag)
                                             .getDisplayLanguage(Locale.ENGLISH)
 
-                                    allWords[elem.text] = language
+                                    wordsMap[elem.text] = language
+                                    allWords.add(elem.text)
                                 }
                                 .addOnFailureListener {
-                                    allWords[elem.text] = mainLanguage
+                                    wordsMap[elem.text] = mainLanguage
+                                    allWords.add(elem.text)
                                 }
 
                         }
@@ -115,8 +116,8 @@ class OpenCV {
 
                 val allWordsState = allWords.map {
                     VocabularyState(
-                        vocabulary = ImportedVocabulary(data = it.key, language = it.value),
-                        initialState = it.key in recognizedWords
+                        vocabulary = ImportedVocabulary(data = it, language = wordsMap[it]!!),
+                        initialState = it in recognizedWords
                     )
                 }.toMutableStateList()
                 onSuccess(allWordsState)
