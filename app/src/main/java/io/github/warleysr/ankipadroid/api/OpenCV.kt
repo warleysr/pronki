@@ -141,5 +141,30 @@ class OpenCV {
 
             return finalBitmap
         }
+
+        fun recognizeLanguage(
+            text: String,
+            defaultLanguage: String,
+            onFinish: (String) -> Unit,
+            forceLanguage: Boolean
+        ) {
+            if (forceLanguage) {
+                onFinish(defaultLanguage)
+                return
+            }
+            val languageIdentifier = LanguageIdentification.getClient()
+            languageIdentifier.identifyLanguage(text)
+                .addOnSuccessListener {
+                    if (it != "und")
+                        onFinish(
+                            Locale.forLanguageTag(it).getDisplayLanguage(Locale.ENGLISH)
+                        )
+                    else
+                        onFinish(defaultLanguage)
+                }
+                .addOnFailureListener {
+                    onFinish(defaultLanguage)
+                }
+        }
     }
 }

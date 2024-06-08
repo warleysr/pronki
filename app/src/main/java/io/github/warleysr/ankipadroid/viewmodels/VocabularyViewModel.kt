@@ -42,6 +42,9 @@ class VocabularyViewModel: ViewModel() {
     var successCreation = mutableStateOf(false)
         private set
 
+    var showingImportList = mutableStateOf(false)
+        private set
+
     var cardsCreated = mutableIntStateOf(0)
         private set
 
@@ -51,6 +54,8 @@ class VocabularyViewModel: ViewModel() {
     var allWords = mutableStateListOf<VocabularyState>()
         private set
 
+    var importList = mutableStateOf("")
+        private set
 
     init {
         println("VocabularyViewModel initialized!")
@@ -91,6 +96,18 @@ class VocabularyViewModel: ViewModel() {
 
     fun hideSuccessDialog() {
         successCreation.value = false
+    }
+
+    fun showImportList() {
+        showingImportList.value = true
+    }
+
+    fun hideImportList() {
+        showingImportList.value = false
+    }
+
+    fun updateImportList(text: String) {
+        importList.value = text
     }
 
     fun insertVocabulary(vararg vocabularies: ImportedVocabulary) {

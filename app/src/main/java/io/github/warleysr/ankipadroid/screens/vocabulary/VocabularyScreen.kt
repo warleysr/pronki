@@ -80,7 +80,11 @@ fun VocabularyScreen(
 ) {
     if (vocabularyViewModel.showingRecognized.value) {
         VocabularyRecognitionScreen(vocabularyViewModel)
-    } else {
+    }
+    else if (vocabularyViewModel.showingImportList.value) {
+        VocabularyImportList(settingsViewModel, vocabularyViewModel)
+    }
+    else {
         VocabularyScreenScaffold(settingsViewModel, vocabularyViewModel, ankiDroidViewModel)
     }
 }
@@ -265,7 +269,7 @@ fun VocabularyFAB(
         ) {
             Column {
                 SmallFloatingActionButton(
-                    onClick = { },
+                    onClick = { vocabularyViewModel.showImportList() },
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 ) {
