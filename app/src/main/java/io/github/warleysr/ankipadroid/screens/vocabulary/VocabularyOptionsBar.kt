@@ -137,7 +137,7 @@ fun VocabularyOptionsBar(
                             tint = MaterialTheme.colorScheme.surfaceTint,
                             modifier = Modifier.defaultMinSize(minHeight = 64.dp, minWidth = 64.dp)
                         )
-                        Text("${vocabularyViewModel.cardsCreated.intValue} flashcards was successfuly created!", textAlign = TextAlign.Center)
+                        Text("${vocabularyViewModel.cardsCreated.intValue} flashcards was successfully created!", textAlign = TextAlign.Center)
                         Text("${vocabularyViewModel.usedTokens.intValue} tokens were used.")
                         Spacer(Modifier.height(16.dp))
                         Button(

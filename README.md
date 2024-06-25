@@ -3,7 +3,7 @@
 AnkiPADroid is an Android app that allows you to practice your pronunciation using you Anki flashcards. It also has other features that can be helpful on your language learning journey!
 
 ## Pronunciation Assessment
-Use your Anki flashcards to practive and improve your pronunciation by receiving a feedback for each word or phoneme.
+Use your Anki flashcards to practice and improve your pronunciation by receiving a feedback for each word or phoneme.
 
 Powered by Azure.
 
@@ -14,7 +14,7 @@ Powered by OpenCV.
 
 ## Automatic flashcard creation with AI
 
-You can configure the app to create flashcards automatically with your imported vocabulary using generative artifical inteligence.
+You can configure the app to create flashcards automatically with your imported vocabulary using generative artificial intelligence.
 
 Powered by Google Gemini.
 
