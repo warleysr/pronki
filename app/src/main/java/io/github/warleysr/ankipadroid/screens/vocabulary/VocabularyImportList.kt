@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.warleysr.ankipadroid.ConfigUtils
 import io.github.warleysr.ankipadroid.api.ImportedVocabulary
 import io.github.warleysr.ankipadroid.api.OpenCV
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
@@ -34,8 +35,14 @@ fun VocabularyImportList(
     vocabularyViewModel: VocabularyViewModel
 ) {
     var currentText by remember { mutableStateOf(vocabularyViewModel.importList.value) }
-    var defaultLanguage by remember { mutableStateOf(settingsViewModel.getSetting("language")) }
-    defaultLanguage =  if (defaultLanguage.isEmpty()) "English" else defaultLanguage.split("(")[0]
+    val defaultLanguage by remember {
+        mutableStateOf(
+            ConfigUtils.getAvailableLanguages().getOrDefault(
+                settingsViewModel.getSetting("language"),
+                "English"
+            ).split("(")[0]
+        )
+    }
     val langRegex = Regex(".+\\((.+)\\)")
 
     Column(
