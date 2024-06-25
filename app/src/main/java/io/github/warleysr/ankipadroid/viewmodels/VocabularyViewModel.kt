@@ -136,6 +136,7 @@ class VocabularyViewModel: ViewModel() {
         prompt: String,
         language: String,
         deckName: String,
+        onSuccess: () -> Unit,
         onFailure: (String?) -> Unit,
         vararg vocabularies: ImportedVocabulary
     ) {
@@ -188,6 +189,7 @@ class VocabularyViewModel: ViewModel() {
                     successCreation.value = true
                     cardsCreated.intValue = successCards
                     usedTokens.intValue = tokens ?: 0
+                    onSuccess()
                 },
                 onFailure = onFailure
             )
