@@ -211,6 +211,10 @@ fun VocabularyOptionsBar(
                                         isCreateDialogShown = false
                                         onFailure(it ?: "Error")
                                     },
+                                    onSuccess = {
+                                        vocabList.removeIf { it.selected.value }
+                                        selectedVocabs.intValue = 0
+                                    },
                                     vocabularies = vocabList
                                         .filter { it.selected.value }
                                         .map { it.vocabulary }.toTypedArray()
