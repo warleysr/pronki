@@ -3,7 +3,9 @@ package io.github.warleysr.ankipadroid.viewmodels
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import com.ichi2.anki.api.AddContentApi
 import io.github.warleysr.ankipadroid.AnkiDroidHelper
+import io.github.warleysr.ankipadroid.AnkiPADroid
 import io.github.warleysr.ankipadroid.CardInfo
 
 class AnkiDroidViewModel : ViewModel() {
@@ -27,7 +29,7 @@ class AnkiDroidViewModel : ViewModel() {
     }
 
     fun queryNextCard(onResult: (String, String) -> Unit) {
-        val cardInfo = AnkiDroidHelper.getInstance().queryCurrentScheduledCard(currentDeckId!!)
+        val cardInfo = AnkiDroidHelper(AnkiPADroid.instance.applicationContext).queryCurrentScheduledCard(currentDeckId!!)
         this.cardInfo = cardInfo
         if (cardInfo != null)
             onResult(cardInfo.question, cardInfo.answer)
@@ -36,14 +38,14 @@ class AnkiDroidViewModel : ViewModel() {
     }
 
     fun reviewCard(ease: Int, onNextResult: (String, String) -> Unit) {
-        AnkiDroidHelper.getInstance().reviewCard(
+        AnkiDroidHelper(AnkiPADroid.instance.applicationContext).reviewCard(
             cardInfo!!.noteID, cardInfo!!.cardOrd, cardInfo!!.cardStartTime, ease
         )
         queryNextCard(onResult = onNextResult)
     }
 
     fun getDeckList(): List<String>? {
-        return AnkiDroidHelper.getAPI().deckList?.map { deck -> deck.value }
+        return AddContentApi(AnkiPADroid.instance.applicationContext).deckList?.map { deck -> deck.value }
     }
 
     fun selectDeck(deckName: String) {
