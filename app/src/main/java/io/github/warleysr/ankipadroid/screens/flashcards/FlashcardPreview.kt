@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -53,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
 import io.github.warleysr.ankipadroid.AnkiDroidHelper
 import io.github.warleysr.ankipadroid.R
+import io.github.warleysr.ankipadroid.api.ankidroid.AnkiDroidAPI
 import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.ankipadroid.viewmodels.PronunciationViewModel
 import io.github.warleysr.ankipadroid.viewmodels.SettingsViewModel
@@ -255,12 +255,19 @@ fun FlashcardPreviewContent(
             } else {
                 Text(stringResource(id = R.string.select_deck), style = MaterialTheme.typography.headlineMedium)
 
-                ankiDroidViewModel.getDeckList()?.forEach { deck ->
+                AnkiDroidAPI.getDeckList()?.forEach { deck ->
                     Button(onClick = {
-                        ankiDroidViewModel.selectDeck(deck)
-                        deckSelected.value = true
+                        val card = AnkiDroidAPI.queryNextCard(deck)
+                        if (card == null) {
+                            println("No card available.")
+                        } else {
+                            println(card.question)
+                            println(card.answer)
+                        }
+//                        ankiDroidViewModel.selectDeck(deck)
+//                        deckSelected.value = true
                     }) {
-                        Text(deck)
+                        Text(deck.deckName)
                     }
                 }
             }

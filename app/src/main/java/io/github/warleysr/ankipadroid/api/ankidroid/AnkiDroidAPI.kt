@@ -13,7 +13,7 @@ class AnkiDroidAPI {
 
         val builder = FlashCardsContract.ReviewInfo.CONTENT_URI.buildUpon()
             .appendQueryParameter(
-                FlashCardsContract.Note.DECK_ID_QUERY_PARAM, deck.deckId.toString()
+                "deckID", deck.deckId.toString()
             )
             .appendQueryParameter("limit", "5")
         val deckUri = builder.build()

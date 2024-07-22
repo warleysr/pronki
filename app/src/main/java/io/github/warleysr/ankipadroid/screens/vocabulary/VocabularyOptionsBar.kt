@@ -50,6 +50,7 @@ import io.github.warleysr.ankipadroid.viewmodels.VocabularyViewModel
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.style.TextAlign
+import io.github.warleysr.ankipadroid.api.ankidroid.AnkiDroidAPI
 import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -172,11 +173,11 @@ fun VocabularyOptionsBar(
                                 expanded = expandedDecks,
                                 onDismissRequest = { expandedDecks = false }
                             ) {
-                                ankiDroidViewModel.getDeckList()?.forEach {
+                                AnkiDroidAPI.getDeckList()?.forEach {
                                     DropdownMenuItem(
-                                        text = { Text(text = it) },
+                                        text = { Text(text = it.deckName) },
                                         onClick = {
-                                            selectedDeck = it
+                                            selectedDeck = it.deckName
                                             expandedDecks = false
                                         }
                                     )

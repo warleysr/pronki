@@ -6,15 +6,13 @@ import androidx.lifecycle.ViewModel
 import com.ichi2.anki.api.AddContentApi
 import io.github.warleysr.ankipadroid.AnkiDroidHelper
 import io.github.warleysr.ankipadroid.AnkiPADroid
-import io.github.warleysr.ankipadroid.CardInfo
+import io.github.warleysr.ankipadroid.api.ankidroid.CardInfo
+import io.github.warleysr.ankipadroid.api.ankidroid.DeckInfo
 
 class AnkiDroidViewModel : ViewModel() {
 
     private var currentDeckId: Long? = null
     var permissionGranted = mutableStateOf(false)
-        private set
-
-    var cardInfo: CardInfo? = null
         private set
 
     var isDeckSelected: MutableState<Boolean> = mutableStateOf(false)
@@ -23,33 +21,36 @@ class AnkiDroidViewModel : ViewModel() {
     var useFront: Boolean = true
         private set
 
+    var selectedDeck: DeckInfo? = null
+        private set
+
+    var selectedCard: CardInfo? = null
+        private set
+
     init {
         println("AnkiDroidViewModel initialized")
         permissionGranted.value = AnkiDroidHelper.getInstance().isPermissionGranted
     }
 
     fun queryNextCard(onResult: (String, String) -> Unit) {
-        val cardInfo = AnkiDroidHelper(AnkiPADroid.instance.applicationContext).queryCurrentScheduledCard(currentDeckId!!)
-        this.cardInfo = cardInfo
-        if (cardInfo != null)
-            onResult(cardInfo.question, cardInfo.answer)
-        else
-            onResult("NO CARD TO REVIEW.", "NONE.")
+//        val cardInfo = AnkiDroidHelper(AnkiPADroid.instance.applicationContext).queryCurrentScheduledCard(currentDeckId!!)
+//        this.cardInfo = cardInfo
+//        if (cardInfo != null)
+//            onResult(cardInfo.question, cardInfo.answer)
+//        else
+//            onResult("NO CARD TO REVIEW.", "NONE.")
     }
 
     fun reviewCard(ease: Int, onNextResult: (String, String) -> Unit) {
-        AnkiDroidHelper(AnkiPADroid.instance.applicationContext).reviewCard(
-            cardInfo!!.noteID, cardInfo!!.cardOrd, cardInfo!!.cardStartTime, ease
-        )
-        queryNextCard(onResult = onNextResult)
+//        AnkiDroidHelper(AnkiPADroid.instance.applicationContext).reviewCard(
+//            cardInfo!!.noteID, cardInfo!!.cardOrd, cardInfo!!.cardStartTime, ease
+//        )
+//        queryNextCard(onResult = onNextResult)
     }
 
-    fun getDeckList(): List<String>? {
-        return AddContentApi(AnkiPADroid.instance.applicationContext).deckList?.map { deck -> deck.value }
-    }
 
-    fun selectDeck(deckName: String) {
-        currentDeckId = AnkiDroidHelper.getInstance().findDeckIdByName(deckName)
+    fun selectDeck(deck: DeckInfo) {
+        selectedDeck = deck
         isDeckSelected.value = true
     }
 
