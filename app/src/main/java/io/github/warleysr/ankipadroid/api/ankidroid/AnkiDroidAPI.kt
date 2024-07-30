@@ -96,6 +96,21 @@ class AnkiDroidAPI {
             return decks
         }
 
+        fun reviewCard(card: CardInfo, ease: Int) {
+            val values = ContentValues()
+
+            values.put(FlashCardsContract.ReviewInfo.NOTE_ID, card.noteId)
+            values.put(FlashCardsContract.ReviewInfo.CARD_ORD, card.cardOrd)
+            values.put(FlashCardsContract.ReviewInfo.EASE, ease)
+
+            val timeTaken = System.currentTimeMillis() - card.startTime
+            values.put(FlashCardsContract.ReviewInfo.TIME_TAKEN, timeTaken)
+
+            AnkiPADroid.instance.applicationContext.contentResolver.update(
+                FlashCardsContract.ReviewInfo.CONTENT_URI, values, null, null
+            )
+        }
+
         fun isPermissionGranted(): Boolean {
             return ContextCompat.checkSelfPermission(
                 AnkiPADroid.instance.applicationContext, READ_WRITE_PERMISSION

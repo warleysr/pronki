@@ -9,7 +9,6 @@ import io.github.warleysr.ankipadroid.api.ankidroid.DeckInfo
 
 class AnkiDroidViewModel : ViewModel() {
 
-    private var currentDeckId: Long? = null
     var permissionGranted = mutableStateOf(false)
         private set
 
@@ -29,20 +28,19 @@ class AnkiDroidViewModel : ViewModel() {
         permissionGranted.value = AnkiDroidAPI.isPermissionGranted()
     }
 
-    fun queryNextCard() {
+    fun queryNextCard(onDeckFinished: () -> Unit = {}) {
         selectedCard.value = AnkiDroidAPI.queryNextCard()
 
-        if (selectedCard.value == null)
+        if (selectedCard.value == null) {
             exitFlashcardPreview()
+            onDeckFinished()
+        }
     }
 
     fun reviewCard(ease: Int, onNextResult: () -> Unit) {
-//        AnkiDroidHelper(AnkiPADroid.instance.applicationContext).reviewCard(
-//            cardInfo!!.noteID, cardInfo!!.cardOrd, cardInfo!!.cardStartTime, ease
-//        )
-//        queryNextCard(onResult = onNextResult)
+        AnkiDroidAPI.reviewCard(selectedCard.value!!, ease)
+        onNextResult()
     }
-
 
     fun selectDeck(deck: DeckInfo) {
         AnkiDroidAPI.selectDeck(deck)
@@ -52,7 +50,6 @@ class AnkiDroidViewModel : ViewModel() {
     }
 
     fun exitFlashcardPreview() {
-        currentDeckId = null
         selectedDeck.value = null
     }
 
