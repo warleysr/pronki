@@ -11,7 +11,7 @@ class AnkiDroidAPI {
     companion object {
 
         private val CARD_PROJECTION = arrayOf(
-            FlashCardsContract.Card.QUESTION_SIMPLE, FlashCardsContract.Card.ANSWER_SIMPLE
+            FlashCardsContract.Card.QUESTION_SIMPLE, FlashCardsContract.Card.ANSWER_PURE
         )
 
         fun queryNextCard(deck: DeckInfo): CardInfo? {
@@ -54,7 +54,7 @@ class AnkiDroidAPI {
 
             println("Specific card Uri: $specificCardUri")
             val questionCol = cardCursor.getColumnIndex(FlashCardsContract.Card.QUESTION_SIMPLE)
-            val answerCol = cardCursor.getColumnIndex(FlashCardsContract.Card.ANSWER_SIMPLE)
+            val answerCol = cardCursor.getColumnIndex(FlashCardsContract.Card.ANSWER_PURE)
 
             val question = cardCursor.getString(questionCol)
             val answer = cardCursor.getString(answerCol)
