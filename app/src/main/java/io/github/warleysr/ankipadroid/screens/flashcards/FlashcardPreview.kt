@@ -76,7 +76,12 @@ fun FlashcardPreview(
             FlashcardPreviewContent(
                 ankiDroidViewModel = ankiDroidViewModel,
                 showAnswer = showAnswer,
-                deckSelected = deckSelected
+                deckSelected = deckSelected,
+                onDeckFinished = {
+                    scope.launch {
+                        snackbarHostState.showSnackbar("You finished this deck for today!")
+                    }
+                }
             )
         },
         floatingActionButton = {
@@ -109,9 +114,10 @@ fun FlashcardPreviewContent(
     ankiDroidViewModel: AnkiDroidViewModel,
     showAnswer: MutableState<Boolean>,
     deckSelected: MutableState<Boolean>,
+    onDeckFinished: () -> Unit
 ) {
 
-    val onNextResult: () -> Unit = { ankiDroidViewModel.queryNextCard() }
+    val onNextResult: () -> Unit = { ankiDroidViewModel.queryNextCard(onDeckFinished) }
 
     Box(
         modifier = Modifier.fillMaxSize(),
