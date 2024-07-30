@@ -80,8 +80,6 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         }
-
-        AnkiDroidHelper(this)
     }
 
 }
