@@ -111,9 +111,9 @@ fun RecordFAB(
 
                     val referenceText =
                         if (useFront)
-                            ankiDroidViewModel.selectedCard!!.question.parseAsHtml().toString()
+                            ankiDroidViewModel.selectedCard.value!!.question.parseAsHtml().toString()
                         else
-                            ankiDroidViewModel.selectedCard!!.answer.parseAsHtml().toString()
+                            ankiDroidViewModel.selectedCard.value!!.answer.parseAsHtml().toString()
 
                     pronunciationViewModel.newAssessment(
                         referenceText = referenceText,

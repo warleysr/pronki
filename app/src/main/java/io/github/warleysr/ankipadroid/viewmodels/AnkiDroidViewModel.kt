@@ -3,9 +3,7 @@ package io.github.warleysr.ankipadroid.viewmodels
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.ichi2.anki.api.AddContentApi
-import io.github.warleysr.ankipadroid.AnkiDroidHelper
-import io.github.warleysr.ankipadroid.AnkiPADroid
+import io.github.warleysr.ankipadroid.api.ankidroid.AnkiDroidAPI
 import io.github.warleysr.ankipadroid.api.ankidroid.CardInfo
 import io.github.warleysr.ankipadroid.api.ankidroid.DeckInfo
 
@@ -15,33 +13,30 @@ class AnkiDroidViewModel : ViewModel() {
     var permissionGranted = mutableStateOf(false)
         private set
 
-    var isDeckSelected: MutableState<Boolean> = mutableStateOf(false)
-        private set
-
     var useFront: Boolean = true
         private set
 
-    var selectedDeck: DeckInfo? = null
+    var selectedDeck: MutableState<DeckInfo?> = mutableStateOf(null)
         private set
 
-    var selectedCard: CardInfo? = null
+    var selectedCard: MutableState<CardInfo?> = mutableStateOf(null)
         private set
+
+    fun isDeckSelected() = selectedDeck.value != null
 
     init {
         println("AnkiDroidViewModel initialized")
-        permissionGranted.value = AnkiDroidHelper.getInstance().isPermissionGranted
+        permissionGranted.value = AnkiDroidAPI.isPermissionGranted()
     }
 
-    fun queryNextCard(onResult: (String, String) -> Unit) {
-//        val cardInfo = AnkiDroidHelper(AnkiPADroid.instance.applicationContext).queryCurrentScheduledCard(currentDeckId!!)
-//        this.cardInfo = cardInfo
-//        if (cardInfo != null)
-//            onResult(cardInfo.question, cardInfo.answer)
-//        else
-//            onResult("NO CARD TO REVIEW.", "NONE.")
+    fun queryNextCard() {
+        selectedCard.value = AnkiDroidAPI.queryNextCard()
+
+        if (selectedCard.value == null)
+            exitFlashcardPreview()
     }
 
-    fun reviewCard(ease: Int, onNextResult: (String, String) -> Unit) {
+    fun reviewCard(ease: Int, onNextResult: () -> Unit) {
 //        AnkiDroidHelper(AnkiPADroid.instance.applicationContext).reviewCard(
 //            cardInfo!!.noteID, cardInfo!!.cardOrd, cardInfo!!.cardStartTime, ease
 //        )
@@ -50,13 +45,15 @@ class AnkiDroidViewModel : ViewModel() {
 
 
     fun selectDeck(deck: DeckInfo) {
-        selectedDeck = deck
-        isDeckSelected.value = true
+        AnkiDroidAPI.selectDeck(deck)
+        selectedDeck.value = deck
+
+        queryNextCard()
     }
 
     fun exitFlashcardPreview() {
         currentDeckId = null
-        isDeckSelected.value = false
+        selectedDeck.value = null
     }
 
     fun toggleCardField(onToggle: (Boolean) -> Unit) {

@@ -1,9 +1,11 @@
 package io.github.warleysr.ankipadroid.api.ankidroid
 
 import android.content.ContentValues
+import android.content.pm.PackageManager
 import android.net.Uri
+import androidx.core.content.ContextCompat
 import com.ichi2.anki.FlashCardsContract
-import com.ichi2.anki.api.AddContentApi
+import com.ichi2.anki.api.AddContentApi.Companion.READ_WRITE_PERMISSION
 import io.github.warleysr.ankipadroid.AnkiPADroid
 
 class AnkiDroidAPI {
@@ -14,23 +16,26 @@ class AnkiDroidAPI {
             FlashCardsContract.Card.QUESTION_SIMPLE, FlashCardsContract.Card.ANSWER_PURE
         )
 
-        fun queryNextCard(deck: DeckInfo): CardInfo? {
-            println("Selected deck: ${deck.deckName} - ${deck.deckId}")
+        const val AGAIN = 1
+        const val HARD = 2
+        const val GOOD = 3
+        const val EASY = 4
 
+        fun selectDeck(deck: DeckInfo) {
             val values = ContentValues()
             values.put(FlashCardsContract.Deck.DECK_ID, deck.deckId)
             AnkiPADroid.instance.applicationContext.contentResolver.update(
                 FlashCardsContract.Deck.CONTENT_SELECTED_URI, values, null, null
             )
+        }
 
+        fun queryNextCard(): CardInfo? {
             val deckUri = FlashCardsContract.ReviewInfo.CONTENT_URI
             val deckCursor = AnkiPADroid.instance.applicationContext.contentResolver.query(
                 deckUri, null, null, null, null
             )
             if (deckCursor == null || !deckCursor.moveToFirst())
                 return null
-
-            println("Deck Uri: $deckUri")
 
             val noteIdCol = deckCursor.getColumnIndex(FlashCardsContract.ReviewInfo.NOTE_ID)
             val cardOrdCol = deckCursor.getColumnIndex(FlashCardsContract.ReviewInfo.CARD_ORD)
@@ -51,8 +56,6 @@ class AnkiDroidAPI {
             if (cardCursor == null || !cardCursor.moveToFirst())
                 return null
 
-
-            println("Specific card Uri: $specificCardUri")
             val questionCol = cardCursor.getColumnIndex(FlashCardsContract.Card.QUESTION_SIMPLE)
             val answerCol = cardCursor.getColumnIndex(FlashCardsContract.Card.ANSWER_PURE)
 
@@ -65,9 +68,38 @@ class AnkiDroidAPI {
         }
 
         fun getDeckList(): List<DeckInfo>? {
-            return AddContentApi(AnkiPADroid.instance.applicationContext)
-                .deckList?.map { deck -> DeckInfo(deck.key, deck.value) }
+            val decksCursor = AnkiPADroid.instance.applicationContext.contentResolver.query(
+                FlashCardsContract.Deck.CONTENT_ALL_URI, null, null, null, null
+            )
+            if (decksCursor == null || !decksCursor.moveToFirst())
+                return null
+
+            val decks = ArrayList<DeckInfo>()
+            do {
+                val deckIdCol = decksCursor.getColumnIndex(FlashCardsContract.Deck.DECK_ID)
+                val deckNameCol = decksCursor.getColumnIndex(FlashCardsContract.Deck.DECK_NAME)
+                val cardCountsCol = decksCursor.getColumnIndex(FlashCardsContract.Deck.DECK_COUNTS)
+
+                val deckId = decksCursor.getLong(deckIdCol)
+                val deckName = decksCursor.getString(deckNameCol)
+                val cardCounts = decksCursor.getString(cardCountsCol)
+                val counts = cardCounts.substring(1, cardCounts.length - 1).split(",")
+                    .map { it.toInt() }.toTypedArray()
+                val (learn, due, new) = counts
+
+                decks.add(DeckInfo(deckId, deckName, new, learn, due))
+
+            } while (decksCursor.moveToNext())
+
+            decksCursor.close()
+
+            return decks
         }
 
+        fun isPermissionGranted(): Boolean {
+            return ContextCompat.checkSelfPermission(
+                AnkiPADroid.instance.applicationContext, READ_WRITE_PERMISSION
+            ) == PackageManager.PERMISSION_GRANTED
+        }
     }
 }

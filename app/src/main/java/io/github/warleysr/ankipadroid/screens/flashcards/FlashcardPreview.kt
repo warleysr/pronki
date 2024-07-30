@@ -50,7 +50,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
-import io.github.warleysr.ankipadroid.AnkiDroidHelper
 import io.github.warleysr.ankipadroid.R
 import io.github.warleysr.ankipadroid.api.ankidroid.AnkiDroidAPI
 import io.github.warleysr.ankipadroid.viewmodels.AnkiDroidViewModel
@@ -81,7 +80,7 @@ fun FlashcardPreview(
             )
         },
         floatingActionButton = {
-            if (!ankiDroidViewModel.isDeckSelected.value) return@Scaffold
+            if (!ankiDroidViewModel.isDeckSelected()) return@Scaffold
             RecordFAB(
                 settingsViewModel, pronunciationViewModel, ankiDroidViewModel,
                 onBackUse = { showAnswer.value = true },
@@ -111,13 +110,9 @@ fun FlashcardPreviewContent(
     showAnswer: MutableState<Boolean>,
     deckSelected: MutableState<Boolean>,
 ) {
-    var currentQuestion by remember { mutableStateOf("Waiting...") }
-    var currentAnswer by remember { mutableStateOf("Waiting...") }
 
-    val onResult: (String, String) -> Unit = {question, answer ->
-        currentQuestion = question
-        currentAnswer = answer
-    }
+    val onNextResult: () -> Unit = { ankiDroidViewModel.queryNextCard() }
+
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter
@@ -129,8 +124,9 @@ fun FlashcardPreviewContent(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            if (ankiDroidViewModel.isDeckSelected.value) {
-                ankiDroidViewModel.queryNextCard(onResult = onResult)
+            if (ankiDroidViewModel.isDeckSelected()) {
+                val card = ankiDroidViewModel.selectedCard.value!!
+
                 ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -147,7 +143,7 @@ fun FlashcardPreviewContent(
                             .weight(1f, false)
                     ) {
                         Text(
-                            currentQuestion.parseAsHtml().toAnnotatedString(),
+                            card.question.parseAsHtml().toAnnotatedString(),
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.padding(16.dp),
                             textAlign = TextAlign.Center,
@@ -177,7 +173,7 @@ fun FlashcardPreviewContent(
                                     .weight(1f, false)
                             ) {
                                 Text(
-                                    currentAnswer.parseAsHtml().toAnnotatedString(),
+                                    card.answer.parseAsHtml().toAnnotatedString(),
                                     style = MaterialTheme.typography.bodyLarge,
                                     modifier = Modifier.padding(16.dp),
                                     textAlign = TextAlign.Center,
@@ -196,8 +192,8 @@ fun FlashcardPreviewContent(
                             Button(
                                 onClick = {
                                     ankiDroidViewModel.reviewCard(
-                                        AnkiDroidHelper.EASE_1,
-                                        onNextResult = onResult
+                                        AnkiDroidAPI.AGAIN,
+                                        onNextResult = onNextResult
                                     )
                                 },
                                 colors = ButtonDefaults.buttonColors(
@@ -210,8 +206,8 @@ fun FlashcardPreviewContent(
                             Button(
                                 onClick = {
                                     ankiDroidViewModel.reviewCard(
-                                        AnkiDroidHelper.EASE_2,
-                                        onNextResult = onResult
+                                        AnkiDroidAPI.HARD,
+                                        onNextResult = onNextResult
                                     )
                                 },
                                 colors = ButtonDefaults.buttonColors(
@@ -224,8 +220,8 @@ fun FlashcardPreviewContent(
                             Button(
                                 onClick = {
                                     ankiDroidViewModel.reviewCard(
-                                        AnkiDroidHelper.EASE_3,
-                                        onNextResult = onResult
+                                        AnkiDroidAPI.GOOD,
+                                        onNextResult = onNextResult
                                     )
                                 },
                                 colors = ButtonDefaults.buttonColors(
@@ -238,8 +234,8 @@ fun FlashcardPreviewContent(
                             Button(
                                 onClick = {
                                     ankiDroidViewModel.reviewCard(
-                                        AnkiDroidHelper.EASE_4,
-                                        onNextResult = onResult
+                                        AnkiDroidAPI.EASY,
+                                        onNextResult = onNextResult
                                     )
                                 },
                                 colors = ButtonDefaults.buttonColors(
@@ -257,17 +253,10 @@ fun FlashcardPreviewContent(
 
                 AnkiDroidAPI.getDeckList()?.forEach { deck ->
                     Button(onClick = {
-                        val card = AnkiDroidAPI.queryNextCard(deck)
-                        if (card == null) {
-                            println("No card available.")
-                        } else {
-                            println(card.question)
-                            println(card.answer)
-                        }
-//                        ankiDroidViewModel.selectDeck(deck)
-//                        deckSelected.value = true
+                        ankiDroidViewModel.selectDeck(deck)
+                        deckSelected.value = true
                     }) {
-                        Text(deck.deckName)
+                        Text("${deck.deckName} (${deck.new}, ${deck.learn}, ${deck.due})")
                     }
                 }
             }
