@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "io.github.warleysr.ankipadroid"
+    namespace = "io.github.warleysr.pronki"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "io.github.warleysr.ankipadroid"
+        applicationId = "io.github.warleysr.pronki"
         minSdk = 26
         targetSdk = 34
         versionCode = 1

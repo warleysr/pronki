@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">AnkiPADroid</string>
+    <string name="app_name">PronKi</string>
     <string name="permission_not_granted">The permission to access Anki was not granted.</string>
     <string name="allow">Allow</string>
     <string name="settings">Settings</string>

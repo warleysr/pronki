@@ -21,6 +21,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AnkiPADroid"
+rootProject.name = "PronKi"
 include(":app")
  

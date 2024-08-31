@@ -1,6 +1,6 @@
-# AnkiPADroid
+# PronKi
 
-AnkiPADroid is an Android app that allows you to practice your pronunciation using you Anki flashcards. It also has other features that can be helpful on your language learning journey!
+PronKi is an Android app that allows you to practice your pronunciation using you Anki flashcards. It also has other features that can be helpful on your language learning journey!
 
 ## Pronunciation Assessment
 Use your Anki flashcards to practice and improve your pronunciation by receiving a feedback for each word or phoneme.
