@@ -7,6 +7,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -253,19 +255,52 @@ fun FlashcardPreviewContent(
                     }
                 }
             } else {
-                Text(stringResource(id = R.string.select_deck), style = MaterialTheme.typography.headlineMedium)
+                Text(stringResource(id = R.string.select_deck), style = MaterialTheme.typography.headlineSmall)
 
-                AnkiDroidAPI.getDeckList()?.forEach { deck ->
-                    Button(onClick = {
-                        ankiDroidViewModel.selectDeck(deck)
-                        deckSelected.value = true
-                    }) {
-                        Text("${deck.deckName} (${deck.new}, ${deck.learn}, ${deck.due})")
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    AnkiDroidAPI.getDeckList()?.forEach { deck ->
+                        DeckDetails(
+                            deck = deck,
+                            onClick = {
+                                ankiDroidViewModel.selectDeck(deck)
+                                deckSelected.value = true
+                            }
+                        )
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun DeckDetails(deck: DeckInfo, onClick: () -> Unit) {
+    Spacer(Modifier.height(8.dp))
+    Row(
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier.clickable(onClick = onClick)
+    ) {
+        Text(
+            deck.deckName,
+            textDecoration = TextDecoration.Underline
+        )
+        val zeroColor = Color.LightGray
+
+        Spacer(Modifier.width(4.dp))
+        val newColor = if (deck.new > 0) Color(147, 196, 252) else zeroColor
+        Text(deck.new.toString(), color = newColor)
+
+        Spacer(Modifier.width(4.dp))
+        val learnColor = if (deck.learn > 0) Color( 249, 113, 112) else zeroColor
+        Text(deck.learn.toString(), color = learnColor)
+
+        Spacer(Modifier.width(4.dp))
+        val dueColor = if (deck.due > 0) Color(35, 197, 95)else zeroColor
+        Text(deck.due.toString(), color = dueColor)
+    }
+
 }
 
 fun Spanned.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
