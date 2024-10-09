@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
 import io.github.warleysr.pronki.R
 import io.github.warleysr.pronki.api.ankidroid.AnkiDroidAPI
+import io.github.warleysr.pronki.api.ankidroid.DeckInfo
 import io.github.warleysr.pronki.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.pronki.viewmodels.PronunciationViewModel
 import io.github.warleysr.pronki.viewmodels.SettingsViewModel
