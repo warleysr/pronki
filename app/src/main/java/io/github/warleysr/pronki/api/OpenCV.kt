@@ -1,9 +1,11 @@
 package io.github.warleysr.pronki.api
 
 import android.graphics.Bitmap
+import android.graphics.Rect
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
 import com.google.mlkit.nl.languageid.LanguageIdentification
+import com.google.mlkit.nl.languageid.LanguageIdentifier
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
@@ -29,54 +31,38 @@ class OpenCV {
             onSuccess: (SnapshotStateList<VocabularyState>) -> Unit
         ) {
 
-            val originalImage = Mat()
-            Utils.bitmapToMat(bitmap, originalImage)
+            val binarizedBitmap = applyBinarization(bitmap)
 
             val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-            val imageOrig = InputImage.fromBitmap(bitmap, rotation)
+            val imageOrig = InputImage.fromBitmap(binarizedBitmap as Bitmap, rotation)
             val resultOrig = recognizer.process(imageOrig)
 
             val processedBitmap = applyMaskToImage(bitmap, lower, upper)
-            val image = InputImage.fromBitmap(processedBitmap, rotation)
-            val result = recognizer.process(image)
-            val languageIdentifier = LanguageIdentification.getClient()
 
-            val wordsMap = HashMap<String, String>()
-            val recognizedWords = ArrayList<String>()
-            val allWords = ArrayList<String>()
+            val languageIdentifier = LanguageIdentification.getClient()
 
             var mainLanguage = defaultLanguage
             var mainConfidence = 1.0f
 
-            val recognizeEachWord: (visionText: Text) -> Unit = {
-                it.textBlocks.forEach { textBlock ->
-                    textBlock.lines.forEach { line ->
-                        line.elements.forEach { elem ->
-                            languageIdentifier.identifyPossibleLanguages(elem.text)
-                                .addOnSuccessListener { identifiedLanguages ->
-                                    var language = mainLanguage
-
-                                    // To identify words of different languages in the same text
-                                    // check if the word confidence is higher than the main
-                                    if (
-                                        identifiedLanguages[0].languageTag != "und"
-                                        && identifiedLanguages[0].confidence > mainConfidence
+            val doRecognition: (Text) -> Unit  = { visionText ->
+                recognizeWords(
+                    visionText, mainLanguage, mainConfidence, languageIdentifier,
+                    onFinish = { allWords ->
+                        identifyHighlightedWords(
+                            allWords, processedBitmap,
+                            onFinish = { highlightedWords ->
+                                val allWordsState = allWords.map {
+                                    VocabularyState(
+                                        vocabulary = ImportedVocabulary(data = it.word, language = it.language),
+                                        initialState = it in highlightedWords
                                     )
-                                        language = Locale
-                                            .forLanguageTag(identifiedLanguages[0].languageTag)
-                                            .getDisplayLanguage(Locale.ENGLISH)
-
-                                    wordsMap[elem.text] = language
-                                    allWords.add(elem.text)
-                                }
-                                .addOnFailureListener {
-                                    wordsMap[elem.text] = mainLanguage
-                                    allWords.add(elem.text)
-                                }
-
-                        }
+                                }.toMutableStateList()
+                                onSuccess(allWordsState)
+                            }
+                        )
                     }
-                }
+                )
+
             }
 
             resultOrig.addOnSuccessListener { visionText ->
@@ -88,41 +74,12 @@ class OpenCV {
 
                         mainConfidence = it[0].confidence
 
-                        recognizeEachWord(visionText)
+                        doRecognition(visionText)
                     }
                     .addOnFailureListener {
-                        recognizeEachWord(visionText)
+                        doRecognition(visionText)
                     }
             }
-
-            result.addOnSuccessListener { visionText ->
-                visionText.textBlocks.forEach { textBlock ->
-                    textBlock.lines.forEach { line ->
-                        line.elements.forEach { elem ->
-                            recognizedWords.add(elem.text)
-//                            val box = elem.boundingBox!!
-//                            Imgproc.rectangle(
-//                                originalImage,
-//                                Point(box.left.toDouble(), box.top.toDouble()),
-//                                Point(box.right.toDouble(), box.bottom.toDouble()),
-//                                Scalar(255.0, 0.0, 1.0, 255.0),
-//                                2
-//                            )
-                        }
-                    }
-                }
-
-                Utils.matToBitmap(originalImage, bitmap)
-
-                val allWordsState = allWords.map {
-                    VocabularyState(
-                        vocabulary = ImportedVocabulary(data = it, language = wordsMap[it]!!),
-                        initialState = it in recognizedWords
-                    )
-                }.toMutableStateList()
-                onSuccess(allWordsState)
-            }
-
         }
 
         fun applyMaskToImage(bitmap: Bitmap, lower: Scalar, upper: Scalar): Bitmap {
@@ -140,6 +97,107 @@ class OpenCV {
             Utils.matToBitmap(finalImage, finalBitmap)
 
             return finalBitmap
+        }
+
+        fun applyBinarization(bitmap: Bitmap, returnMat: Boolean = false): Any {
+            val originalImage = Mat()
+            val grayImage = Mat()
+            val binaryImage = Mat()
+
+            Utils.bitmapToMat(bitmap, originalImage)
+
+            Imgproc.cvtColor(originalImage, grayImage, Imgproc.COLOR_BGR2GRAY)
+
+            Imgproc.threshold(
+                grayImage, binaryImage, 0.0, 255.0,
+                Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU
+            )
+
+            if (returnMat)
+                return binaryImage
+            else {
+                val finalBitmap = Bitmap.createBitmap(bitmap)
+                Utils.matToBitmap(binaryImage, finalBitmap)
+
+                return finalBitmap
+                }
+        }
+
+        private fun recognizeWords(
+            visionText: Text,
+            mainLanguage: String,
+            mainConfidence: Float,
+            languageIdentifier: LanguageIdentifier,
+            onFinish: (List<RecognizedWord>) -> Unit
+        ) {
+            val recognizedWords = ArrayList<RecognizedWord>()
+
+            visionText.textBlocks.forEachIndexed { idxBlock, textBlock ->
+                textBlock.lines.forEach { line ->
+                    line.elements.forEachIndexed { idxElem, elem ->
+                        val box = elem.boundingBox
+                        val word = elem.text.lowercase()
+                        val lastWord = idxBlock == visionText.textBlocks.lastIndex
+                                && idxElem == line.elements.lastIndex
+
+                        languageIdentifier.identifyPossibleLanguages(word)
+                            .addOnSuccessListener { identifiedLanguages ->
+
+                                var language = mainLanguage
+
+                                // To identify words of different languages in the same text
+                                // check if the word confidence is higher than the main
+                                if (
+                                    identifiedLanguages[0].languageTag != "und"
+                                    && identifiedLanguages[0].confidence > mainConfidence
+                                )
+                                    language = Locale
+                                        .forLanguageTag(identifiedLanguages[0].languageTag)
+                                        .getDisplayLanguage(Locale.ENGLISH)
+
+                                recognizedWords.add(RecognizedWord(word, language, box))
+
+                                if (lastWord)
+                                    onFinish(recognizedWords)
+                            }
+                            .addOnFailureListener {
+                                recognizedWords.add(RecognizedWord(word, mainLanguage, box))
+
+                                if (lastWord)
+                                    onFinish(recognizedWords)
+                            }
+                    }
+                }
+            }
+        }
+
+        fun identifyHighlightedWords(
+            recognizedWords: List<RecognizedWord>,
+            processedBitmap: Bitmap,
+            onFinish: (List<RecognizedWord>) -> Unit
+        ) {
+            val binarizedBitmap = applyBinarization(processedBitmap, returnMat = true) as Mat
+
+            val highlightedWords = ArrayList<RecognizedWord>()
+
+            for (word in recognizedWords) {
+                if (word.boundingBox == null) continue
+                val x = word.boundingBox.left
+                val y = word.boundingBox.top
+                val w = word.boundingBox.width()
+                val h = word.boundingBox.height()
+                val rectThreshold = (w * h * 50) / 100
+                val rect = org.opencv.core.Rect(x, y, w, h)
+                val imgRoi = binarizedBitmap.submat(rect)
+                val nonZero = Core.countNonZero(imgRoi)
+
+                if (nonZero >= rectThreshold) {
+                    highlightedWords.add(word)
+                    println("Highlighted word: ${word.word}")
+                }
+            }
+
+            onFinish(highlightedWords)
         }
 
         fun recognizeLanguage(
@@ -168,3 +226,9 @@ class OpenCV {
         }
     }
 }
+
+data class RecognizedWord(
+    val word: String,
+    val language: String,
+    val boundingBox: Rect?
+)

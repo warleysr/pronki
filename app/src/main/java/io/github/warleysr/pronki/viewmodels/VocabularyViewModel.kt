@@ -77,7 +77,8 @@ class VocabularyViewModel: ViewModel() {
     }
 
     fun applyAdjustment(bitmap: Bitmap, lower: HSVColor, upper: HSVColor, onResult: (Bitmap) -> Unit) {
-        val processedImage = OpenCV.applyMaskToImage(bitmap, lower.toScalar(), upper.toScalar())
+        var processedImage = OpenCV.applyMaskToImage(bitmap, lower.toScalar(), upper.toScalar())
+        processedImage = OpenCV.applyBinarization(processedImage) as Bitmap
         onResult(processedImage)
     }
 
