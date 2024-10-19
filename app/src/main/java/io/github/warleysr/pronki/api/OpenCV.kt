@@ -13,6 +13,7 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import io.github.warleysr.pronki.screens.vocabulary.VocabularyState
 import org.opencv.android.Utils
 import org.opencv.core.Core
+import org.opencv.core.CvException
 import org.opencv.core.Mat
 import org.opencv.core.Scalar
 import org.opencv.imgproc.Imgproc
@@ -31,10 +32,10 @@ class OpenCV {
             onSuccess: (SnapshotStateList<VocabularyState>) -> Unit
         ) {
 
-            val binarizedBitmap = applyBinarization(bitmap)
+            val binarizedBitmap = applyBinarization(bitmap) as Bitmap
 
             val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-            val imageOrig = InputImage.fromBitmap(binarizedBitmap as Bitmap, rotation)
+            val imageOrig = InputImage.fromBitmap(binarizedBitmap, rotation)
             val resultOrig = recognizer.process(imageOrig)
 
             val processedBitmap = applyMaskToImage(bitmap, lower, upper)
@@ -188,12 +189,18 @@ class OpenCV {
                 val h = word.boundingBox.height()
                 val rectThreshold = (w * h * 50) / 100
                 val rect = org.opencv.core.Rect(x, y, w, h)
-                val imgRoi = binarizedBitmap.submat(rect)
-                val nonZero = Core.countNonZero(imgRoi)
+                try {
+                    val imgRoi = binarizedBitmap.submat(rect)
 
-                if (nonZero >= rectThreshold) {
-                    highlightedWords.add(word)
-                    println("Highlighted word: ${word.word}")
+                    val nonZero = Core.countNonZero(imgRoi)
+
+                    if (nonZero >= rectThreshold) {
+                        highlightedWords.add(word)
+                        println("Highlighted word: ${word.word}")
+                    }
+                } catch (exc: CvException) {
+                    println(exc.message)
+                    continue
                 }
             }
 
