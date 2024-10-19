@@ -90,8 +90,8 @@ class SettingsViewModel() : ViewModel() {
     }
 
     fun openAboutInfo() {
-        val intent = Intent(Intent.ACTION_VIEW)
-        intent.data = Uri.parse("https://github.com/warleysr/pronki")
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/warleysr/pronki"))
+            .apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
         PronKi.instance.startActivity(intent)
     }
 
