@@ -136,7 +136,7 @@ class OpenCV {
                 textBlock.lines.forEach { line ->
                     line.elements.forEachIndexed { idxElem, elem ->
                         val box = elem.boundingBox
-                        val word = elem.text.lowercase().replace(Regex("[,.;]+"), "")
+                        val word = elem.text.lowercase().replace(Regex("[,.;!?:]+"), "")
                         val lastWord = idxBlock == visionText.textBlocks.lastIndex
                                 && idxElem == line.elements.lastIndex
 
