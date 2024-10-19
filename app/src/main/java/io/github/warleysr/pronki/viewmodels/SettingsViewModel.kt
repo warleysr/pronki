@@ -77,14 +77,14 @@ class SettingsViewModel() : ViewModel() {
 
     fun getRangeColors(): Pair<HSVColor, HSVColor> {
         val lower = HSVColor(
-            sharedPrefs.getFloat("color_lower_H", 120f),
-            sharedPrefs.getFloat("color_lower_S", 0.5f),
-            sharedPrefs.getFloat("color_lower_V", 0.5f),
+            sharedPrefs.getFloat("color_lower_H", 0f),
+            sharedPrefs.getFloat("color_lower_S", 0f),
+            sharedPrefs.getFloat("color_lower_V", 0f),
         )
         val upper = HSVColor(
-            sharedPrefs.getFloat("color_upper_H", 125f),
-            sharedPrefs.getFloat("color_upper_S", 0.55f),
-            sharedPrefs.getFloat("color_upper_V", 0.55f),
+            sharedPrefs.getFloat("color_upper_H", 359f),
+            sharedPrefs.getFloat("color_upper_S", 1.0f),
+            sharedPrefs.getFloat("color_upper_V", 1.0f),
         )
         return Pair(lower, upper)
     }
