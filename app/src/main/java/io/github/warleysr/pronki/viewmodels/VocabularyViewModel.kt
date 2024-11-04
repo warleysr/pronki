@@ -160,13 +160,15 @@ class VocabularyViewModel: ViewModel() {
                     val cards = content?.split("\n")
 
                     cards?.forEach { card ->
-                        val fields = card.split(";").toTypedArray()
+                        val fields = card.split("//").toTypedArray()
                         if (fields.size >= 3) {
-                            val word = fields[0]
+                            val word = fields[0].trim()
                             val ankiFields = arrayOf(
                                 fields[1].processForFlashcard(), fields[2].processForFlashcard()
                             )
-                            val vocab = vocabularies.filter { it.data == word }.getOrNull(0)
+                            val vocab = vocabularies
+                                .filter { it.data.lowercase() == word.lowercase() }
+                                .getOrNull(0)
                             if (vocab != null) {
                                 val cardId = ankiApi.addNote(
                                     ankiApi.currentModelId,
@@ -198,5 +200,5 @@ class VocabularyViewModel: ViewModel() {
 }
 
 fun String.processForFlashcard(): String {
-    return this.replace("\\*\\*(.*?)\\*\\*".toRegex(), "<b>\$1</b>")
+    return this.trim().replace("\\*\\*(.*?)\\*\\*".toRegex(), "<b>\$1</b>")
 }
