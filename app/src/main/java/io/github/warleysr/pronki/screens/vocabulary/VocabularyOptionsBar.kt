@@ -201,12 +201,15 @@ fun VocabularyOptionsBar(
                                 val apiKey = settingsViewModel.getSetting("gemini_key")
                                 val model = settingsViewModel.getSetting("model")
                                 val prompt = settingsViewModel.getSetting("prompt")
+                                val vocabularies = vocabList
+                                    .filter { it.selected.value }
+                                    .map { it.vocabulary }.toTypedArray()
 
                                 vocabularyViewModel.createFlashcards(
                                     apiKey = apiKey,
                                     modelName = model,
                                     prompt = prompt,
-                                    language = language,
+                                    language = vocabularies[0].language,
                                     deckName = selectedDeck,
                                     onFailure = {
                                         isCreateDialogShown = false
@@ -216,9 +219,7 @@ fun VocabularyOptionsBar(
                                         vocabList.removeIf { it.selected.value }
                                         selectedVocabs.intValue = 0
                                     },
-                                    vocabularies = vocabList
-                                        .filter { it.selected.value }
-                                        .map { it.vocabulary }.toTypedArray()
+                                    vocabularies = vocabularies
                                 )
                             }
                         ) {
@@ -254,7 +255,7 @@ fun VocabularyOptionsBar(
                     onClick = {
                         val selectedLanguages = vocabList
                             .filter { it.selected.value }
-                            .map { it.vocabulary.language }
+                            .map { it.vocabulary.language.lowercase().trim() }
                             .toSet().size
                         if (selectedLanguages > 1) {
                             onFailure("It's possible to create flashcards of one language at a time.")
