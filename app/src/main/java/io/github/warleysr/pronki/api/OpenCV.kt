@@ -187,7 +187,7 @@ class OpenCV {
                 val y = word.boundingBox.top
                 val w = word.boundingBox.width()
                 val h = word.boundingBox.height()
-                val rectThreshold = (w * h * 50) / 100
+                val rectThreshold = (w * h * 30) / 100
                 val rect = org.opencv.core.Rect(x, y, w, h)
                 try {
                     val imgRoi = binarizedBitmap.submat(rect)
