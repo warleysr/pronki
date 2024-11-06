@@ -32,13 +32,16 @@ class OpenCV {
             onSuccess: (SnapshotStateList<VocabularyState>) -> Unit
         ) {
 
-            val binarizedBitmap = applyBinarization(bitmap) as Bitmap
+            var binarizedBitmap = applyBinarization(bitmap) as Bitmap
+
+            val processedBitmap = applyMaskToImage(bitmap, lower, upper)
+            val processedBitmapBinazired = applyBinarization(processedBitmap) as Bitmap
+
+            binarizedBitmap = bitwiseOr(binarizedBitmap, processedBitmapBinazired)
 
             val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
             val imageOrig = InputImage.fromBitmap(binarizedBitmap, rotation)
             val resultOrig = recognizer.process(imageOrig)
-
-            val processedBitmap = applyMaskToImage(bitmap, lower, upper)
 
             val languageIdentifier = LanguageIdentification.getClient()
 
@@ -95,6 +98,22 @@ class OpenCV {
             Core.bitwise_and(originalImage, originalImage, finalImage, imageMask)
 
             val finalBitmap = Bitmap.createBitmap(bitmap)
+            Utils.matToBitmap(finalImage, finalBitmap)
+
+            return finalBitmap
+        }
+
+        private fun bitwiseOr(originalBitmap: Bitmap, maskedBitmap: Bitmap): Bitmap {
+            val originalImage = Mat()
+            val maskedImage = Mat()
+            val finalImage = Mat()
+
+            Utils.bitmapToMat(originalBitmap, originalImage)
+            Utils.bitmapToMat(maskedBitmap, maskedImage)
+
+            Core.bitwise_or(originalImage, maskedImage, finalImage)
+
+            val finalBitmap = Bitmap.createBitmap(originalBitmap)
             Utils.matToBitmap(finalImage, finalBitmap)
 
             return finalBitmap
@@ -172,7 +191,7 @@ class OpenCV {
             }
         }
 
-        fun identifyHighlightedWords(
+        private fun identifyHighlightedWords(
             recognizedWords: List<RecognizedWord>,
             processedBitmap: Bitmap,
             onFinish: (List<RecognizedWord>) -> Unit
