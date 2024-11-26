@@ -5,7 +5,7 @@ PronKi is an Android app that allows you to practice your pronunciation using yo
 ## Pronunciation Assessment
 Use your Anki flashcards to practice and improve your pronunciation by receiving a feedback for each word or phoneme. Supports multiple languages and accents and you can hear your pronunciation and the correct one for comparison.
 
-<img src="https://i.imgur.com/Xetzo57.gif" alt="Pronunciation Assessment">
+<img src="https://i.imgur.com/Xetzo57.gif" alt="Pronunciation Assessment" style="width: 50%;">
 
 Powered by Microsoft Azure.
 
