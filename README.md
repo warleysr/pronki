@@ -3,12 +3,14 @@
 PronKi is an Android app that allows you to practice your pronunciation using you Anki flashcards. It also has other features that can be helpful on your language learning journey!
 
 ## Pronunciation Assessment
-Use your Anki flashcards to practice and improve your pronunciation by receiving a feedback for each word or phoneme.
+Use your Anki flashcards to practice and improve your pronunciation by receiving a feedback for each word or phoneme. Supports multiple languages and accents and you can hear your pronunciation and the correct one for comparison.
 
-Powered by Azure.
+<img src="https://i.imgur.com/Xetzo57.gif" alt="Pronunciation Assessment">
+
+Powered by Microsoft Azure.
 
 ## Import vocabulary through <mark>highlighted</mark> text
-If you like to read physical books when learning a new language you probably 
+If you like to read physical books when learning a new language you probably mark some unknown words to add them to Anki later. With this app you can use a marker to highlight these words and import them into the app taking a picture.
 
 Powered by OpenCV.
 
