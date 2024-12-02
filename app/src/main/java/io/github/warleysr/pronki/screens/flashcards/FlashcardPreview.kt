@@ -70,6 +70,8 @@ fun FlashcardPreview(
     val scope = rememberCoroutineScope()
     val deckSelected = remember { mutableStateOf(false) }
     val showAnswer = remember { mutableStateOf(false) }
+    val deckFinished = stringResource(R.string.deck_finished)
+    val withoutPermission = stringResource(R.string.without_permission)
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -80,7 +82,7 @@ fun FlashcardPreview(
                 deckSelected = deckSelected,
                 onDeckFinished = {
                     scope.launch {
-                        snackbarHostState.showSnackbar("You finished this deck for today!")
+                        snackbarHostState.showSnackbar(deckFinished)
                     }
                 }
             )
@@ -98,9 +100,7 @@ fun FlashcardPreview(
                 },
                 onPermissionDenied = {
                     scope.launch {
-                        snackbarHostState.showSnackbar(
-                            "Without the permission, it's not possible to do pronunciation assessments."
-                        )
+                        snackbarHostState.showSnackbar(withoutPermission)
                     }
                 }
             )

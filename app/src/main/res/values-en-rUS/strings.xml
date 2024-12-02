@@ -58,4 +58,6 @@
     <string name="configure_azure_properly">You need to configure Azure API first in settings.</string>
     <string name="needs_permission">PronKi needs permission to access AnkiDroid data.</string>
     <string name="grant_permission">Grant permission</string>
+    <string name="deck_finished">You\'re done with this deck for today!</string>
+    <string name="without_permission">Without permission to record, it is not possible to carry out the pronunciation assessment!</string>
 </resources>
