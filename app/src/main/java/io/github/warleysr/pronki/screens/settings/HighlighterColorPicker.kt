@@ -1,11 +1,13 @@
 package io.github.warleysr.pronki.screens.settings
 
+import android.Manifest
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.os.Build
 import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -26,7 +28,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -86,83 +91,113 @@ fun HighlighterColorPicker(viewModel: SettingsViewModel, vocabularyViewModel: Vo
                 println("ImageCropping error: ${result.error}")
             }
         }
-    
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(4.dp)
-            .verticalScroll(rememberScrollState())
-    ) {
 
-        Row(
-            horizontalArrangement = Arrangement.End,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Button(
-                onClick = { viewModel.saveRangeColors(lower = lowerHSV, upper = upperHSV) }
-            ) {
-                Text(stringResource(R.string.save))
-            }
-        }
-        Box(
-            contentAlignment = Alignment.Center,
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { _ ->
+        Column(
             modifier = Modifier
-                .height(256.dp)
                 .fillMaxWidth()
-                .border(2.dp, Color.Black)
-                .clickable {
-                    val cropOptions = CropImageContractOptions(
-                        null,
-                        CropImageOptions()
-                    )
-                    imageCropLauncher.launch(cropOptions)
-                }
+                .padding(4.dp)
+                .verticalScroll(rememberScrollState())
         ) {
-            if (originalBitmap != null || processedBitmap != null) {
-                val bitmap = if (processedBitmap != null) processedBitmap else originalBitmap
-                Image(
-                    bitmap = bitmap!!.asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize()
-                )
-            } else
-                Icon(
-                    Icons.Outlined.CameraAlt, null,
-                    modifier = Modifier.defaultMinSize(minWidth = 64.dp, minHeight = 64.dp)
-                )
-        }
 
-        val selectImage = stringResource(R.string.select_image)
-        HSVLimitSelector(
-            title = "Lower color",
-            hsvColor = lowerHSV,
-            onColorChange = {
-                lowerHSV = it
-                if (originalBitmap == null) {
-                    scope.launch { snackbarHostState.showSnackbar(selectImage) }
-                    return@HSVLimitSelector
+            Row(
+                horizontalArrangement = Arrangement.End,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Button(
+                    onClick = { viewModel.saveRangeColors(lower = lowerHSV, upper = upperHSV) }
+                ) {
+                    Text(stringResource(R.string.save))
                 }
-                vocabularyViewModel.applyAdjustment(
-                    originalBitmap!!, lowerHSV, upperHSV,
-                    onResult = { result -> processedBitmap = result }
-                )
             }
-        )
+            val permissionLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestPermission(),
+                onResult = { isGranted ->
+                    if (isGranted) {
+                        vocabularyViewModel.cameraPermissionGranted()
+                        val cropOptions = CropImageContractOptions(
+                            null,
+                            CropImageOptions()
+                        )
+                        imageCropLauncher.launch(cropOptions)
+                    }
+                }
+            )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .height(256.dp)
+                    .fillMaxWidth()
+                    .border(2.dp, MaterialTheme.colorScheme.onSurface)
+                    .clickable {
+                        if (vocabularyViewModel.permissionCameraGranted.value) {
+                            val cropOptions = CropImageContractOptions(
+                                null,
+                                CropImageOptions()
+                            )
+                            imageCropLauncher.launch(cropOptions)
+                        }
+                        else {
+                            permissionLauncher.launch(Manifest.permission.CAMERA)
+                        }
+                    }
+            ) {
+                if (originalBitmap != null || processedBitmap != null) {
+                    val bitmap = if (processedBitmap != null) processedBitmap else originalBitmap
+                    Image(
+                        bitmap = bitmap!!.asImageBitmap(),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else
+                    Icon(
+                        Icons.Outlined.CameraAlt, null,
+                        modifier = Modifier.defaultMinSize(minWidth = 64.dp, minHeight = 64.dp)
+                    )
+            }
 
-        Spacer(Modifier.height(16.dp))
+            val selectImage = stringResource(R.string.select_image)
+            HSVLimitSelector(
+                title = stringResource(R.string.lower_limit),
+                hsvColor = lowerHSV,
+                bitmapSet = originalBitmap != null,
+                onColorChange = {
+                    if (originalBitmap == null) {
+                        if (snackbarHostState.currentSnackbarData == null)
+                            scope.launch { snackbarHostState.showSnackbar(selectImage) }
+                        return@HSVLimitSelector
+                    }
+                    lowerHSV = it
+                    vocabularyViewModel.applyAdjustment(
+                        originalBitmap!!, lowerHSV, upperHSV,
+                        onResult = { result -> processedBitmap = result }
+                    )
+                }
+            )
 
-        HSVLimitSelector(
-            title = "Upper color",
-            hsvColor = upperHSV,
-            onColorChange = {
-                upperHSV = it
-                vocabularyViewModel.applyAdjustment(
-                    originalBitmap!!, lowerHSV, upperHSV,
-                    onResult = { result -> processedBitmap = result }
-                )
-            },
-            minimumValues = lowerHSV
-        )
+            Spacer(Modifier.height(16.dp))
+
+            HSVLimitSelector(
+                title = stringResource(R.string.upper_limit),
+                hsvColor = upperHSV,
+                bitmapSet = originalBitmap != null,
+                onColorChange = {
+                    if (originalBitmap == null) {
+                        if (snackbarHostState.currentSnackbarData == null)
+                            scope.launch { snackbarHostState.showSnackbar(selectImage) }
+                        return@HSVLimitSelector
+                    }
+                    upperHSV = it
+                    vocabularyViewModel.applyAdjustment(
+                        originalBitmap!!, lowerHSV, upperHSV,
+                        onResult = { result -> processedBitmap = result }
+                    )
+                },
+                minimumValues = lowerHSV
+            )
+        }
     }
 }
 
@@ -170,6 +205,7 @@ fun HighlighterColorPicker(viewModel: SettingsViewModel, vocabularyViewModel: Vo
 fun HSVLimitSelector(
     title: String,
     hsvColor: HSVColor,
+    bitmapSet: Boolean,
     onColorChange: (HSVColor) -> Unit,
     minimumValues: HSVColor? = null
 ) {
@@ -178,13 +214,13 @@ fun HSVLimitSelector(
         Column(modifier = Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically)  {
                 var newH = hsvColor.min(minimumValues).H
-                if (newH != hsvColor.H)
+                if (newH != hsvColor.H && bitmapSet)
                     onColorChange(HSVColor(newH, hsvColor.S, hsvColor.V))
 
                 Text("H")
                 Slider(
                     modifier = Modifier.weight(1f),
-                    value = newH,
+                    value = if (bitmapSet) newH else hsvColor.H,
                     onValueChange = {
                         val targetColor = HSVColor(it, hsvColor.S, hsvColor.V)
                         newH = targetColor.min(minimumValues).H
@@ -203,7 +239,7 @@ fun HSVLimitSelector(
                 Text("S")
                 Slider(
                     modifier = Modifier.weight(1f),
-                    value = newS,
+                    value = if (bitmapSet) newS else hsvColor.S,
                     onValueChange = {
                         val targetColor = HSVColor(hsvColor.H, it, hsvColor.V)
                         newS = targetColor.min(minimumValues).S
@@ -221,7 +257,7 @@ fun HSVLimitSelector(
                 Text("V")
                 Slider(
                     modifier = Modifier.weight(1f),
-                    value = newV,
+                    value = if (bitmapSet) newV else hsvColor.V,
                     onValueChange = {
                         val targetColor = HSVColor(hsvColor.H, hsvColor.S, it)
                         newV = targetColor.min(minimumValues).V
