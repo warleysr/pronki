@@ -10,8 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ichi2.anki.api.AddContentApi
+import io.github.warleysr.pronki.R
 import io.github.warleysr.pronki.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.pronki.viewmodels.PronunciationViewModel
 import io.github.warleysr.pronki.viewmodels.SettingsViewModel
@@ -42,11 +44,11 @@ fun FlashcardsScreen(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            Text("The app needs permission to access AnkiDroid database to use your flashcards.")
+            Text(stringResource(R.string.needs_permission))
             Button(onClick = {
                 permissionLauncher.launch(AddContentApi.READ_WRITE_PERMISSION)
             }) {
-                Text("Grant permission")
+                Text(stringResource(R.string.grant_permission))
             }
         }
     }

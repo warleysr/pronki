@@ -22,8 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.warleysr.pronki.R
 import io.github.warleysr.pronki.viewmodels.VocabularyViewModel
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -35,7 +37,7 @@ fun VocabularyRecognitionScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Text("Check if your highlighted vocabulary was recognized correctly. You can click to select others.", fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.check_vocabulary), fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
         FlowRow(
             modifier = Modifier
@@ -57,7 +59,7 @@ fun VocabularyRecognitionScreen(
                             .padding(8.dp)
                             .clickable(
                                 onClick = {
-                                    vocab.selected.value= !vocab.selected.value
+                                    vocab.selected.value = !vocab.selected.value
                                 }
                             )
                     )
@@ -67,10 +69,12 @@ fun VocabularyRecognitionScreen(
         Row(
             verticalAlignment = Alignment.Bottom,
             horizontalArrangement = Arrangement.Center,
-            modifier = Modifier.fillMaxWidth().padding(8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
         ) {
             Button(onClick = { viewModel.hideRecognized() }) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
             Spacer(Modifier.width(16.dp))
             Button(
@@ -83,7 +87,7 @@ fun VocabularyRecognitionScreen(
                     viewModel.hideRecognized()
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         }
     }

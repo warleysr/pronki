@@ -42,4 +42,20 @@
     <string name="opencv_description">Configure the behaviour of text recognition from image.</string>
     <string name="model">Model</string>
     <string name="selected_text">selected</string>
+    <string name="select_image">Import an image by clicking on the rectangle first.</string>
+    <string name="check_vocabulary">Check if your marked vocabulary has been recognized correctly. You can click to mark or unmark others.</string>
+    <string name="yes">Yes</string>
+    <string name="creating_cards">Creating cards, please wait...</string>
+    <string name="create">Create</string>
+    <string name="insert_vocabulary">Enter the vocabularies to add, one per line, they can be words or expressions.</string>
+    <string name="flashcards_success">%1$d flashcards were created successfully!</string>
+    <string name="used_tokens">%1$d tokens were used.</string>
+    <string name="proceed_creation">Proceed with creating %1$d flashcards?</string>
+    <string name="deck">Deck</string>
+    <string name="sure_deletion">Are you sure you want to delete %1$d vocabularies?</string>
+    <string name="only_one_language">You can create flashcards for only one language at a time.</string>
+    <string name="configure_gemini_properly">You need to configure Gemini API first in settings.</string>
+    <string name="configure_azure_properly">You need to configure Azure API first in settings.</string>
+    <string name="needs_permission">PronKi needs permission to access AnkiDroid data.</string>
+    <string name="grant_permission">Grant permission</string>
 </resources>

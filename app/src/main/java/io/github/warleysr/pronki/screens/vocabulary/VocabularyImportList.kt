@@ -21,9 +21,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.warleysr.pronki.ConfigUtils
+import io.github.warleysr.pronki.R
 import io.github.warleysr.pronki.api.ImportedVocabulary
 import io.github.warleysr.pronki.api.OpenCV
 import io.github.warleysr.pronki.viewmodels.SettingsViewModel
@@ -47,9 +49,11 @@ fun VocabularyImportList(
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth().padding(16.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
     ) {
-        Text("Insert the vocabulary to add, one per line, can be words or expressions.", fontWeight = FontWeight.Bold)
+        Text(stringResource(R.string.insert_vocabulary), fontWeight = FontWeight.Bold)
         TextField(
             value = currentText,
             onValueChange = {
@@ -69,7 +73,7 @@ fun VocabularyImportList(
                     vocabularyViewModel.hideImportList()
                 }
             ) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
             Spacer(Modifier.width(16.dp))
             Button(
@@ -99,7 +103,7 @@ fun VocabularyImportList(
                     }
                }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         }
     }

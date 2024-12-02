@@ -42,5 +42,21 @@
     <string name="opencv_description">Configure o comportamento para o reconhecimento de texto por imagem.</string>
     <string name="model">Modelo</string>
     <string name="default_prompt" translatable="false">Given a word list create an example phrase and a short explanation of the meaning of the word with each one in {LANGUAGE}. Give the output in CSV format separated by ; without columns names. List: {WORD_LIST}</string>
-    <string name="selected_text" tools:ignore="PrivateResource">selecionado</string>
+    <string name="selected_text" tools:ignore="PrivateResource">%1$d selecionado</string>
+    <string name="select_image">Importe uma imagem clicando no retângulo primeiro.</string>
+    <string name="check_vocabulary">Verifique se seu vocabulário marcado foi reconhecido corretamente. Você pode clicar para marcar ou desmarcar outros.</string>
+    <string name="yes">Sim</string>
+    <string name="creating_cards">Criando cards, por favor aguarde...</string>
+    <string name="create">Criar</string>
+    <string name="insert_vocabulary">Insira os vocabulários para adicionar, um por linha, pode ser palavras ou expressões.</string>
+    <string name="flashcards_success">%1$d flashcards foram criados com sucesso!</string>
+    <string name="used_tokens">%1$d tokens foram usados.</string>
+    <string name="proceed_creation">"Proseguir com a criação de %1$d flashcards?"</string>
+    <string name="deck">Baralho</string>
+    <string name="sure_deletion">Tem certeza que deseja deletar %1$d vocabulários?</string>
+    <string name="only_one_language">É possível criar flashcards de um único idioma por vez.</string>
+    <string name="configure_gemini_properly">Você precisa configurar a API do Gemini primeiro nas configurações.</string>
+    <string name="configure_azure_properly">Você precisa configurar a API da Azure primeiro nas configurações.</string>
+    <string name="needs_permission">PronKi necessita de permissão para acessar os dados do AnkiDroid.</string>
+    <string name="grant_permission">Conceder permissão</string>
 </resources>

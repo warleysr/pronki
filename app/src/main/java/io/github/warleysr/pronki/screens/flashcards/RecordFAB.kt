@@ -32,8 +32,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalViewConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
+import io.github.warleysr.pronki.R
 import io.github.warleysr.pronki.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.pronki.viewmodels.PronunciationViewModel
 import io.github.warleysr.pronki.viewmodels.SettingsViewModel
@@ -67,6 +69,7 @@ fun RecordFAB(
         }
     )
 
+    val configureAzure = stringResource(R.string.configure_azure_properly)
     LaunchedEffect(interactionSource) {
 
         interactionSource.interactions.collectLatest { interaction ->
@@ -82,7 +85,7 @@ fun RecordFAB(
                         permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
 
                     else if (!isAzureConfigured)
-                        onFailure("You need to configure the Azure API on settings screen.")
+                        onFailure(configureAzure)
 
                     else {
                         delay(viewConfiguration.longPressTimeoutMillis)

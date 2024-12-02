@@ -82,7 +82,7 @@ fun VocabularyOptionsBar(
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("Are you sure you want to delete ${selectedVocabs.intValue} vocabularies?")
+                    Text(stringResource(R.string.sure_deletion, selectedVocabs.intValue))
                     Spacer(Modifier.height(16.dp))
                     Text(
                         vocabList.filter { it.selected.value }.joinToString { it.vocabulary.data },
@@ -103,7 +103,7 @@ fun VocabularyOptionsBar(
                             selectedVocabs.intValue = 0
                         }
                     ) {
-                        Text("Yes")
+                        Text(stringResource(R.string.yes))
                     }
                 }
             }
@@ -131,15 +131,18 @@ fun VocabularyOptionsBar(
                     if (vocabularyViewModel.creatingCards.value) {
                         CircularProgressIndicator()
                         Spacer(Modifier.height(16.dp))
-                        Text("Creating cards, please wait...")
+                        Text(stringResource(R.string.creating_cards))
                     } else if (vocabularyViewModel.successCreation.value) {
                         Icon(
                             Icons.Filled.Done, null,
                             tint = MaterialTheme.colorScheme.surfaceTint,
                             modifier = Modifier.defaultMinSize(minHeight = 64.dp, minWidth = 64.dp)
                         )
-                        Text("${vocabularyViewModel.cardsCreated.intValue} flashcards was successfully created!", textAlign = TextAlign.Center)
-                        Text("${vocabularyViewModel.usedTokens.intValue} tokens were used.")
+                        Text(
+                            stringResource(R.string.flashcards_success,vocabularyViewModel.cardsCreated.intValue),
+                            textAlign = TextAlign.Center
+                        )
+                        Text(stringResource(R.string.used_tokens, vocabularyViewModel.usedTokens.intValue))
                         Spacer(Modifier.height(16.dp))
                         Button(
                             modifier = Modifier.align(Alignment.End),
@@ -151,9 +154,7 @@ fun VocabularyOptionsBar(
                             Text("Ok")
                         }
                     } else {
-                        val language = vocabList[0].vocabulary.language
-
-                        Text("Proceed to create ${selectedVocabs.intValue} flashcards?")
+                        Text(stringResource(R.string.proceed_creation, selectedVocabs.intValue))
                         Spacer(Modifier.height(16.dp))
 
                         ExposedDropdownMenuBox(
@@ -162,7 +163,7 @@ fun VocabularyOptionsBar(
                         ) {
                             OutlinedTextField(
                                 value = selectedDeck,
-                                label = { Text("Deck") },
+                                label = { Text(stringResource(R.string.deck)) },
                                 onValueChange = {},
                                 readOnly = true,
                                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedDecks) },
@@ -223,7 +224,7 @@ fun VocabularyOptionsBar(
                                 )
                             }
                         ) {
-                            Text("Create")
+                            Text(stringResource(R.string.create))
                         }
                     }
                 }
@@ -238,7 +239,7 @@ fun VocabularyOptionsBar(
     ) {
         TopAppBar(
             title = {
-                Text("${selectedVocabs.intValue} ${stringResource(id = R.string.selected_text)}")
+                Text(stringResource(id = R.string.selected_text, selectedVocabs.intValue))
             },
             navigationIcon = {
                 IconButton(onClick = {
@@ -251,6 +252,8 @@ fun VocabularyOptionsBar(
                 }
             },
             actions = {
+                val onlyOneLanguage = stringResource(R.string.only_one_language)
+                val configureGemini = stringResource(R.string.configure_gemini_properly)
                 IconButton(
                     onClick = {
                         val selectedLanguages = vocabList
@@ -258,7 +261,7 @@ fun VocabularyOptionsBar(
                             .map { it.vocabulary.language.lowercase().trim() }
                             .toSet().size
                         if (selectedLanguages > 1) {
-                            onFailure("It's possible to create flashcards of one language at a time.")
+                            onFailure(onlyOneLanguage)
                             return@IconButton
                         }
                         val apiKey = settingsViewModel.getSetting("gemini_key")
@@ -266,7 +269,7 @@ fun VocabularyOptionsBar(
                         val prompt = settingsViewModel.getSetting("prompt")
 
                         if (apiKey.isEmpty() || model.isEmpty() || prompt.isEmpty()) {
-                            onFailure("You need to configure Gemini properly in settings screen.")
+                            onFailure(configureGemini)
                             return@IconButton
                         }
                         isCreateDialogShown = true

@@ -27,23 +27,28 @@ import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.canhub.cropper.CropImageContract
 import com.canhub.cropper.CropImageContractOptions
 import com.canhub.cropper.CropImageOptions
+import io.github.warleysr.pronki.R
 import io.github.warleysr.pronki.viewmodels.SettingsViewModel
 import io.github.warleysr.pronki.viewmodels.VocabularyViewModel
+import kotlinx.coroutines.launch
 import org.opencv.core.Scalar
 import kotlin.math.max
 
@@ -57,6 +62,8 @@ fun HighlighterColorPicker(viewModel: SettingsViewModel, vocabularyViewModel: Vo
     var processedBitmap: Bitmap? by remember { mutableStateOf(null) }
     var rotation: Int? by remember { mutableStateOf(0) }
     val context = LocalContext.current as Activity
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     val imageCropLauncher =
         rememberLauncherForActivityResult(contract = CropImageContract()) { result ->
@@ -94,7 +101,7 @@ fun HighlighterColorPicker(viewModel: SettingsViewModel, vocabularyViewModel: Vo
             Button(
                 onClick = { viewModel.saveRangeColors(lower = lowerHSV, upper = upperHSV) }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         }
         Box(
@@ -124,11 +131,17 @@ fun HighlighterColorPicker(viewModel: SettingsViewModel, vocabularyViewModel: Vo
                     modifier = Modifier.defaultMinSize(minWidth = 64.dp, minHeight = 64.dp)
                 )
         }
+
+        val selectImage = stringResource(R.string.select_image)
         HSVLimitSelector(
             title = "Lower color",
             hsvColor = lowerHSV,
             onColorChange = {
                 lowerHSV = it
+                if (originalBitmap == null) {
+                    scope.launch { snackbarHostState.showSnackbar(selectImage) }
+                    return@HSVLimitSelector
+                }
                 vocabularyViewModel.applyAdjustment(
                     originalBitmap!!, lowerHSV, upperHSV,
                     onResult = { result -> processedBitmap = result }
