@@ -217,182 +217,184 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
         modifier = Modifier
             .fillMaxSize()
             .padding(32.dp)
-            .verticalScroll(rememberScrollState())
     ) {
 
         Text(
             text = stringResource(id = R.string.settings),
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
         )
-        Spacer(modifier = Modifier.padding(16.dp))
+        Spacer(modifier = Modifier.padding(8.dp))
 
-        Divider()
+        val scrollState = rememberScrollState()
+        Column(Modifier.verticalScroll(scrollState)) {
+            Divider()
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(
-                    onClick = { isAzureDialogShown = true },
-                )
-                .padding(all = 16.dp),
-        ) {
-            Text(
-                text = stringResource(id = R.string.configure_azure),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.surfaceTint,
-            )
-
-            Text(
-                text = stringResource(id = R.string.configure_azure_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-
-        Divider()
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(
-                    onClick = { isGeminiDialogShown = true },
-                )
-                .padding(all = 16.dp),
-        ) {
-            Text(
-                text = stringResource(id = R.string.configure_gemini),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.surfaceTint,
-            )
-
-            Text(
-                text = stringResource(id = R.string.configure_gemini_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-
-        Divider()
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(
-                    onClick = { viewModel.toggleAdjustingColors() },
-                )
-                .padding(all = 16.dp),
-        ) {
-            Text(
-                text = stringResource(id = R.string.opencv),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.surfaceTint,
-            )
-
-            Text(
-                text = stringResource(id = R.string.opencv_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-
-        Divider()
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(
-                    onClick = { isLanguagesDialogShown = true },
-                )
-                .padding(all = 16.dp),
-        ) {
-            Text(
-                text = stringResource(id = R.string.select_language),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.surfaceTint,
-            )
-
-            Text(
-                text = stringResource(id = R.string.select_language_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-        }
-
-        Divider()
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        onClick = { isAzureDialogShown = true },
+                    )
+                    .padding(all = 16.dp),
+            ) {
                 Text(
-                    text = stringResource(id = R.string.material_you),
+                    text = stringResource(id = R.string.configure_azure),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.surfaceTint,
                 )
+
                 Text(
-                    text = stringResource(id = R.string.material_you_description),
+                    text = stringResource(id = R.string.configure_azure_description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            Switch(
-                checked = isChecked,
-                onCheckedChange = {
-                    isChecked = it
-                    viewModel.setMaterialYou(it)
+
+            Divider()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        onClick = { isGeminiDialogShown = true },
+                    )
+                    .padding(all = 16.dp),
+            ) {
+                Text(
+                    text = stringResource(id = R.string.configure_gemini),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.surfaceTint,
+                )
+
+                Text(
+                    text = stringResource(id = R.string.configure_gemini_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+
+            Divider()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        onClick = { viewModel.toggleAdjustingColors() },
+                    )
+                    .padding(all = 16.dp),
+            ) {
+                Text(
+                    text = stringResource(id = R.string.opencv),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.surfaceTint,
+                )
+
+                Text(
+                    text = stringResource(id = R.string.opencv_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+
+            Divider()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        onClick = { isLanguagesDialogShown = true },
+                    )
+                    .padding(all = 16.dp),
+            ) {
+                Text(
+                    text = stringResource(id = R.string.select_language),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.surfaceTint,
+                )
+
+                Text(
+                    text = stringResource(id = R.string.select_language_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+
+            Divider()
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(id = R.string.material_you),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.surfaceTint,
+                    )
+                    Text(
+                        text = stringResource(id = R.string.material_you_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
                 }
-            )
-        }
-        Divider()
+                Switch(
+                    checked = isChecked,
+                    onCheckedChange = {
+                        isChecked = it
+                        viewModel.setMaterialYou(it)
+                    }
+                )
+            }
+            Divider()
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(id = R.string.app_theme),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.surfaceTint,
+                    )
+                    Text(
+                        text = stringResource(id = R.string.app_theme_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                Button(onClick = { isThemeDialogShown = true }) {
+                    Text(stringResource(id = themeString(viewModel.theme.value)))
+                }
+            }
+            Divider()
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                        onClick = { viewModel.openAboutInfo() },
+                    )
+                    .padding(all = 16.dp),
+            ) {
                 Text(
-                    text = stringResource(id = R.string.app_theme),
+                    text = stringResource(id = R.string.about),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.surfaceTint,
                 )
+
                 Text(
-                    text = stringResource(id = R.string.app_theme_description),
+                    text = stringResource(id = R.string.about_description),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            Button(onClick = {isThemeDialogShown = true}) {
-                Text(stringResource(id = themeString(viewModel.theme.value)))
-            }
-        }
-        Divider()
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(
-                    onClick = { viewModel.openAboutInfo() },
-                )
-                .padding(all = 16.dp),
-        ) {
-            Text(
-                text = stringResource(id = R.string.about),
-                style = MaterialTheme.typography.bodyLarge,
-                color = MaterialTheme.colorScheme.surfaceTint,
-            )
-
-            Text(
-                text = stringResource(id = R.string.about_description),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
         }
     }
 }
