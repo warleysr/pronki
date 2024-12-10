@@ -41,7 +41,7 @@
     <string name="opencv">Configurar OpenCV</string>
     <string name="opencv_description">Configure o comportamento para o reconhecimento de texto por imagem.</string>
     <string name="model">Modelo</string>
-    <string name="default_prompt" translatable="false">Given a word list create an example phrase and a short explanation of the meaning of the word with each one in {LANGUAGE}. Give the output in CSV format separated by ; without columns names. List: {WORD_LIST}</string>
+    <string name="default_prompt" translatable="false">Your task is to create for each word in the following list: {WORD_LIST} an example sentence and an explanation of the meaning, both in {LANGUAGE}. Highlight the word in the example sentence. Give the output in the CSV format separated by \'//\' without column names.</string>
     <string name="selected_text" tools:ignore="PrivateResource">%1$d selecionado</string>
     <string name="select_image">Importe uma imagem clicando no retângulo primeiro.</string>
     <string name="check_vocabulary">Verifique se seu vocabulário marcado foi reconhecido corretamente. Você pode clicar para marcar ou desmarcar outros.</string>
