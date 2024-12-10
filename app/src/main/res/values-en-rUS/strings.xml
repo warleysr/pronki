@@ -62,4 +62,5 @@
     <string name="without_permission">Without permission to record, it is not possible to carry out the pronunciation assessment!</string>
     <string name="lower_limit">Lower limit</string>
     <string name="upper_limit">Upper limit</string>
+    <string name="hold_record">Hold the button to record your voice. Drag to cancel.</string>
 </resources>

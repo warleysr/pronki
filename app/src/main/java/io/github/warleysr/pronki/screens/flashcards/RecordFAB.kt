@@ -70,6 +70,7 @@ fun RecordFAB(
     )
 
     val configureAzure = stringResource(R.string.configure_azure_properly)
+    val holdRecord = stringResource(R.string.hold_record)
     LaunchedEffect(interactionSource) {
 
         interactionSource.interactions.collectLatest { interaction ->
@@ -101,6 +102,11 @@ fun RecordFAB(
                         !pronunciationViewModel.permissionAudioGranted.value || !isAzureConfigured
                     )
                         return@collectLatest
+
+                    if (!recording) {
+                        onFailure(holdRecord)
+                        return@collectLatest
+                    }
 
                     println("Released! Starting assessment...")
                     pronunciationViewModel.stopRecording()
