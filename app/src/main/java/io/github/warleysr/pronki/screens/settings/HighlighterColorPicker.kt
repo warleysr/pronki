@@ -1,6 +1,7 @@
 package io.github.warleysr.pronki.screens.settings
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -57,6 +58,7 @@ import kotlinx.coroutines.launch
 import org.opencv.core.Scalar
 import kotlin.math.max
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun HighlighterColorPicker(viewModel: SettingsViewModel, vocabularyViewModel: VocabularyViewModel) {
 
