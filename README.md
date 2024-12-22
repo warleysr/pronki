@@ -1,6 +1,6 @@
 # PronKi
 <img src="https://github.com/warleysr/pronki/blob/main/app/src/main/res/drawable/pronki_icon.png" alt="PronKi Icon" style="width: 13%; border-radius: 7px;" align="left">
-PronKi is an Android app that allows you to practice your pronunciation using you AnkiDroid flashcards. It also has other features that can be helpful on your language learning journey!
+PronKi is an Android app that allows you to practice your pronunciation using your AnkiDroid flashcards. It also has other features that can be helpful on your language learning journey!
 <br>
 <br>
 <br>
