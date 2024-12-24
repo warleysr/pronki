@@ -64,4 +64,9 @@
     <string name="lower_limit">Limite inferior</string>
     <string name="upper_limit">Limite superior</string>
     <string name="hold_record">Segure o botão para gravar sua voz. Arraste para cancelar.</string>
+    <string name="description_accuracy">A acurácia indica o quão próximos os fonemas correspondem à pronúncia de um falante nativo.</string>
+    <string name="description_pronunciation">Pontuação geral da qualidade da pronúncia.</string>
+    <string name="description_prosody">A prosódia indica o quão natural é a fala, incluindo ênfase, entonação, velocidade e ritmo.</string>
+    <string name="description_fluency">A fluência indica o quanto a fala se aproxima do uso de pausas silenciosas entre as palavras por um falante nativo.</string>
+    <string name="description_completeness">Completude da fala, calculada pela proporção de palavras pronunciadas em relação ao texto de referência.</string>
 </resources>
