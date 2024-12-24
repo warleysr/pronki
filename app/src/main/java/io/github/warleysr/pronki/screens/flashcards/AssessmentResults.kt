@@ -69,13 +69,13 @@ fun AssessmentResultsContent(
     val result = pronunciationViewModel.getPronunciationResult()!!
 
     val scores1 = mapOf(
-        Pair(stringResource(id = R.string.pronunciation), result.pronunciation),
-        Pair(stringResource(id = R.string.prosody), result.prosody),
+        Pair("pronunciation", stringResource(id = R.string.pronunciation)) to result.pronunciation,
+        Pair("prosody", stringResource(id = R.string.prosody)) to result.prosody,
     )
     val scores2 = mapOf(
-        Pair(stringResource(id = R.string.accuracy), result.accuracy),
-        Pair(stringResource(id = R.string.fluency), result.fluency),
-        Pair(stringResource(id = R.string.completeness), result.completeness),
+        Pair("accuracy", stringResource(id = R.string.accuracy)) to result.accuracy,
+        Pair("fluency", stringResource(id = R.string.fluency)) to result.fluency,
+        Pair("completeness", stringResource(id = R.string.completeness)) to result.completeness,
     )
     val scores = scores1 + scores2
 
@@ -90,7 +90,7 @@ fun AssessmentResultsContent(
                 delayMillis = 10
             ), label = "FloatAnimation"
         )
-        percentages[score.key] = currentPercentage
+        percentages[score.key.first] = currentPercentage
     }
 
     val builder = rememberBalloonBuilder {
@@ -122,7 +122,10 @@ fun AssessmentResultsContent(
         ) {
             scores1.forEach { score ->
                 ScoreGauge(
-                    title=score.key, score=score.value, floatAnimation=percentages[score.key]!!
+                    title = score.key.second,
+                    metricName = score.key.first,
+                    score = score.value,
+                    floatAnimation = percentages[score.key.first]!!
                 )
             }
         }
@@ -137,7 +140,10 @@ fun AssessmentResultsContent(
         ) {
             scores2.forEach { score ->
                 ScoreGauge(
-                    title=score.key, score=score.value, floatAnimation=percentages[score.key]!!
+                    title = score.key.second,
+                    metricName = score.key.first,
+                    score = score.value,
+                    floatAnimation = percentages[score.key.first]!!
                 )
             }
         }

@@ -29,12 +29,15 @@ class AnkiDroidAPI {
             )
         }
 
-        fun queryNextCard(): CardInfo? {
+        fun queryNextCard(amount: Int = 1): CardInfo? {
             val deckUri = FlashCardsContract.ReviewInfo.CONTENT_URI
             val deckCursor = PronKi.instance.applicationContext.contentResolver.query(
-                deckUri, null, null, null, null
+                deckUri, null, "limit=?", arrayOf(amount.toString()), null
             )
-            if (deckCursor == null || !deckCursor.moveToFirst())
+            if (deckCursor == null || !deckCursor.moveToLast())
+                return null
+
+            if (deckCursor.count < amount)
                 return null
 
             val noteIdCol = deckCursor.getColumnIndex(FlashCardsContract.ReviewInfo.NOTE_ID)

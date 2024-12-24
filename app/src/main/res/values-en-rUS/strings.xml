@@ -63,4 +63,13 @@
     <string name="lower_limit">Lower limit</string>
     <string name="upper_limit">Upper limit</string>
     <string name="hold_record">Hold the button to record your voice. Drag to cancel.</string>
+    <string name="description_accuracy">Accuracy indicates how closely the phonemes match a native speaker\'s pronunciation.</string>
+    <string name="description_pronunciation">Overall score of the pronunciation quality of the given speech.</string>
+    <string name="description_prosody">Prosody indicates how natural the given speech is, including stress, intonation, speaking speed, and rhythm.</string>
+    <string name="description_fluency">Fluency of the given speech. Fluency indicates how closely the speech matches a native speaker\'s use of silent breaks between words.</string>
+    <string name="description_completeness">Completeness of the speech, calculated by the ratio of pronounced words to the input reference text.</string>
+    <string name="review_mode">Review mode</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+    <string name="review_mode_description">If enabled, it will display an interface similar to AnkiDroid and will review the cards. Otherwise, you will be able to browse the cards without reviewing.</string>
 </resources>
