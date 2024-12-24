@@ -1,5 +1,8 @@
 package io.github.warleysr.pronki.api.ankidroid
 
+private val ankiTagRegex = "\\[anki:.*?]".toRegex()
+private val scriptTagRegex = "<script\\b[^<]*(?:(?!</script>)<[^<]*)*</script\\s*>".toRegex()
+
 data class CardInfo(
     val noteId: Long,
     val cardOrd: Int,
@@ -7,6 +10,11 @@ data class CardInfo(
     val answerRaw: String,
     val startTime: Long = System.currentTimeMillis()
 ) {
-    val question: String = questionRaw.replace("\\[anki:.*?]".toRegex(), "")
-    val answer: String = answerRaw.replace("\\[anki:.*?]".toRegex(), "")
+    val question: String = questionRaw
+        .replace(ankiTagRegex, "")
+        .replace(scriptTagRegex, "")
+
+    val answer: String = answerRaw
+        .replace(ankiTagRegex, "")
+        .replace(scriptTagRegex, "")
 }
