@@ -25,12 +25,19 @@ class SettingsViewModel() : ViewModel() {
     var adjustingColors: MutableState<Boolean> = mutableStateOf(false)
         private set
 
+    private var reviewMode: MutableState<Boolean> = mutableStateOf(false)
+
     init {
         println("SettingsViewModel initialized")
         val materialYou = getSetting("material_you")
         this.materialYou.value = materialYou.isNotEmpty() && materialYou.toBooleanStrict()
 
         theme.value = getSetting("theme")
+
+        if (getSetting("reviewMode").isBlank())
+            setReviewModeEnabled(true)
+
+        reviewMode.value = getSetting("reviewMode") == "true"
     }
 
     fun getSetting(key: String): String {
@@ -87,6 +94,15 @@ class SettingsViewModel() : ViewModel() {
             sharedPrefs.getFloat("color_upper_V", 1.0f),
         )
         return Pair(lower, upper)
+    }
+
+    fun isReviewModeEnabled(): Boolean {
+        return reviewMode.value
+    }
+
+    fun setReviewModeEnabled(enabled: Boolean) {
+        reviewMode.value = enabled
+        saveSetting("reviewMode", enabled.toString())
     }
 
     fun openAboutInfo() {

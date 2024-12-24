@@ -11,6 +11,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -21,17 +22,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowLeft
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +58,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.core.text.parseAsHtml
+import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.BalloonSizeSpec
+import com.skydoves.balloon.compose.Balloon
+import com.skydoves.balloon.compose.rememberBalloonBuilder
 import io.github.warleysr.pronki.R
 import io.github.warleysr.pronki.api.ankidroid.AnkiDroidAPI
 import io.github.warleysr.pronki.api.ankidroid.DeckInfo
@@ -58,6 +70,7 @@ import io.github.warleysr.pronki.viewmodels.PronunciationViewModel
 import io.github.warleysr.pronki.viewmodels.SettingsViewModel
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun FlashcardPreview(
@@ -74,10 +87,55 @@ fun FlashcardPreview(
     val withoutPermission = stringResource(R.string.without_permission)
 
     Scaffold(
+        topBar = {
+            if (!ankiDroidViewModel.isDeckSelected()) {
+                TopAppBar(
+                    title = { },
+                    actions = {
+                        Text(stringResource(R.string.review_mode))
+                        Spacer(Modifier.width(8.dp))
+                        Switch(
+                            checked = settingsViewModel.isReviewModeEnabled(),
+                            onCheckedChange = { settingsViewModel.setReviewModeEnabled(it) }
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        val builder = rememberBalloonBuilder {
+                            setArrowSize(10)
+                            setArrowPosition(0.5f)
+                            setWidth(BalloonSizeSpec.WRAP)
+                            setHeight(BalloonSizeSpec.WRAP)
+                            setPadding(12)
+                            setMarginHorizontal(12)
+                            setCornerRadius(8f)
+                            setBalloonAnimation(BalloonAnimation.ELASTIC)
+                        }
+                        Balloon(
+                            builder = builder,
+                            balloonContent = {
+                                Text(
+                                    stringResource(R.string.review_mode_description),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White
+                                )
+                            }
+                        ) { balloonWindow ->
+                            Icon(
+                                Icons.Filled.Info, "",
+                                modifier = Modifier.clickable {
+                                    balloonWindow.showAlignBottom()
+                                }
+                            )
+                        }
+                    }
+                )
+            }
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         content = {
             FlashcardPreviewContent(
+                paddingValues = it,
                 ankiDroidViewModel = ankiDroidViewModel,
+                settingsViewModel = settingsViewModel,
                 showAnswer = showAnswer,
                 deckSelected = deckSelected,
                 onDeckFinished = {
@@ -109,10 +167,11 @@ fun FlashcardPreview(
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlashcardPreviewContent(
+    paddingValues: PaddingValues,
     ankiDroidViewModel: AnkiDroidViewModel,
+    settingsViewModel: SettingsViewModel,
     showAnswer: MutableState<Boolean>,
     deckSelected: MutableState<Boolean>,
     onDeckFinished: () -> Unit
@@ -121,7 +180,9 @@ fun FlashcardPreviewContent(
     val onNextResult: () -> Unit = { ankiDroidViewModel.queryNextCard(onDeckFinished) }
 
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .padding(paddingValues)
+            .fillMaxSize(),
         contentAlignment = Alignment.TopCenter
     ) {
         Column(
@@ -196,61 +257,11 @@ fun FlashcardPreviewContent(
                             horizontalArrangement = Arrangement.SpaceEvenly,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            Button(
-                                onClick = {
-                                    ankiDroidViewModel.reviewCard(
-                                        AnkiDroidAPI.AGAIN,
-                                        onNextResult = onNextResult
-                                    )
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFFD32F2F),
-                                    contentColor = Color.White
-                                )
-                            ) {
-                                Text(stringResource(id = R.string.again))
+                            if (settingsViewModel.isReviewModeEnabled()) {
+                                ReviewButtons(ankiDroidViewModel, onNextResult)
                             }
-                            Button(
-                                onClick = {
-                                    ankiDroidViewModel.reviewCard(
-                                        AnkiDroidAPI.HARD,
-                                        onNextResult = onNextResult
-                                    )
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF455A64),
-                                    contentColor = Color.White
-                                )
-                            ) {
-                                Text(stringResource(id = R.string.hard))
-                            }
-                            Button(
-                                onClick = {
-                                    ankiDroidViewModel.reviewCard(
-                                        AnkiDroidAPI.GOOD,
-                                        onNextResult = onNextResult
-                                    )
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF4CAF50),
-                                    contentColor = Color.White
-                                )
-                            ) {
-                                Text(stringResource(id = R.string.good))
-                            }
-                            Button(
-                                onClick = {
-                                    ankiDroidViewModel.reviewCard(
-                                        AnkiDroidAPI.EASY,
-                                        onNextResult = onNextResult
-                                    )
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF03A9F4),
-                                    contentColor = Color.White
-                                )
-                            ) {
-                                Text(stringResource(id = R.string.easy))
+                            else {
+                                NavigationButtons(ankiDroidViewModel, onDeckFinished)
                             }
                         }
                     }
@@ -302,6 +313,89 @@ fun DeckDetails(deck: DeckInfo, onClick: () -> Unit) {
         Text(deck.due.toString(), color = dueColor)
     }
 
+}
+
+@Composable
+fun ReviewButtons(ankiDroidViewModel: AnkiDroidViewModel, onNextResult: () -> Unit) {
+    Button(
+        onClick = {
+            ankiDroidViewModel.reviewCard(
+                AnkiDroidAPI.AGAIN,
+                onNextResult = onNextResult
+            )
+        },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFFD32F2F),
+            contentColor = Color.White
+        )
+    ) {
+        Text(stringResource(id = R.string.again))
+    }
+    Button(
+        onClick = {
+            ankiDroidViewModel.reviewCard(
+                AnkiDroidAPI.HARD,
+                onNextResult = onNextResult
+            )
+        },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF455A64),
+            contentColor = Color.White
+        )
+    ) {
+        Text(stringResource(id = R.string.hard))
+    }
+    Button(
+        onClick = {
+            ankiDroidViewModel.reviewCard(
+                AnkiDroidAPI.GOOD,
+                onNextResult = onNextResult
+            )
+        },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF4CAF50),
+            contentColor = Color.White
+        )
+    ) {
+        Text(stringResource(id = R.string.good))
+    }
+    Button(
+        onClick = {
+            ankiDroidViewModel.reviewCard(
+                AnkiDroidAPI.EASY,
+                onNextResult = onNextResult
+            )
+        },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF03A9F4),
+            contentColor = Color.White
+        )
+    ) {
+        Text(stringResource(id = R.string.easy))
+    }
+}
+
+@Composable
+fun NavigationButtons(ankiDroidViewModel: AnkiDroidViewModel, onDeckFinished: () -> Unit) {
+    Button(
+        onClick = {
+            ankiDroidViewModel.previousCard()
+            ankiDroidViewModel.queryNextCard(onDeckFinished)
+        },
+        enabled = ankiDroidViewModel.currentIndex.value > 1
+    ) {
+        Icon(Icons.Filled.KeyboardDoubleArrowLeft, "")
+        Text(stringResource(R.string.previous))
+    }
+    Button(
+        onClick = {
+            ankiDroidViewModel.nextCard()
+            ankiDroidViewModel.queryNextCard(onDeckFinished)
+        }
+    ) {
+        Text(stringResource(R.string.next))
+        Icon(Icons.Filled.KeyboardDoubleArrowRight, "")
+    }
 }
 
 fun Spanned.toAnnotatedString(): AnnotatedString = buildAnnotatedString {

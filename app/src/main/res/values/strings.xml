@@ -69,4 +69,8 @@
     <string name="description_prosody">A prosódia indica o quão natural é a fala, incluindo ênfase, entonação, velocidade e ritmo.</string>
     <string name="description_fluency">A fluência indica o quanto a fala se aproxima do uso de pausas silenciosas entre as palavras por um falante nativo.</string>
     <string name="description_completeness">Completude da fala, calculada pela proporção de palavras pronunciadas em relação ao texto de referência.</string>
+    <string name="review_mode">Modo de revisão</string>
+    <string name="previous">Anterior</string>
+    <string name="next">Próximo</string>
+    <string name="review_mode_description">Se ativo irá mostrar interface semelhante ao AnkiDroid e irá realizar a revisão dos cards. Caso contrário poderá navegar pelos cards sem revisar.</string>
 </resources>
