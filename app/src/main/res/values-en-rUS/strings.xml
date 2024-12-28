@@ -72,4 +72,8 @@
     <string name="previous">Previous</string>
     <string name="next">Next</string>
     <string name="review_mode_description">If enabled, it will display an interface similar to AnkiDroid and will review the cards. Otherwise, you will be able to browse the cards without reviewing.</string>
+    <string name="correct">Correct</string>
+    <string name="omission">Omission</string>
+    <string name="insertion">Insertion</string>
+    <string name="mispronunciation">Mispronunciation</string>
 </resources>

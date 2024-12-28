@@ -73,4 +73,8 @@
     <string name="previous">Anterior</string>
     <string name="next">Próximo</string>
     <string name="review_mode_description">Se ativo irá mostrar interface semelhante ao AnkiDroid e irá realizar a revisão dos cards. Caso contrário poderá navegar pelos cards sem revisar.</string>
+    <string name="correct">Correto</string>
+    <string name="omission">Omissão</string>
+    <string name="insertion">Inserção</string>
+    <string name="mispronunciation">Erro de pronúncia</string>
 </resources>
