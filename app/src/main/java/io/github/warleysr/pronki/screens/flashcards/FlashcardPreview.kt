@@ -220,7 +220,6 @@ fun FlashcardPreviewContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(16.dp)
-                .verticalScroll(rememberScrollState())
         ) {
             if (ankiDroidViewModel.isDeckSelected()) {
                 val card = ankiDroidViewModel.selectedCard.value!!
@@ -310,7 +309,8 @@ fun FlashcardPreviewContent(
                 Text(stringResource(id = R.string.select_deck), style = MaterialTheme.typography.headlineSmall)
 
                 Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
                     AnkiDroidAPI.getDeckList()?.forEach { deck ->
                         DeckDetails(
