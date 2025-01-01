@@ -8,6 +8,7 @@ data class CardInfo(
     val cardOrd: Int,
     val questionRaw: String,
     val answerRaw: String,
+    val nextTimes: List<String>,
     val startTime: Long = System.currentTimeMillis()
 ) {
     val question: String = questionRaw
