@@ -7,6 +7,9 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -21,6 +24,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
@@ -73,6 +78,7 @@ import io.github.warleysr.pronki.api.ankidroid.DeckInfo
 import io.github.warleysr.pronki.viewmodels.AnkiDroidViewModel
 import io.github.warleysr.pronki.viewmodels.PronunciationViewModel
 import io.github.warleysr.pronki.viewmodels.SettingsViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -192,7 +198,16 @@ fun FlashcardPreviewContent(
     onDeckFinished: () -> Unit
 ) {
 
-    val onNextResult: () -> Unit = { ankiDroidViewModel.queryNextCard(onDeckFinished) }
+    val coroutineScope = rememberCoroutineScope()
+    val onNextResult: () -> Unit = {
+        showAnswer.value = false
+        settingsViewModel.useFront.value = true
+        coroutineScope.launch {
+            // Delay to prevent user seeing next card answer
+            delay(50)
+            ankiDroidViewModel.queryNextCard(onDeckFinished)
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -213,7 +228,13 @@ fun FlashcardPreviewContent(
                 ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .defaultMinSize(minHeight = 128.dp),
+                        .defaultMinSize(minHeight = 200.dp)
+                        .border(
+                            width = 1.dp,
+                            color = if (settingsViewModel.useFront.value) MaterialTheme.colorScheme.onSurface else Color.Unspecified,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                    ,
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     ),
@@ -238,12 +259,21 @@ fun FlashcardPreviewContent(
                 Divider()
                 Spacer(Modifier.height(16.dp))
 
-                AnimatedVisibility(visible = showAnswer.value) {
+                AnimatedVisibility(
+                    visible = showAnswer.value,
+                    enter = fadeIn(),
+                    exit = ExitTransition.None
+                ) {
                     Column {
                         ElevatedCard(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .defaultMinSize(minHeight = 128.dp)
+                                .defaultMinSize(minHeight = 200.dp)
+                                .border(
+                                    width = 1.dp,
+                                    color = if (settingsViewModel.useFront.value) Color.Unspecified else MaterialTheme.colorScheme.onSurface,
+                                    shape = RoundedCornerShape(12.dp)
+                                )
                             ,
                             colors = CardDefaults.cardColors(
                                 containerColor = MaterialTheme.colorScheme.surfaceVariant,

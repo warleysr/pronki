@@ -26,6 +26,7 @@ class SettingsViewModel() : ViewModel() {
         private set
 
     private var reviewMode: MutableState<Boolean> = mutableStateOf(false)
+    var useFront: MutableState<Boolean> = mutableStateOf(true)
 
     init {
         println("SettingsViewModel initialized")
