@@ -334,6 +334,7 @@ fun ReviewButtons(ankiDroidViewModel: AnkiDroidViewModel, onNextResult: () -> Un
         Button(
             shape = RectangleShape,
             modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
             onClick = {
                 ankiDroidViewModel.reviewCard(
                     AnkiDroidAPI.AGAIN,
@@ -353,6 +354,7 @@ fun ReviewButtons(ankiDroidViewModel: AnkiDroidViewModel, onNextResult: () -> Un
         Button(
             shape = RectangleShape,
             modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
             onClick = {
                 ankiDroidViewModel.reviewCard(
                     AnkiDroidAPI.HARD,
@@ -372,6 +374,7 @@ fun ReviewButtons(ankiDroidViewModel: AnkiDroidViewModel, onNextResult: () -> Un
         Button(
             shape = RectangleShape,
             modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
             onClick = {
                 ankiDroidViewModel.reviewCard(
                     AnkiDroidAPI.GOOD,
@@ -391,6 +394,7 @@ fun ReviewButtons(ankiDroidViewModel: AnkiDroidViewModel, onNextResult: () -> Un
         Button(
             shape = RectangleShape,
             modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
             onClick = {
                 ankiDroidViewModel.reviewCard(
                     AnkiDroidAPI.EASY,
