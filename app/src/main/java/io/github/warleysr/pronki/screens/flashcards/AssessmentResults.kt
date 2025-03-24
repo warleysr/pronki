@@ -158,7 +158,10 @@ fun AssessmentResultsContent(
                     builder = builder,
                     balloonContent = {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(errorName(word.error), color = errorColor(word.error))
+                            Text(
+                                stringResource(errorName(word.error)),
+                                color = errorColor(word.error)
+                            )
                             Row(modifier = Modifier.padding(8.dp)) {
                                 word.phonemes.forEachIndexed { _, phoneme ->
                                     Text(
@@ -245,11 +248,13 @@ fun colorByPercentage(percentage: Float): Color {
         Color(red = 6, green = 162, blue = 6, alpha = 255)
 }
 
-fun errorName(error: String): String {
-    return if (error == "None")
-        "Correct"
-    else
-        error
+fun errorName(error: String): Int {
+    return when(error) {
+        "Omission" -> R.string.omission
+        "Insertion" -> R.string.insertion
+        "Mispronunciation" -> R.string.mispronunciation
+        else -> R.string.correct
+    }
 }
 
 fun errorColor(error: String): Color {

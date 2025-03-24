@@ -41,7 +41,7 @@
     <string name="opencv">Configure OpenCV</string>
     <string name="opencv_description">Configure the behaviour of text recognition from image.</string>
     <string name="model">Model</string>
-    <string name="selected_text">selected</string>
+    <string name="selected_text">%1$d selected</string>
     <string name="select_image">Import an image by clicking on the rectangle first.</string>
     <string name="check_vocabulary">Check if your marked vocabulary has been recognized correctly. You can click to mark or unmark others.</string>
     <string name="yes">Yes</string>
@@ -72,4 +72,8 @@
     <string name="previous">Previous</string>
     <string name="next">Next</string>
     <string name="review_mode_description">If enabled, it will display an interface similar to AnkiDroid and will review the cards. Otherwise, you will be able to browse the cards without reviewing.</string>
+    <string name="correct">Correct</string>
+    <string name="omission">Omission</string>
+    <string name="insertion">Insertion</string>
+    <string name="mispronunciation">Mispronunciation</string>
 </resources>

@@ -42,8 +42,10 @@ class AnkiDroidAPI {
 
             val noteIdCol = deckCursor.getColumnIndex(FlashCardsContract.ReviewInfo.NOTE_ID)
             val cardOrdCol = deckCursor.getColumnIndex(FlashCardsContract.ReviewInfo.CARD_ORD)
+            val nextTimesCol = deckCursor.getColumnIndex(FlashCardsContract.ReviewInfo.NEXT_REVIEW_TIMES)
             val noteId = deckCursor.getLong(noteIdCol)
             val cardOrd = deckCursor.getInt(cardOrdCol)
+            val nextTimes = deckCursor.getString(nextTimesCol).replace("[]\"\\[]+".toRegex(), "").split(",")
 
             deckCursor.close()
 
@@ -67,7 +69,7 @@ class AnkiDroidAPI {
 
             cardCursor.close()
 
-            return CardInfo(noteId, cardOrd, question, answer)
+            return CardInfo(noteId, cardOrd, question, answer, nextTimes)
         }
 
         fun getDeckList(): List<DeckInfo>? {

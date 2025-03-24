@@ -1,7 +1,8 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -88,7 +89,7 @@ dependencies {
     implementation (libs.language.id)
     implementation(libs.androidx.room.runtime)
     implementation(libs.generativeai)
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler.v250)
 
     implementation(libs.androidx.datastore)
     testImplementation(libs.junit)

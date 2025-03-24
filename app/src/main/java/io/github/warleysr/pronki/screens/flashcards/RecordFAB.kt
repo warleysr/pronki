@@ -56,7 +56,6 @@ fun RecordFAB(
     var recording by remember { mutableStateOf(false) }
     var cancelled by remember { mutableStateOf(false) }
     var performing by remember { mutableStateOf(false) }
-    var useFront by remember { mutableStateOf(true) }
 
     val viewConfiguration = LocalViewConfiguration.current
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -114,7 +113,7 @@ fun RecordFAB(
                     performing = true
 
                     val referenceText =
-                        if (useFront)
+                        if (settingsViewModel.useFront.value)
                             ankiDroidViewModel.selectedCard.value!!.question.parseAsHtml().toString()
                         else
                             ankiDroidViewModel.selectedCard.value!!.answer.parseAsHtml().toString()
@@ -162,14 +161,20 @@ fun RecordFAB(
             onClick = {
                 ankiDroidViewModel.toggleCardField(
                     onToggle = {
-                        newValue -> useFront = newValue
-                        if (!useFront)
+                        newValue -> settingsViewModel.useFront.value = newValue
+                        if (!settingsViewModel.useFront.value)
                             onBackUse()
                     }
                 )
             }
         ) {
-            Icon(if (useFront) Icons.Filled.FlipToFront else Icons.Filled.FlipToBack, null)
+            Icon(
+                if (settingsViewModel.useFront.value)
+                    Icons.Filled.FlipToFront
+                else
+                    Icons.Filled.FlipToBack,
+                null
+            )
         }
         Spacer(Modifier.width(8.dp))
 

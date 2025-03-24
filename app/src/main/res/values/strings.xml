@@ -34,7 +34,7 @@
     <string name="material_you">Usar Material You</string>
     <string name="material_you_description">Aplica ao app um tema com cores baseadas no seu papel de parede.</string>
     <string name="select_deck">Selecionar baralho</string>
-    <string name="again">De novo</string>
+    <string name="again">Novamente</string>
     <string name="hard">Difícil</string>
     <string name="good">Bom</string>
     <string name="easy">Fácil</string>
@@ -73,4 +73,8 @@
     <string name="previous">Anterior</string>
     <string name="next">Próximo</string>
     <string name="review_mode_description">Se ativo irá mostrar interface semelhante ao AnkiDroid e irá realizar a revisão dos cards. Caso contrário poderá navegar pelos cards sem revisar.</string>
+    <string name="correct">Correto</string>
+    <string name="omission">Omissão</string>
+    <string name="insertion">Inserção</string>
+    <string name="mispronunciation">Erro de pronúncia</string>
 </resources>
