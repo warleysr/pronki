@@ -159,20 +159,20 @@ data class PronunciationResult(val result: PronunciationAssessmentResult) {
     val accuracy: Float = result.accuracyScore.toFloat() / 100f
     val fluency = result.fluencyScore.toFloat() / 100f
     val completeness = result.completenessScore.toFloat() / 100f
-    val prosody = result.prosodyScore.toFloat() / 100f
+    val prosody = result.prosodyScore?.toFloat()?.div(100f) ?: 0f
     val words = result.words.map { word -> WordResult(word) }
 }
 
 data class WordResult(val wordResult: WordLevelTimingResult) {
 
-    val word = wordResult.word
+    val word: String = wordResult.word
     val accuracy = wordResult.accuracyScore.toFloat() / 100f
-    val error = wordResult.errorType
+    val error: String = wordResult.errorType
     val phonemes = wordResult.phonemes.map {phoneme -> PhonemeResult(phoneme)}
 }
 
 data class PhonemeResult(val phonemeResult: PhonemeLevelTimingResult) {
 
-    val phoneme = phonemeResult.phoneme
+    val phoneme: String = phonemeResult.phoneme
     val accuracy = phonemeResult.accuracyScore.toFloat() / 100f
 }
