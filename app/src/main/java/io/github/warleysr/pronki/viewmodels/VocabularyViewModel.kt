@@ -193,7 +193,10 @@ class VocabularyViewModel: ViewModel() {
                     usedTokens.intValue = tokens ?: 0
                     onSuccess()
                 },
-                onFailure = onFailure
+                onFailure = {
+                    creatingCards.value = false
+                    onFailure(it)
+                }
             )
         }
     }
