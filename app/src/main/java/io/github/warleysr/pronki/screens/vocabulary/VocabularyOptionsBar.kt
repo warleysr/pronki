@@ -217,7 +217,7 @@ fun VocabularyOptionsBar(
                                         onFailure(it ?: "Error")
                                     },
                                     onSuccess = {
-                                        vocabList.removeIf { it.selected.value }
+                                        vocabList.removeIf { it.vocabulary.flashcard != null }
                                         selectedVocabs.intValue = 0
                                     },
                                     vocabularies = vocabularies
