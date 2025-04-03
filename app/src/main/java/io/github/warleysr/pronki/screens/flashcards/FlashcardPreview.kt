@@ -48,6 +48,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -312,12 +313,33 @@ fun FlashcardPreviewContent(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
-                    AnkiDroidAPI.getDeckList()?.forEach { deck ->
+                    val deckList = AnkiDroidAPI.getDeckList()
+                    val deckExpandState = HashMap<String, MutableState<Boolean>>()
+                    val subDeckCounter = HashMap<String, Int>()
+                    deckList?.forEach {
+                        if ("::" !in it.deckName)
+                            deckExpandState[it.deckName] = mutableStateOf(false)
+                        else {
+                            val parentDeck = it.deckName.split("::")[0]
+                            subDeckCounter[parentDeck] = subDeckCounter.getOrDefault(parentDeck, 0) + 1
+                        }
+                    }
+                    deckList?.forEach { deck ->
+                        val parentDeck = deck.deckName.split("::")[0]
+                        val deckState = deckExpandState.getOrDefault(parentDeck, mutableStateOf(true))
+                        val isParentDeck = deck.deckName == parentDeck
                         DeckDetails(
                             deck = deck,
+                            isParentDeck = isParentDeck,
+                            subDeckCounter = subDeckCounter.getOrDefault(parentDeck, 0),
+                            deckState = deckState,
                             onClick = {
                                 ankiDroidViewModel.selectDeck(deck)
                                 deckSelected.value = true
+                            },
+                            onToggle = {
+                                if (isParentDeck)
+                                    deckState.value = !deckState.value
                             }
                         )
                     }
@@ -328,29 +350,43 @@ fun FlashcardPreviewContent(
 }
 
 @Composable
-fun DeckDetails(deck: DeckInfo, onClick: () -> Unit) {
-    Spacer(Modifier.height(8.dp))
-    Row(
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier.clickable(onClick = onClick)
-    ) {
-        Text(
-            deck.deckName,
-            textDecoration = TextDecoration.Underline
-        )
-        val zeroColor = Color.LightGray
+fun DeckDetails(
+    deck: DeckInfo,
+    isParentDeck: Boolean,
+    subDeckCounter: Int,
+    deckState: MutableState<Boolean>,
+    onClick: () -> Unit,
+    onToggle: () -> Unit
+) {
+    AnimatedVisibility(isParentDeck || deckState.value) {
+        Spacer(Modifier.height(8.dp))
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable(onClick = onClick)
+        ) {
+            if (isParentDeck && subDeckCounter > 0)
+                TextButton(onClick = onToggle) {
+                    Text(if (!deckState.value) "+" else "-")
+                }
+            Text(
+                deck.deckName,
+                textDecoration = TextDecoration.Underline
+            )
+            val zeroColor = Color.LightGray
 
-        Spacer(Modifier.width(4.dp))
-        val newColor = if (deck.new > 0) Color(147, 196, 252) else zeroColor
-        Text(deck.new.toString(), color = newColor)
+            Spacer(Modifier.width(4.dp))
+            val newColor = if (deck.new > 0) Color(147, 196, 252) else zeroColor
+            Text(deck.new.toString(), color = newColor)
 
-        Spacer(Modifier.width(4.dp))
-        val learnColor = if (deck.learn > 0) Color( 249, 113, 112) else zeroColor
-        Text(deck.learn.toString(), color = learnColor)
+            Spacer(Modifier.width(4.dp))
+            val learnColor = if (deck.learn > 0) Color(249, 113, 112) else zeroColor
+            Text(deck.learn.toString(), color = learnColor)
 
-        Spacer(Modifier.width(4.dp))
-        val dueColor = if (deck.due > 0) Color(35, 197, 95)else zeroColor
-        Text(deck.due.toString(), color = dueColor)
+            Spacer(Modifier.width(4.dp))
+            val dueColor = if (deck.due > 0) Color(35, 197, 95) else zeroColor
+            Text(deck.due.toString(), color = dueColor)
+        }
     }
 
 }
